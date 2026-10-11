@@ -1,14 +1,6 @@
-# Example Library
+# Gearworks
 
 A 5thlayer Library: a mod its Consumers, other Libraries or a pack, read from the local maven repository by version. See `GLOSSARY.md` for the domain glossary.
-
-<!-- template-only: scripts/fill-template.sh removes this section -->
-## This checkout is the template
-
-libworks is the template every 5thlayer Library starts from (FactoryWorks ADR-0090), not a Library itself. `Example Library` and `examplelib` are placeholders; leave them. A change here lands in future Libraries only; existing ones pick it up by hand. Work comes from drift across Libraries (#1), so an empty tracker is normal.
-
-The build applies the libworks convention plugin (ADR 0003), built here from `plugin/` as an included build, beside `runtime/`; `fill-template.sh` removes both, along with `scripts/` and `module-ci.yml`, and pins a Library to the released plugin. `sh ./gradlew build` runs the plugin's tests too, and `python3 -m unittest discover scripts/tests` tests its bundled upload step against a stand-in server on localhost, CI's upstream step and `fill-template.sh`; `ci.yml` runs them beside `module-ci.yml`. The plugin and the runtime release apart from the template: `docs/plugin.md` and `docs/runtime.md`.
-<!-- /template-only -->
 
 ## Workflow
 
@@ -22,7 +14,7 @@ Conventional commits: `<type>(<optional scope>): <summary>`, with the summary in
 
 ## Testing
 
-`sh ./gradlew build` runs the JUnit tests, on a plain JVM with no Minecraft. `sh ./gradlew runGameTestServer` runs the game tests headless, a real player on a real server, and names each one it ran; it fails if it ran none. A new game test class is registered by a line in `ExampleLibGameTests.registerTests`, and its tests stand on the `gametest/platform` structure that the plugin's `buildGametestStructures` task writes. CI (`.github/workflows/ci.yml`) runs both through libworks' `module-ci.yml` on every push and never publishes.
+`sh ./gradlew build` runs the JUnit tests, on a plain JVM with no Minecraft. `sh ./gradlew runGameTestServer` runs the game tests headless, a real player on a real server, and names each one it ran; it fails if it ran none. A new game test class is registered by a line in `GearworksGameTests.registerTests`, and its tests stand on the `gametest/platform` structure that the plugin's `buildGametestStructures` task writes. CI (`.github/workflows/ci.yml`) runs both through libworks' `module-ci.yml` on every push and never publishes.
 
 The `skillworks:quicklaunch` skill opens the dev client into the most recent save in `run/saves`, one client per checkout.
 

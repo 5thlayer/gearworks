@@ -1,30 +1,31 @@
-# libworks
+# Gearworks
 
-The GitHub template every 5thlayer Library starts from (FactoryWorks ADR-0090). A Library is a 5thlayer mod its Consumers, other Libraries or a pack, read from the local maven repository by version.
+<!-- The maintainer's section for players goes here: what Gearworks is, why it exists and how it feels to play. -->
 
-libworks is becoming a dependency (ADR-0128, #8). It carries `runtime/`, a small mod (id `libworks`) Modules nest: the shared "Works" creative tab and transfer helpers (`docs/runtime.md`); and `plugin/`, the Gradle convention plugin every Module applies, with the scripts and the CI it calls (`docs/plugin.md`, ADR 0003). The template below is a NeoForge mod named `examplelib` whose build applies that plugin, passes its own tests, and does nothing else.
+**Not released yet.** Gearworks is being designed and built; the design is
+[5thlayer/factoryworks#666](https://github.com/5thlayer/factoryworks/issues/666).
 
-## What a Library gets
+**NeoForge, Minecraft 26.1.2 only.**
 
-- A build that applies the libworks plugin at a released version: ModDevGradle on Java 25 and NeoForge 26.1.2, published to `~/.m2` only.
-- A GameTest harness: `runGameTestServer` runs the Library's game tests headless and fails if it ran none. `buildGametestStructures` writes the stone platform they stand on.
-- JUnit tests on a plain JVM, with no Minecraft.
-- `sh ./gradlew release -PreleaseVersion=<version>`, which releases a version to `~/.m2` and tags it; a published version never changes. The `skillworks:quicklaunch` skill opens the dev client into the most recent save in `run/saves`, one client per checkout.
-- CI on every push, through libworks' `module-ci.yml` at the plugin's tag: the build, the JUnit tests, the game tests, and a REUSE lint. It never publishes.
-- MIT under REUSE, `CLAUDE.md`, a `GLOSSARY.md` stub, `docs/agents/`, conventional commits.
-- The engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills), a submodule at `vendor/mattpocock-skills` pinned to a release and linked into `.claude/skills/`.
-- ADR 0001, the versioning rule every Library inherits: below 1.0 an addition bumps the patch.
+## Planned
 
-## Starting a Library
+- **One suit, three tiers.** Gear is worn in the chest slot, giving the armor of an iron, diamond or netherite chestplate, and each tier has a larger **Gear Grid**.
+- **A grid to lay out.** Gear Upgrades cover rectangles of the grid: battery, solar, speed, jump, shield and night vision, and Flight at the top.
+- **Levels with no cap.** At the **Gear Bench** an upgrade's Level rises, each costing more than the last; speed, jump and shield approach a Ceiling, and Flight's FE draw falls toward a Floor.
+- **Powered by FE.** The suit stores power only in its battery upgrades, and any mod's charger fills it.
 
-1. Create the repo from this template: `gh repo create 5thlayer/<mod_id> --template 5thlayer/libworks --public --clone`, then `git submodule update --init` so the links in `.claude/skills/` resolve.
-2. Fill the placeholders: `scripts/fill-template.sh <mod_id> <ClassName> "<Display Name>" "<description>"`. It renames the package and every `examplelib`, `ExampleLib` and `Example Library`, removes `plugin/`, `runtime/` and the tooling's tests, pins the plugin and `module-ci.yml` to the released plugin version, and deletes itself. The plugin must be in `~/.m2` (`docs/plugin.md`).
-3. Replace this README with the Library's own, write `GLOSSARY.md`'s first terms, and run `sh ./gradlew build runGameTestServer`.
+## For pack authors
 
-## Adopting it in an existing Library
+Every amount, rate, cost and curve will be datapack data, and top Levels cost materials through `c:` tags with vanilla defaults (netherite, nether stars).
 
-A Library that predates the template is not regenerated. Diff it against the template and take the template's version of each shared piece: `settings.gradle` and `build.gradle` applying the plugin in place of its own build logic and `scripts/`, the game test harness (`CodeGameTest` and the `*GameTests` registrar), `REUSE.toml`, `docs/agents/`, `.github/workflows/`, and the skills submodule with its links. Its own versioning ADR becomes a pointer to libworks' ADR 0001.
+## For mod authors
 
-## Changing the template
+A mod adds a Gear Upgrade with an item and an entry in Gearworks' data map naming its size and Stat. Gearworks owns every behaviour; no mod ships code for Gear.
 
-A change here reaches no Library by itself: each adopts it by diff. Build logic, scripts and CI live in the plugin instead, so a Library takes a change there by moving its plugin version.
+## Developing
+
+A 5thlayer Library, built on the libworks convention plugin. See `GLOSSARY.md` for the domain glossary. `sh ./gradlew build` runs the JUnit tests on a plain JVM, and `sh ./gradlew runGameTestServer` the game tests headless. Releases go through `sh ./gradlew release` (`docs/agents/releases.md`).
+
+## License
+
+MIT. Source is on [GitHub](https://github.com/5thlayer/gearworks).

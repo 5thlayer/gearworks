@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 5thlayer
 // SPDX-License-Identifier: MIT
 
-package io.github._5thlayer.examplelib.gametest;
+package io.github._5thlayer.gearworks.gametest;
 
-import io.github._5thlayer.examplelib.ExampleLib;
+import io.github._5thlayer.gearworks.Gearworks;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.fml.ModList;
 
@@ -17,14 +17,14 @@ final class LoadTests {
     private LoadTests() {
     }
 
-    static void register(ExampleLibGameTests.Registrar tests) {
+    static void register(GearworksGameTests.Registrar tests) {
         tests.test("loads_on_a_server", 1, LoadTests::loads);
     }
 
     private static void loads(GameTestHelper helper) {
-        var container = ModList.get().getModContainerById(ExampleLib.MOD_ID);
+        var container = ModList.get().getModContainerById(Gearworks.MOD_ID);
         if (container.isEmpty()) {
-            helper.fail("the server has not loaded " + ExampleLib.MOD_ID);
+            helper.fail("the server has not loaded " + Gearworks.MOD_ID);
             return;
         }
         // processResources writes gradle.properties into neoforge.mods.toml; unexpanded, the Pack's
