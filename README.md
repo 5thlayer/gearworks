@@ -44,4 +44,4 @@ A 5thlayer Library, released on its own to Modrinth and CurseForge. See `GLOSSAR
 ## License
 
 MIT. Source is on [GitHub](https://github.com/5thlayer/gearworks).
-Releases will be on [Modrinth](https://modrinth.com/mod/NyNdPneT) and CurseForge.
+Releases will be on [Modrinth](https://modrinth.com/mod/NyNdPneT) and [CurseForge](https://www.curseforge.com/projects/1739524).
