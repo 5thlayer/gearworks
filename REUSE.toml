@@ -1,0 +1,31 @@
+version = 1
+
+# Java files carry their own SPDX headers. This file marks everything that
+# can't hold one.
+
+[[annotations]]
+path = [
+    "**/*.gradle",
+    "**/gradle.properties",
+    ".gitignore",
+    ".gitmodules",
+    "**/*.mods.toml",
+    "scripts/*.py",
+    "scripts/*.sh",
+    "plugin/src/main/resources/**/scripts/*",
+    "**/*.md",
+    "**/src/main/resources/**/*.json",
+    "**/src/gametest/resources/**/*.nbt",
+    "**/src/main/resources/**/*.nbt",
+    "LICENSE",
+    ".github/**",
+]
+SPDX-FileCopyrightText = "2026 5thlayer"
+SPDX-License-Identifier = "MIT"
+
+# The Gradle wrapper is Gradle's.
+[[annotations]]
+path = ["gradlew", "gradlew.bat", "gradle/wrapper/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "Gradle"
+SPDX-License-Identifier = "Apache-2.0"

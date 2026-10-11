@@ -1,0 +1,17 @@
+# Changelog
+
+Written for Consumers: what a mod building against Example Library can use, or will see change. A published version never changes: a fix is the next patch (`docs/agents/releases.md`).
+
+## Unreleased
+
+- `libworks-plugin` 0.1.2: `buildGametestStructures` refuses, naming the file, to overwrite a `platform.nbt` the Module committed that differs from the default one.
+- `libworks-plugin` 0.1.2: the plugin no longer leaves an unfiltered `mavenLocal()` repository on the Module.
+- `libworks-plugin` 0.1.2: `neoforge.mods.toml` can name the runtime's range as `${libworks_runtime_range}`, such as `[0.1.0,0.2)`, when `runtime` is set.
+- `libworks-plugin` 0.1.2: `libworksUpstreams` lists the runtime as `5thlayer/libworks runtime-v<version> :runtime` when `runtime` is set, and `module-ci.yml` publishes `libworks-runtime` from that tag, so a Module nesting it builds in CI.
+- `libworks-plugin` 0.1.1: `neoforge.mods.toml` can name an upstream's range as `${<name>_range}`, such as `versionRange = "${groundworks_range}"`.
+- `libworks-plugin` 0.1.1: `upstream('<name>') { optional = true }` puts the Library on a `localRuntime` configuration the dev runs load, leaving the published jar, pom and module metadata free of it.
+- `libworks-runtime` 0.1.0, a runtime mod (id `libworks`) a Module nests, FML loading the newest copy once. It registers the shared creative tab `libworks:works`, titled "Works", whose key is `WorksTab.KEY`, and holds `GuardedResourceHandler`, a `DelegatingResourceHandler` whose slot-less insert and extract honour a subclass's per-slot refusals (`docs/runtime.md`, #8).
+- `libworks-plugin` 0.1.0, the Module convention plugin `io.github.5thlayer.libworks.module` (ADR 0003, #11): the shared build (Java 25, ModDevGradle, game test report check, jar licensing, `neoforge.mods.toml` expansion, an immutable `publishToMavenLocal` refused under `-PsiblingBuilds`) and a `libworks { }` block. `upstream('<name>') { range; tagPrefix; repo }` requires a Library strictly in its range, preferring the lower bound, and fails when a `-PsiblingBuilds` checkout (`-P<name>Dir`, `~/minecraft_mods/<name>` by default) falls outside it; `libworksUpstreams` prints `<repo> <tag> <version>` per upstream for CI. `runtime = '<version>'` nests `libworks-runtime` from `<version>` up to the next minor (`0.1.3` gives `[0.1.3,0.2)`), as ADR 0001 has a breaking change bump the minor below 1.0. `tagPrefix` defaults to `<archives_name>-v`.
+- The plugin bundles the release, upload and game test structure scripts (#12): `sh ./gradlew release -PreleaseVersion=<v> [-Pupload]` tags `<tagPrefix><v>` and is refused under `-PsiblingBuilds`; `upload -PreleaseVersion=<v> [-PdryRun] [-Psite=<site>]` checks the jar for the Module's LICENSE, NOTICE and every file under LICENSES/; `buildGametestStructures` writes the default platform. A Module keeps no `scripts/` of its own.
+- The reusable workflow `5thlayer/libworks/.github/workflows/module-ci.yml@plugin-v<version>` replaces a Module's copied `ci.yml` (#13): it builds the plugin from its tag and each `libworksUpstreams` Library from its tag into the runner's `~/.m2`, then runs `build`, `runGameTestServer` (uploading the report) and REUSE lint.
+- The template is a build that applies the plugin (#14): `fill-template.sh` gives a Library `id 'io.github.5thlayer.libworks.module' version '<plugin_version>'` resolved from `~/.m2`, a `ci.yml` calling `module-ci.yml` at `plugin-v<plugin_version>`, and no `plugin/`, `runtime/` or `scripts/`.
