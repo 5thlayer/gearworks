@@ -11,19 +11,18 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 /**
- * The Gear Grid of one suit, opened anywhere: from the chest slot by a key, or from the hand. A click
+ * The Gear Grid of the worn suit, opened anywhere by a key. A click
  * on a cell, sent as a menu button, places the carried upgrade with its top-left there, or picks up
  * the upgrade covering it, so moving one is picking it up and placing it again. The server decides
  * every placement from the grid, never from the client.
  *
- * <p>The suit's own slot is in the menu, locked, so its layout syncs to the client as it changes and
- * the suit cannot leave while its grid is open.
+ * <p>The chest slot is in the menu, locked, so the suit's layout syncs to the client as it changes and
+ * the suit cannot come off while its grid is open.
  */
 public final class GearGridMenu extends AbstractContainerMenu {
 
@@ -43,30 +42,25 @@ public final class GearGridMenu extends AbstractContainerMenu {
             .orElseThrow();
 
     private final Inventory inventory;
-    private final int suitSlot;
     private final int gridWidth;
     private final int gridHeight;
     private final int inventoryLeft;
     private final int inventoryTop;
 
-    /** On the client, from the slot the server opened it for. */
     GearGridMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf extraData) {
-        this(containerId, inventory, extraData.readVarInt());
+        this(containerId, inventory);
     }
 
-    public GearGridMenu(int containerId, Inventory inventory, int suitSlot) {
+    public GearGridMenu(int containerId, Inventory inventory) {
         super(GearContent.GRID_MENU.get(), containerId);
         this.inventory = inventory;
-        this.suitSlot = suitSlot;
-        var size = GridSize.of(inventory.getItem(suitSlot).typeHolder());
+        var size = GridSize.of(suit().typeHolder());
         gridWidth = size.width();
         gridHeight = size.height();
         int width = Math.max(GRID_LEFT + gridWidth * CELL + 6, INVENTORY_WIDTH + 16);
         inventoryLeft = (width - INVENTORY_WIDTH) / 2;
         inventoryTop = GRID_TOP + Math.max(gridHeight, 1) * CELL + 14;
-        if (suitSlot >= Inventory.INVENTORY_SIZE) {
-            addSlot(new Locked(inventory, suitSlot, SUIT_LEFT, GRID_TOP));
-        }
+        addSlot(new Locked(inventory, CHEST, SUIT_LEFT, GRID_TOP));
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
                 addInventorySlot(column + row * 9 + 9, inventoryLeft + column * CELL, inventoryTop + row * CELL);
@@ -77,19 +71,18 @@ public final class GearGridMenu extends AbstractContainerMenu {
         }
     }
 
-    /** Opens the Gear Grid of the suit in that slot of the player's inventory, if it holds one. */
-    public static void open(ServerPlayer player, int suitSlot) {
-        var suit = player.getInventory().getItem(suitSlot);
+    /** Opens the Gear Grid of the suit the player wears, if they wear one. */
+    public static void open(ServerPlayer player) {
+        var suit = player.getInventory().getItem(CHEST);
         if (!Gear.is(suit)) {
             return;
         }
         Gear.takeOverflow(player, suit);
-        player.openMenu(new SimpleMenuProvider((id, inventory, who) -> new GearGridMenu(id, inventory, suitSlot), suit.getHoverName()),
-                buffer -> buffer.writeVarInt(suitSlot));
+        player.openMenu(new SimpleMenuProvider((id, inventory, who) -> new GearGridMenu(id, inventory), suit.getHoverName()));
     }
 
     private void addInventorySlot(int index, int x, int y) {
-        addSlot(index == suitSlot ? new Locked(inventory, index, x, y) : new Slot(inventory, index, x, y));
+        addSlot(new Slot(inventory, index, x, y));
     }
 
     /** The menu button a click on that cell of the grid sends. */
@@ -98,7 +91,7 @@ public final class GearGridMenu extends AbstractContainerMenu {
     }
 
     public ItemStack suit() {
-        return inventory.getItem(suitSlot);
+        return inventory.getItem(CHEST);
     }
 
     public int gridWidth() {
@@ -115,10 +108,6 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     public int inventoryTop() {
         return inventoryTop;
-    }
-
-    public boolean showsSuitSlot() {
-        return suitSlot >= Inventory.INVENTORY_SIZE;
     }
 
     @Override
@@ -170,15 +159,6 @@ public final class GearGridMenu extends AbstractContainerMenu {
             slot.setChanged();
         }
         return ItemStack.EMPTY;
-    }
-
-    /** A hotbar or offhand key would swap the suit out of its locked slot, which only checks the slot hovered. */
-    @Override
-    public void clicked(int slotIndex, int buttonNum, ContainerInput input, Player player) {
-        if (input == ContainerInput.SWAP && buttonNum == suitSlot) {
-            return;
-        }
-        super.clicked(slotIndex, buttonNum, input, player);
     }
 
     /** Closing the grid settles the layout, keeping no more FE than its batteries hold. */

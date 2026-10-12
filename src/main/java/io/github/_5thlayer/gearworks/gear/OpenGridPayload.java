@@ -27,7 +27,7 @@ public record OpenGridPayload() implements CustomPacketPayload {
 
     static void handle(OpenGridPayload payload, IPayloadContext context) {
         if (context.player() instanceof ServerPlayer player) {
-            GearGridMenu.open(player, GearGridMenu.CHEST);
+            GearGridMenu.open(player);
         }
     }
 }

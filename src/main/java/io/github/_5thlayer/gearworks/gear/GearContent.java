@@ -77,7 +77,7 @@ public final class GearContent {
 
     /**
      * The chestplate of its material, with neither durability nor a way to break: a suit that broke
-     * would lose its grid. It is not swapped on use, which opens the grid instead.
+     * would lose its grid.
      */
     private static Item.Properties suit(Item.Properties properties, ArmorMaterial material) {
         return properties.stacksTo(1)
@@ -86,7 +86,6 @@ public final class GearContent {
                 .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST)
                         .setEquipSound(material.equipSound())
                         .setAsset(material.assetId())
-                        .setSwappable(false)
                         .setDamageOnHurt(false)
                         .build());
     }

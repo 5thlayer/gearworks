@@ -15,6 +15,7 @@ import io.github._5thlayer.gearworks.gear.GearTicker;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -35,6 +36,7 @@ final class GearTests {
     static void register(GearworksGameTests.Registrar tests) {
         tests.test("the_suit_gives_an_iron_chestplates_armor", 20, GearTests::ironArmor);
         tests.test("the_suit_is_worn_in_the_chest_slot_only", 1, GearTests::chestOnly);
+        tests.test("using_the_suit_in_hand_puts_it_on", 1, GearTests::equipsOnUse);
         tests.test("a_charger_fills_the_suit_through_the_energy_capability", 1, GearTests::charges);
         tests.test("a_suit_without_a_battery_takes_no_fe", 1, GearTests::noBattery);
         tests.test("speed_applies_while_the_suit_has_fe", 20, GearTests::speedWithEnergy);
@@ -61,6 +63,17 @@ final class GearTests {
         var equippable = new ItemStack(GearContent.IRON_GEAR.get()).get(DataComponents.EQUIPPABLE);
         helper.assertTrue(equippable != null, Component.literal("the suit is not wearable"));
         helper.assertValueEqual(equippable.slot(), EquipmentSlot.CHEST, Component.literal("the suit's slot"));
+        helper.succeed();
+    }
+
+    private static void equipsOnUse(GameTestHelper helper) {
+        var player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GearContent.IRON_GEAR.get()));
+
+        player.getMainHandItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        helper.assertTrue(Gear.is(player.getItemBySlot(EquipmentSlot.CHEST)), Component.literal("the suit is not worn"));
+        helper.assertTrue(player.getMainHandItem().isEmpty(), Component.literal("the suit is still in hand"));
         helper.succeed();
     }
 
