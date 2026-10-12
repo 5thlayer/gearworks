@@ -31,12 +31,17 @@ public final class Gear {
     }
 
     /**
-     * Changes the suit's layout, keeping no more FE than its batteries can now hold. The upgrades a
-     * shrunk grid no longer fits are dropped from it, so the caller hands them back first
-     * ({@link #takeOverflow}).
+     * Changes the suit's layout. Its FE stays as it was, so moving the only battery, which is picking it
+     * up and placing it again, loses none: closing the grid keeps what the batteries then hold
+     * ({@link #keepWhatBatteriesHold}). The upgrades a shrunk grid no longer fits are dropped from it,
+     * so the caller hands them back first ({@link #takeOverflow}).
      */
     public static void setGrid(ItemStack suit, GearGrid<ItemStackTemplate> grid) {
         suit.set(GearContent.GRID.get(), new GridContents(grid.placements()));
+    }
+
+    /** Keeps no more FE than the suit's batteries can hold, once its layout is settled. */
+    public static void keepWhatBatteriesHold(ItemStack suit) {
         int capacity = capacity(suit);
         if (energy(suit) > capacity) {
             setEnergy(suit, capacity);

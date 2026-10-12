@@ -18,9 +18,11 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 
 /**
  * The Gear Grid's menu places, moves and removes upgrades, refusing overlaps and the edge, and the
@@ -36,7 +38,9 @@ final class GridTests {
         tests.test("a_placement_over_another_upgrade_is_refused", 1, GridTests::refusesOverlap);
         tests.test("a_placement_over_the_edge_is_refused", 1, GridTests::refusesEdge);
         tests.test("a_click_picks_an_upgrade_up_and_another_places_it_elsewhere", 1, GridTests::moves);
-        tests.test("a_suit_keeps_no_more_fe_than_its_batteries_hold", 1, GridTests::removingABatteryDropsItsFe);
+        tests.test("moving_the_only_battery_keeps_its_fe", 1, GridTests::movingABatteryKeepsItsFe);
+        tests.test("a_closed_grid_keeps_no_more_fe_than_its_batteries_hold", 1, GridTests::closingDropsFeNoBatteryHolds);
+        tests.test("the_suit_cannot_be_swapped_out_of_its_open_grid", 1, GridTests::suitStaysPut);
         tests.test("a_datapacks_upgrade_fits_the_grid_with_no_code", 1, GridTests::datapackUpgrade);
         tests.test("the_layout_survives_a_save_and_reload", 1, GridTests::savesAndLoads);
     }
@@ -95,16 +99,43 @@ final class GridTests {
         helper.succeed();
     }
 
-    private static void removingABatteryDropsItsFe(GameTestHelper helper) {
-        var suit = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.BATTERY_UPGRADE.get());
-        int one = (int) upgrade(GearContent.BATTERY_UPGRADE.get()).amount();
-        charge(suit, 2 * one);
+    private static void movingABatteryKeepsItsFe(GameTestHelper helper) {
+        var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
+        charge(suit, 1000);
         var player = wearer(helper, suit);
         var menu = grid(player);
 
-        menu.clickMenuButton(player, cell(0, 0));
+        menu.clickMenuButton(player, GearGridMenu.cellButton(0, 0));
+        menu.clickMenuButton(player, GearGridMenu.cellButton(2, 0));
 
-        helper.assertValueEqual(Gear.energy(menu.suit()), one, Component.literal("FE held by one battery"));
+        helper.assertValueEqual(Gear.energy(menu.suit()), 1000, Component.literal("FE held after the move"));
+        helper.succeed();
+    }
+
+    private static void closingDropsFeNoBatteryHolds(GameTestHelper helper) {
+        var suit = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.BATTERY_UPGRADE.get());
+        int perBattery = (int) upgrade(GearContent.BATTERY_UPGRADE.get()).amount();
+        charge(suit, 2 * perBattery);
+        var player = wearer(helper, suit);
+        var menu = grid(player);
+
+        menu.clickMenuButton(player, GearGridMenu.cellButton(0, 0));
+        menu.removed(player);
+
+        helper.assertValueEqual(Gear.energy(suit), perBattery, Component.literal("FE held by one battery"));
+        helper.succeed();
+    }
+
+    private static void suitStaysPut(GameTestHelper helper) {
+        // Opened from the hand: the suit is in hotbar slot 0, and the player hovers another slot and presses 1.
+        var player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.getInventory().setItem(0, suitWith());
+        var menu = new GearGridMenu(1, player.getInventory(), 0);
+        int other = menu.slots.size() - 1;
+
+        menu.clicked(other, 0, ContainerInput.SWAP, player);
+
+        helper.assertTrue(Gear.is(player.getInventory().getItem(0)), Component.literal("the suit left its slot"));
         helper.succeed();
     }
 
@@ -138,6 +169,6 @@ final class GridTests {
     }
 
     private static int cell(int x, int y) {
-        return y * GearGridMenu.CELL_STRIDE + x;
+        return GearGridMenu.cellButton(x, y);
     }
 }

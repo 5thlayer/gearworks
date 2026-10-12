@@ -16,9 +16,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * The worn suit's Stats, each server tick: solar charges it in daylight under open sky, and speed
  * raises walking speed while it has the FE to draw, drawing it while the player walks.
  */
-final class GearTicker {
+public final class GearTicker {
 
-    static final Identifier SPEED = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_speed");
+    /** The walking speed modifier the suit's speed upgrades give. */
+    public static final Identifier SPEED = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_speed");
 
     // A player standing still still reports a little movement from the client's rounding.
     private static final double WALKING = 1.0E-5;
@@ -46,7 +47,8 @@ final class GearTicker {
         int energy = Gear.energy(suit);
         int before = energy;
         if (totals.solar() > 0 && inSunlight(player)) {
-            energy = (int) Math.min(Gear.capacity(suit), energy + totals.solar());
+            // Never down: an open grid may hold FE over what its batteries now take.
+            energy = Math.max(energy, (int) Math.min(Gear.capacity(suit), energy + totals.solar()));
         }
         boolean fast = totals.speed() > 0 && energy > 0 && energy >= totals.speedDraw();
         if (speed != null) {

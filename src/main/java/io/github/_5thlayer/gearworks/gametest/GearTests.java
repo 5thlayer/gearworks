@@ -9,13 +9,12 @@ import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
 import static io.github._5thlayer.gearworks.gametest.GearFixtures.upgrade;
 import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
 
-import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearContent;
+import io.github._5thlayer.gearworks.gear.GearTicker;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -29,8 +28,6 @@ import net.minecraft.world.phys.Vec3;
  * while the suit has the FE to draw.
  */
 final class GearTests {
-
-    private static final Identifier SPEED = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_speed");
 
     private GearTests() {
     }
@@ -137,6 +134,6 @@ final class GearTests {
     }
 
     private static boolean hasSpeed(Player player) {
-        return player.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(SPEED);
+        return player.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(GearTicker.SPEED);
     }
 }

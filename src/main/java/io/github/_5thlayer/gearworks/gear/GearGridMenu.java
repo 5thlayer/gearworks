@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -34,6 +35,13 @@ public final class GearGridMenu extends AbstractContainerMenu {
     public static final int SUIT_LEFT = 8;
     private static final int INVENTORY_WIDTH = 9 * CELL - 2;
 
+    /** The chest slot's index in the player's inventory, where a worn suit is. */
+    public static final int CHEST = Inventory.EQUIPMENT_SLOT_MAPPING.int2ObjectEntrySet().stream()
+            .filter(entry -> entry.getValue() == EquipmentSlot.CHEST)
+            .mapToInt(Int2ObjectMap.Entry::getIntKey)
+            .findFirst()
+            .orElseThrow();
+
     private final Inventory inventory;
     private final int suitSlot;
     private final int gridWidth;
@@ -45,13 +53,6 @@ public final class GearGridMenu extends AbstractContainerMenu {
     GearGridMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf extraData) {
         this(containerId, inventory, extraData.readVarInt());
     }
-
-    /** The chest slot's index in the player's inventory, where a worn suit is. */
-    public static final int CHEST = Inventory.EQUIPMENT_SLOT_MAPPING.int2ObjectEntrySet().stream()
-            .filter(entry -> entry.getValue() == EquipmentSlot.CHEST)
-            .mapToInt(Int2ObjectMap.Entry::getIntKey)
-            .findFirst()
-            .orElseThrow();
 
     public GearGridMenu(int containerId, Inventory inventory, int suitSlot) {
         super(GearContent.GRID_MENU.get(), containerId);
@@ -89,6 +90,11 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     private void addInventorySlot(int index, int x, int y) {
         addSlot(index == suitSlot ? new Locked(inventory, index, x, y) : new Slot(inventory, index, x, y));
+    }
+
+    /** The menu button a click on that cell of the grid sends. */
+    public static int cellButton(int x, int y) {
+        return y * CELL_STRIDE + x;
     }
 
     public ItemStack suit() {
@@ -164,6 +170,25 @@ public final class GearGridMenu extends AbstractContainerMenu {
             slot.setChanged();
         }
         return ItemStack.EMPTY;
+    }
+
+    /** A hotbar or offhand key would swap the suit out of its locked slot, which only checks the slot hovered. */
+    @Override
+    public void clicked(int slotIndex, int buttonNum, ContainerInput input, Player player) {
+        if (input == ContainerInput.SWAP && buttonNum == suitSlot) {
+            return;
+        }
+        super.clicked(slotIndex, buttonNum, input, player);
+    }
+
+    /** Closing the grid settles the layout, keeping no more FE than its batteries hold. */
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        var suit = suit();
+        if (!player.level().isClientSide() && Gear.is(suit)) {
+            Gear.keepWhatBatteriesHold(suit);
+        }
     }
 
     @Override

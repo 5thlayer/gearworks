@@ -128,7 +128,7 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         var cell = cellAt(event.x(), event.y());
         if (cell.isPresent() && event.button() == 0) {
             if (minecraft.gameMode != null) {
-                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, cell.get()[1] * GearGridMenu.CELL_STRIDE + cell.get()[0]);
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, GearGridMenu.cellButton(cell.get()[0], cell.get()[1]));
             }
             return true;
         }

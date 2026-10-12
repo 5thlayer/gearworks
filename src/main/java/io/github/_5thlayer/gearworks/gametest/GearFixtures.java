@@ -30,7 +30,7 @@ final class GearFixtures {
         var suit = new ItemStack(GearContent.IRON_GEAR.get());
         var grid = Gear.grid(suit);
         for (var upgrade : upgrades) {
-            var entry = GearUpgrade.of(upgrade.asItem().builtInRegistryHolder());
+            var entry = upgrade(upgrade);
             grid = grid.placeFirstFit(entry.width(), entry.height(), new ItemStackTemplate(upgrade.asItem())).orElseThrow();
         }
         Gear.setGrid(suit, grid);
