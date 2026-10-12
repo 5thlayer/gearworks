@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "gearworks:item/battery_upgrade"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "#c:ingots/copper",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "CRC",
+    "CRC",
+    "CRC"
+  ],
+  "result": {
+    "id": "gearworks:battery_upgrade"
+  }
+}

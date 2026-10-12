@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "#c:ingots/copper",
+    "P": "minecraft:iron_chestplate",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "CRC",
+    "CPC",
+    "CRC"
+  ],
+  "result": {
+    "id": "gearworks:iron_gear"
+  }
+}

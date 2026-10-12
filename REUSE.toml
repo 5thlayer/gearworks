@@ -15,6 +15,7 @@ path = [
     "plugin/src/main/resources/**/scripts/*",
     "**/*.md",
     "**/src/main/resources/**/*.json",
+    "**/src/main/resources/**/*.png",
     "**/src/gametest/resources/**/*.json",
     "**/src/gametest/resources/**/*.mcmeta",
     "**/src/gametest/resources/**/*.nbt",

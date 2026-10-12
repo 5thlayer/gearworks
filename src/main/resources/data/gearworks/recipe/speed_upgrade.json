@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "#c:ingots/iron",
+    "P": "minecraft:piston",
+    "R": "#c:dusts/redstone",
+    "S": "minecraft:sugar"
+  },
+  "pattern": [
+    "ISI",
+    "PRP",
+    "I I"
+  ],
+  "result": {
+    "id": "gearworks:speed_upgrade"
+  }
+}

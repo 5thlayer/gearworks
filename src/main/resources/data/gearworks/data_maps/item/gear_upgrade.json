@@ -1,0 +1,23 @@
+{
+  "values": {
+    "gearworks:battery_upgrade": {
+      "width": 1,
+      "height": 2,
+      "stat": "battery",
+      "amount": 100000
+    },
+    "gearworks:solar_upgrade": {
+      "width": 1,
+      "height": 1,
+      "stat": "solar",
+      "amount": 5
+    },
+    "gearworks:speed_upgrade": {
+      "width": 2,
+      "height": 2,
+      "stat": "speed",
+      "amount": 0.3,
+      "draw": 20
+    }
+  }
+}

@@ -33,8 +33,12 @@ public final class GearworksGameTests {
     private static final DeferredRegister<MapCodec<? extends GameTestInstance>> TEST_TYPES =
             DeferredRegister.create(Registries.TEST_INSTANCE_TYPE, Gearworks.MOD_ID);
 
+    private static final DeferredRegister<MapCodec<? extends TestEnvironmentDefinition<?>>> ENVIRONMENT_TYPES =
+            DeferredRegister.create(Registries.TEST_ENVIRONMENT_DEFINITION_TYPE, Gearworks.MOD_ID);
+
     static {
         TEST_TYPES.register("code", () -> CodeGameTest.CODEC);
+        ENVIRONMENT_TYPES.register("day_time", () -> DayTime.CODEC);
     }
 
     private GearworksGameTests() {
@@ -42,6 +46,7 @@ public final class GearworksGameTests {
 
     public static void register(IEventBus modBus) {
         TEST_TYPES.register(modBus);
+        ENVIRONMENT_TYPES.register(modBus);
         // Posted only when game tests are enabled, so a production server never registers the tests.
         modBus.addListener(GearworksGameTests::registerTests);
     }
@@ -51,6 +56,9 @@ public final class GearworksGameTests {
         var environment = event.registerEnvironment(id("default"), new TestEnvironmentDefinition.AllOf(List.of()));
         var tests = new Registrar(event, environment);
         LoadTests.register(tests);
+        GearTests.register(tests);
+        GridTests.register(tests);
+        SolarTests.register(tests);
     }
 
     private static Identifier id(String path) {
@@ -61,9 +69,18 @@ public final class GearworksGameTests {
     record Registrar(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment) {
 
         void test(String name, int maxTicks, Consumer<GameTestHelper> body) {
+            test(name, maxTicks, environment, body);
+        }
+
+        /** A test in an environment of its own; tests sharing one run in a batch, apart from the rest. */
+        void test(String name, int maxTicks, Holder<TestEnvironmentDefinition<?>> environment, Consumer<GameTestHelper> body) {
             var id = id(name);
             CodeGameTest.define(id, body);
             event.registerTest(id, new CodeGameTest(id, new TestData<>(environment, PLATFORM, maxTicks, 0, true, Rotation.NONE)));
+        }
+
+        Holder<TestEnvironmentDefinition<?>> environment(String name, TestEnvironmentDefinition<?>... definitions) {
+            return event.registerEnvironment(id(name), definitions);
         }
     }
 }

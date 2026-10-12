@@ -1,0 +1,10 @@
+{
+  "values": {
+    "minecraft:redstone_block": {
+      "width": 1,
+      "height": 1,
+      "stat": "battery",
+      "amount": 1234
+    }
+  }
+}
