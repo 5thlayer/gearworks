@@ -42,7 +42,7 @@ final class GearTooltips {
 
     private static void suit(ItemStack suit, List<Component> lines) {
         var totals = Gear.totals(suit);
-        lines.add(gray(Component.translatable("tooltip.gearworks.energy", Gear.energy(suit), Gear.capacity(suit))));
+        lines.add(gray(FeText.reading(suit)));
         if (totals.solar() > 0) {
             lines.add(gray(Component.translatable("tooltip.gearworks.solar", format(totals.solar()))));
         }
