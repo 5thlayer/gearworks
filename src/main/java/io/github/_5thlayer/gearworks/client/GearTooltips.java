@@ -17,8 +17,8 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
  * A suit's FE and the totals of its Stats, not each upgrade's value, since a Stat's Ceiling holds for
- * their sum (ADR 0003); and every Gear Upgrade's size and Stat, from its data map entry, so an upgrade
- * a datapack adds says so as Gearworks' own do.
+ * their sum (ADR 0003); and every Gear Upgrade's size, Level and Stat at that Level, from its data map
+ * entry, so an upgrade a datapack adds says so as Gearworks' own do.
  */
 final class GearTooltips {
 
@@ -36,7 +36,7 @@ final class GearTooltips {
         }
         var upgrade = GearUpgrade.of(stack.typeHolder());
         if (upgrade != null) {
-            upgrade(upgrade, lines);
+            upgrade(upgrade, GearUpgrade.level(stack), lines);
         }
     }
 
@@ -52,12 +52,15 @@ final class GearTooltips {
         }
     }
 
-    private static void upgrade(GearUpgrade upgrade, List<Component> lines) {
+    /** The upgrade's own value at its Level; a Stat with a Ceiling shows the suit's total on the suit. */
+    private static void upgrade(GearUpgrade upgrade, int level, List<Component> lines) {
         lines.add(gray(Component.translatable("tooltip.gearworks.upgrade.size", upgrade.width(), upgrade.height())));
+        lines.add(gray(Component.translatable("tooltip.gearworks.upgrade.level", level)));
+        double amount = upgrade.amountAt(level);
         lines.add(gray(switch (upgrade.stat()) {
-            case BATTERY -> Component.translatable("tooltip.gearworks.upgrade.battery", format(upgrade.amount()));
-            case SOLAR -> Component.translatable("tooltip.gearworks.upgrade.solar", format(upgrade.amount()));
-            case SPEED -> Component.translatable("tooltip.gearworks.upgrade.speed", format(upgrade.amount() * 100), upgrade.draw());
+            case BATTERY -> Component.translatable("tooltip.gearworks.upgrade.battery", format(amount));
+            case SOLAR -> Component.translatable("tooltip.gearworks.upgrade.solar", format(amount));
+            case SPEED -> Component.translatable("tooltip.gearworks.upgrade.speed", format(amount * 100), upgrade.drawAt(level));
         }));
     }
 

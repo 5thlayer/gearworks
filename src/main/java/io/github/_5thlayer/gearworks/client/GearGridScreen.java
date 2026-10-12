@@ -23,16 +23,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> {
 
     private static final int CELL = GearGridMenu.CELL;
-    // Vanilla's container colours.
-    private static final int PANEL = 0xFFC6C6C6;
-    private static final int EDGE = 0xFF000000;
-    private static final int LIGHT = 0xFFFFFFFF;
-    private static final int SHADE = 0xFF555555;
-    private static final int SLOT = 0xFF8B8B8B;
-    private static final int SLOT_SHADE = 0xFF373737;
-    private static final int LABEL = 0xFF404040;
-    private static final int UPGRADE = 0xFF6F7F8F;
-    private static final int UPGRADE_EDGE = 0xFF2F3F4F;
     private static final int FITS = 0x6000FF00;
     private static final int REFUSED = 0x60FF0000;
 
@@ -56,28 +46,11 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, EDGE);
-        graphics.fill(leftPos + 1, topPos + 1, leftPos + imageWidth - 1, topPos + imageHeight - 1, LIGHT);
-        graphics.fill(leftPos + 3, topPos + 3, leftPos + imageWidth - 1, topPos + imageHeight - 1, SHADE);
-        graphics.fill(leftPos + 3, topPos + 3, leftPos + imageWidth - 3, topPos + imageHeight - 3, PANEL);
+        GridPainter.panel(graphics, leftPos, topPos, imageWidth, imageHeight);
         for (var slot : menu.slots) {
-            sunk(graphics, leftPos + slot.x, topPos + slot.y, 16, 16);
+            GridPainter.sunk(graphics, leftPos + slot.x, topPos + slot.y, 16, 16);
         }
-        var grid = Gear.grid(menu.suit());
-        for (int y = 0; y < menu.gridHeight(); y++) {
-            for (int x = 0; x < menu.gridWidth(); x++) {
-                sunk(graphics, cellX(x), cellY(y), 16, 16);
-            }
-        }
-        for (var placement : grid.placements()) {
-            int x0 = cellX(placement.x());
-            int y0 = cellY(placement.y());
-            int w = placement.width() * CELL - 2;
-            int h = placement.height() * CELL - 2;
-            graphics.fill(x0, y0, x0 + w, y0 + h, UPGRADE_EDGE);
-            graphics.fill(x0 + 1, y0 + 1, x0 + w - 1, y0 + h - 1, UPGRADE);
-            graphics.item(placement.item().create(), x0 + (w - 16) / 2, y0 + (h - 16) / 2);
-        }
+        GridPainter.grid(graphics, Gear.grid(menu.suit()), cellX(0), cellY(0), CELL);
         preview(graphics, mouseX, mouseY);
     }
 
@@ -97,16 +70,10 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         graphics.fill(cellX(x), cellY(y), cellX(right) - 2, cellY(bottom) - 2, fits ? FITS : REFUSED);
     }
 
-    private static void sunk(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
-        graphics.fill(x - 1, y - 1, x + w + 1, y + h + 1, SLOT_SHADE);
-        graphics.fill(x, y, x + w + 1, y + h + 1, LIGHT);
-        graphics.fill(x, y, x + w, y + h, SLOT);
-    }
-
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractLabels(graphics, mouseX, mouseY);
-        graphics.text(font, FeText.reading(menu.suit()), titleLabelX, titleLabelY + font.lineHeight + 2, LABEL, false);
+        graphics.text(font, FeText.reading(menu.suit()), titleLabelX, titleLabelY + font.lineHeight + 2, GridPainter.LABEL, false);
     }
 
     @Override

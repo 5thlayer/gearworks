@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.github._5thlayer.gearworks.grid.GearGrid;
 import io.github._5thlayer.gearworks.grid.Placement;
+import io.github._5thlayer.gearworks.level.Curves;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -86,27 +87,28 @@ public final class Gear {
         double battery = 0;
         double solar = 0;
         double speed = 0;
-        int speedDraw = 0;
+        long speedDraw = 0;
         for (var placement : grid(suit).placements()) {
             var upgrade = GearUpgrade.of(placement.item().typeHolder());
             if (upgrade == null) {
                 // A pack took its entry away: it keeps its cells and gives nothing.
                 continue;
             }
+            int level = GearUpgrade.level(placement.item());
             switch (upgrade.stat()) {
-                case BATTERY -> battery += upgrade.amount();
-                case SOLAR -> solar += upgrade.amount();
+                case BATTERY -> battery += upgrade.amountAt(level);
+                case SOLAR -> solar += upgrade.amountAt(level);
                 case SPEED -> {
-                    speed += upgrade.amount();
-                    speedDraw += upgrade.draw();
+                    speed += upgrade.amountAt(level);
+                    speedDraw += upgrade.drawAt(level);
                 }
             }
         }
-        return new Totals(battery, solar, speed, speedDraw);
+        return new Totals(battery, solar, speed, (int) Math.min(Integer.MAX_VALUE, speedDraw));
     }
 
     /**
-     * The sums of a suit's Stats, before any Ceiling: battery in FE, solar in FE per tick, speed as a
+     * The sums of a suit's Stats at their upgrades' Levels, before any Ceiling: battery in FE, solar in FE per tick, speed as a
      * fraction of base walking speed with the FE per tick it draws while walking.
      */
     public record Totals(double battery, double solar, double speed, int speedDraw) {
@@ -116,7 +118,7 @@ public final class Gear {
          * 0003): close to their sum while it is small, and never reaching the Ceiling.
          */
         public double speedBonus(double ceiling) {
-            return ceiling <= 0 ? 0 : ceiling * (1 - Math.exp(-speed / ceiling));
+            return Curves.underCeiling(speed, ceiling);
         }
     }
 }

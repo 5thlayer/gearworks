@@ -98,6 +98,20 @@ public final class GearGrid<T> {
         return Optional.empty();
     }
 
+    /**
+     * The grid with that placement's upgrade swapped for another in the same rectangle and the same
+     * place in the layout, as raising its Level does; unchanged if the grid does not hold it.
+     */
+    public GearGrid<T> replace(Placement<T> placement, T item) {
+        var next = new ArrayList<>(placements);
+        int index = next.indexOf(placement);
+        if (index < 0) {
+            return this;
+        }
+        next.set(index, new Placement<>(placement.x(), placement.y(), placement.width(), placement.height(), item));
+        return new GearGrid<>(width, height, next);
+    }
+
     /** The grid without that placement. */
     public GearGrid<T> remove(Placement<T> placement) {
         var next = new ArrayList<>(placements);

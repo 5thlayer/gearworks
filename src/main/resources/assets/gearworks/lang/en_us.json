@@ -3,12 +3,14 @@
   "item.gearworks.battery_upgrade": "Battery Upgrade",
   "item.gearworks.solar_upgrade": "Solar Upgrade",
   "item.gearworks.speed_upgrade": "Speed Upgrade",
+  "block.gearworks.gear_bench": "Gear Bench",
   "key.category.gearworks.gearworks": "Gearworks",
   "key.gearworks.open_grid": "Open Gear Grid",
   "tooltip.gearworks.energy": "%s / %s FE",
   "tooltip.gearworks.solar": "Solar: %s FE/t in sunlight",
   "tooltip.gearworks.speed": "Speed: +%s%% walking, %s FE/t while walking",
   "tooltip.gearworks.upgrade.size": "Gear Upgrade: %s×%s",
+  "tooltip.gearworks.upgrade.level": "Level %s",
   "tooltip.gearworks.upgrade.battery": "Battery: %s FE",
   "tooltip.gearworks.upgrade.solar": "Solar: %s FE/t",
   "tooltip.gearworks.upgrade.speed": "Speed: +%s%% walking, %s FE/t",
@@ -16,5 +18,11 @@
   "gearworks.configuration.energyHud.button": "Energy HUD",
   "gearworks.configuration.show": "Show",
   "gearworks.configuration.corner": "Corner",
-  "gearworks.configuration.speedCeiling": "Speed ceiling"
+  "gearworks.configuration.speedCeiling": "Speed ceiling",
+  "gui.gearworks.gear_bench.pick": "Pick an upgrade to raise",
+  "gui.gearworks.gear_bench.next": "%s: Level %s → %s",
+  "gui.gearworks.gear_bench.not_raised": "%s: Level %s, not raised here",
+  "gui.gearworks.gear_bench.stocked": "%s / %s",
+  "gui.gearworks.gear_bench.energy": "%s / %s FE",
+  "gui.gearworks.gear_bench.raise": "Raise"
 }

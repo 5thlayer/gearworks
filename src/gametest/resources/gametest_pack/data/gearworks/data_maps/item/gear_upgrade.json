@@ -4,7 +4,8 @@
       "width": 1,
       "height": 1,
       "stat": "battery",
-      "amount": 1234
+      "amount": 1234,
+      "amount_per_level": 1000
     }
   }
 }

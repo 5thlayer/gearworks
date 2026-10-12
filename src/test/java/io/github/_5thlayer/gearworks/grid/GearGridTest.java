@@ -83,6 +83,23 @@ class GearGridTest {
     }
 
     @Test
+    void replacingAnUpgradeKeepsItsRectangleAndItsPlaceInTheLayout() {
+        var grid = EMPTY.place(0, 0, 2, 2, "speed").orElseThrow().place(3, 0, 1, 2, "battery").orElseThrow();
+
+        var replaced = grid.replace(grid.at(1, 1).orElseThrow(), "faster speed");
+
+        assertEquals(List.of(new Placement<>(0, 0, 2, 2, "faster speed"), new Placement<>(3, 0, 1, 2, "battery")),
+                replaced.placements());
+    }
+
+    @Test
+    void replacingAnUpgradeTheGridDoesNotHoldChangesNothing() {
+        var grid = EMPTY.place(0, 0, 2, 2, "speed").orElseThrow();
+
+        assertEquals(grid.placements(), grid.replace(new Placement<>(3, 3, 1, 1, "solar"), "battery").placements());
+    }
+
+    @Test
     void theFirstFitIsTheTopmostThenLeftmostFreeRectangle() {
         var grid = EMPTY.place(0, 0, 2, 1, "solar").orElseThrow();
 

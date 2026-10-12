@@ -1,0 +1,19 @@
+{
+  "values": {
+    "minecraft:redstone_block": {
+      "energy": 100,
+      "growth": 2,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/iron",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

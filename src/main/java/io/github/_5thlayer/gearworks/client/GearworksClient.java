@@ -19,8 +19,8 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
- * The client's side of Gear: the Gear Grid's screen, the key that opens it, the worn suit's FE on the
- * HUD, the tooltips of suits and upgrades, and the configs and the mod list's screen for them.
+ * The client's side of Gear: the Gear Bench's screen, the Gear Grid's screen and the key that opens
+ * it, the worn suit's FE on the HUD, the tooltips of suits and upgrades, and the configs and the mod list's screen for them.
  */
 @Mod(value = Gearworks.MOD_ID, dist = Dist.CLIENT)
 public final class GearworksClient {
@@ -41,5 +41,6 @@ public final class GearworksClient {
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(GearContent.GRID_MENU.get(), GearGridScreen::new);
+        event.register(GearContent.GEAR_BENCH_MENU.get(), GearBenchScreen::new);
     }
 }

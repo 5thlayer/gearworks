@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone",
+    "S": "minecraft:smithing_table"
+  },
+  "pattern": [
+    "III",
+    "RSR",
+    "III"
+  ],
+  "result": {
+    "id": "gearworks:gear_bench"
+  }
+}

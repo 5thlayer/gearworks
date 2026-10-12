@@ -4,20 +4,24 @@
       "width": 1,
       "height": 2,
       "stat": "battery",
-      "amount": 100000
+      "amount": 100000,
+      "amount_per_level": 50000
     },
     "gearworks:solar_upgrade": {
       "width": 1,
       "height": 1,
       "stat": "solar",
-      "amount": 5
+      "amount": 5,
+      "amount_per_level": 2
     },
     "gearworks:speed_upgrade": {
       "width": 2,
       "height": 2,
       "stat": "speed",
       "amount": 0.3,
-      "draw": 20
+      "amount_per_level": 0.1,
+      "draw": 20,
+      "draw_per_level": 5
     }
   }
 }
