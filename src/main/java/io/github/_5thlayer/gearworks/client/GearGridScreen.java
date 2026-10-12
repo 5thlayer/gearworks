@@ -108,7 +108,7 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         super.extractLabels(graphics, mouseX, mouseY);
         var suit = menu.suit();
         var energy = Component.translatable("tooltip.gearworks.energy", Gear.energy(suit), Gear.capacity(suit));
-        graphics.text(font, energy, imageWidth - 8 - font.width(energy), titleLabelY, LABEL, false);
+        graphics.text(font, energy, titleLabelX, titleLabelY + font.lineHeight + 2, LABEL, false);
     }
 
     @Override

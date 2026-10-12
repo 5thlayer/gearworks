@@ -30,7 +30,8 @@ public final class GearGridMenu extends AbstractContainerMenu {
     public static final int CELL_STRIDE = 64;
     public static final int CELL = 18;
     public static final int GRID_LEFT = 30;
-    public static final int GRID_TOP = 18;
+    /** Below the title and the energy line. */
+    public static final int GRID_TOP = 30;
     public static final int SUIT_LEFT = 8;
     private static final int INVENTORY_WIDTH = 9 * CELL - 2;
 
