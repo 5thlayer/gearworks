@@ -14,11 +14,13 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * The client's side of Gear: the Gear Grid's screen, the key that opens it, the worn suit's FE on the
- * HUD, the tooltips of suits and upgrades, and the client config.
+ * HUD, the tooltips of suits and upgrades, and the configs and the mod list's screen for them.
  */
 @Mod(value = Gearworks.MOD_ID, dist = Dist.CLIENT)
 public final class GearworksClient {
@@ -28,6 +30,7 @@ public final class GearworksClient {
 
     public GearworksClient(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.CLIENT, GearworksClientConfig.SPEC);
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modBus.addListener(RegisterKeyMappingsEvent.class, event -> event.registerCategory(KEYS));
         modBus.addListener(GridKey::onRegisterKeys);
         modBus.addListener(GearworksClient::registerScreens);
