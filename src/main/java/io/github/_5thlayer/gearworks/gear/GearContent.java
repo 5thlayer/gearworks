@@ -9,6 +9,7 @@ import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.bench.GearBenchBlock;
 import io.github._5thlayer.gearworks.bench.GearBenchBlockEntity;
 import io.github._5thlayer.gearworks.bench.GearBenchMenu;
+import io.github._5thlayer.libworks.WorksTab;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -17,7 +18,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorMaterials;
@@ -146,15 +146,14 @@ public final class GearContent {
         event.registrar("1").playToServer(OpenGridPayload.TYPE, OpenGridPayload.STREAM_CODEC, OpenGridPayload::handle);
     }
 
+    /** Gearworks' items, in the Works tab every -works Module shares, and in no vanilla tab. */
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+        if (event.getTabKey() == WorksTab.KEY) {
+            event.accept(GEAR_BENCH_ITEM);
             event.accept(IRON_GEAR);
-        } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(SPEED_UPGRADE);
-        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
-            event.accept(GEAR_BENCH_ITEM);
         }
     }
 }

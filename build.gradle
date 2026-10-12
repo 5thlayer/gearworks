@@ -2,3 +2,18 @@
 plugins {
     id 'io.github.5thlayer.libworks.module' version '0.2.1'
 }
+
+libworks {
+    // Nested by jar-in-jar, so players install nothing more; FML loads the newest nested copy in range,
+    // which runs to the next minor. The Works tab and the Gear Bench's ghosts come from it.
+    runtime = '0.1.7'
+}
+
+repositories {
+    // libworks-runtime, from the local maven only, where its releases publish it. CI builds its tag there first.
+    mavenLocal {
+        content {
+            includeModule 'io.github.5thlayer', 'libworks-runtime'
+        }
+    }
+}

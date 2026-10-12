@@ -60,6 +60,7 @@ public final class GearworksGameTests {
         GridTests.register(tests);
         SolarTests.register(tests);
         BenchTests.register(tests);
+        CreativeTabTests.register(tests);
     }
 
     private static Identifier id(String path) {

@@ -3,6 +3,8 @@
 
 package io.github._5thlayer.gearworks.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import io.github._5thlayer.gearworks.bench.BenchTarget;
@@ -12,6 +14,8 @@ import io.github._5thlayer.gearworks.gear.GearGridMenu;
 import io.github._5thlayer.gearworks.gear.LevelCost;
 import io.github._5thlayer.gearworks.grid.GearGrid;
 import io.github._5thlayer.gearworks.grid.Placement;
+import io.github._5thlayer.libworks.ghost.Ghosts;
+import io.github._5thlayer.libworks.ghost.client.GhostDraw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -19,29 +23,35 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 /**
  * The Gear Bench: the suit's grid, where a click picks the upgrade to raise, and beside it the next
  * Level's cost, each material by the slot it is stocked in with how much of it is stocked, then the FE.
+ * An empty slot shows what it takes as a libworks ghost: any suit, or the material at its count.
  * The Raise button sends the click; the server raises the Level only once all of the cost is stocked.
  */
 public final class GearBenchScreen extends AbstractContainerScreen<GearBenchMenu> {
 
     private static final int SELECTED = 0xFFFFFFA0;
-    private static final int GHOST = 0x808B8B8B;
     private static final int SHORT = 0xFFAA2020;
     private static final int STOCKED = 0xFF208020;
     private static final int RAISE_TOP = GearBenchMenu.STOCK_TOP + LevelCost.MAX_MATERIALS * GearBenchMenu.STOCK_STEP + 14;
 
+    /** What the empty suit slot and each empty material slot take, faded. */
+    private final Ghosts ghosts = new Ghosts(() -> leftPos, () -> topPos);
     private Button raise;
 
     public GearBenchScreen(GearBenchMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, GearBenchMenu.WIDTH, GearBenchMenu.INVENTORY_TOP + 3 * GearGridMenu.CELL + 4 + GearGridMenu.CELL + 6);
+        ghosts.add(menu.slots.get(GearBenchMenu.SUIT_SLOT));
+        for (int i = 0; i < LevelCost.MAX_MATERIALS; i++) {
+            int index = i;
+            ghosts.add(menu.slots.get(GearBenchMenu.FIRST_STOCK_SLOT + i), () -> material(index));
+        }
     }
 
     @Override
@@ -88,26 +98,23 @@ public final class GearBenchScreen extends AbstractContainerScreen<GearBenchMenu
             graphics.outline(left + placement.x() * cell - 1, top + placement.y() * cell - 1,
                     placement.width() * cell, placement.height() * cell, SELECTED);
         });
-        target.map(BenchTarget::cost).ifPresent(cost -> {
-            for (int i = 0; i < cost.materials().size(); i++) {
-                var slot = menu.slots.get(GearBenchMenu.FIRST_STOCK_SLOT + i);
-                if (!slot.hasItem()) {
-                    // What the slot takes, greyed out until it holds some.
-                    int x = leftPos + slot.x;
-                    int y = topPos + slot.y;
-                    graphics.item(example(cost.materials().get(i).what()), x, y);
-                    graphics.fill(x, y, x + 16, y + 16, GHOST);
-                }
-            }
-        });
+        for (var ghost : ghosts.shown(Util.getMillis())) {
+            GhostDraw.draw(graphics, font, ghost);
+        }
     }
 
-    /** The first item a material's tag holds, to show what its slot takes. */
-    private static ItemStack example(TagKey<Item> tag) {
-        for (var item : BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
-            return new ItemStack(item);
+    /** The members of the material's tag at that index of the next Level's cost, each at its count. */
+    private List<ItemStack> material(int index) {
+        var cost = menu.target().map(BenchTarget::cost).orElse(null);
+        if (cost == null || index >= cost.materials().size()) {
+            return List.of();
         }
-        return ItemStack.EMPTY;
+        var material = cost.materials().get(index);
+        var members = new ArrayList<ItemStack>();
+        for (var item : BuiltInRegistries.ITEM.getTagOrEmpty(material.what())) {
+            members.add(new ItemStack(item, material.count()));
+        }
+        return members;
     }
 
     @Override
@@ -150,9 +157,10 @@ public final class GearBenchScreen extends AbstractContainerScreen<GearBenchMenu
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
-        if (!menu.getCarried().isEmpty()) {
+        if (!menu.getCarried().isEmpty() || hoveredSlot != null && hoveredSlot.hasItem()) {
             return;
         }
+        ghosts.at(mouseX, mouseY, Util.getMillis()).ifPresent(ghost -> GhostDraw.tooltip(graphics, font, ghost, mouseX, mouseY));
         placementAt(mouseX, mouseY).ifPresent(placement -> {
             var stack = placement.item().create();
             graphics.setTooltipForNextFrame(font, getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack, mouseX, mouseY);
