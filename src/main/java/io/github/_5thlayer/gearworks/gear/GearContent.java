@@ -14,6 +14,8 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.MenuType;
@@ -22,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -72,15 +75,15 @@ public final class GearContent {
 
     /** Tier 1, with an iron chestplate's armor. */
     public static final DeferredItem<GearItem> IRON_GEAR = ITEMS.registerItem("iron_gear", GearItem::new,
-            properties -> suit(properties, ArmorMaterials.IRON));
+            properties -> suit(properties, ArmorMaterials.IRON, "iron_gear"));
 
     /** Tier 2, with a diamond chestplate's armor, crafted from tier 1. */
     public static final DeferredItem<GearItem> DIAMOND_GEAR = ITEMS.registerItem("diamond_gear", GearItem::new,
-            properties -> suit(properties, ArmorMaterials.DIAMOND));
+            properties -> suit(properties, ArmorMaterials.DIAMOND, "diamond_gear"));
 
     /** Tier 3, with a netherite chestplate's armor, and like it unharmed by fire and lava; smithed from tier 2. */
     public static final DeferredItem<GearItem> NETHERITE_GEAR = ITEMS.registerItem("netherite_gear", GearItem::new,
-            properties -> suit(properties, ArmorMaterials.NETHERITE).fireResistant());
+            properties -> suit(properties, ArmorMaterials.NETHERITE, "netherite_gear").fireResistant());
 
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
     public static final DeferredItem<Item> SOLAR_UPGRADE = ITEMS.registerSimpleItem("solar_upgrade");
@@ -124,15 +127,15 @@ public final class GearContent {
 
     /**
      * The chestplate of its material, with neither durability nor a way to break: a suit that broke
-     * would lose its grid.
+     * would lose its grid. It is worn in the equipment asset of its own name, not its material's.
      */
-    private static Item.Properties suit(Item.Properties properties, ArmorMaterial material) {
+    private static Item.Properties suit(Item.Properties properties, ArmorMaterial material, String name) {
         return properties.stacksTo(1)
                 .attributes(material.createAttributes(ArmorType.CHESTPLATE))
                 .enchantable(material.enchantmentValue())
                 .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST)
                         .setEquipSound(material.equipSound())
-                        .setAsset(material.assetId())
+                        .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, name)))
                         .setDamageOnHurt(false)
                         .build());
     }

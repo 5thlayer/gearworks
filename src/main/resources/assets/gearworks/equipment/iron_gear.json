@@ -1,0 +1,9 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "gearworks:iron_gear"
+      }
+    ]
+  }
+}

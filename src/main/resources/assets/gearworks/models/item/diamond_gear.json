@@ -1,3 +1,6 @@
 {
-  "parent": "minecraft:item/diamond_chestplate"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gearworks:item/diamond_gear"
+  }
 }

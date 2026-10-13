@@ -11,12 +11,15 @@ import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
@@ -29,7 +32,8 @@ import net.minecraft.world.level.GameType;
 
 /**
  * The three tiers: each gives the armor of its chestplate, and each is made from the one below by its
- * recipe, keeping every upgrade where it sits, with its Level, and the suit's FE.
+ * recipe, keeping every upgrade where it sits, with its Level, and the suit's FE. Each is worn in a look
+ * of its own, not its chestplate's.
  */
 final class TierTests {
 
@@ -42,6 +46,7 @@ final class TierTests {
         tests.test("netherite_gear_gives_a_netherite_chestplates_armor", 20,
                 helper -> sameArmor(helper, GearContent.NETHERITE_GEAR.get(), Items.NETHERITE_CHESTPLATE));
         tests.test("each_tier_has_a_larger_grid_than_the_one_below", 1, TierTests::largerGrids);
+        tests.test("each_tier_wears_its_own_look", 1, TierTests::ownLooks);
         tests.test("crafting_diamond_gear_from_iron_gear_keeps_its_layout", 1, TierTests::craftsDiamond);
         tests.test("smithing_netherite_gear_from_diamond_gear_keeps_its_layout", 1, TierTests::smithsNetherite);
     }
@@ -67,6 +72,14 @@ final class TierTests {
         int netherite = cells(new ItemStack(GearContent.NETHERITE_GEAR.get()));
         helper.assertTrue(diamond > iron, Component.literal("diamond gear's grid is no larger than iron's"));
         helper.assertTrue(netherite > diamond, Component.literal("netherite gear's grid is no larger than diamond's"));
+        helper.succeed();
+    }
+
+    private static void ownLooks(GameTestHelper helper) {
+        for (var tier : List.of(GearContent.IRON_GEAR, GearContent.DIAMOND_GEAR, GearContent.NETHERITE_GEAR)) {
+            var asset = new ItemStack(tier.get()).get(DataComponents.EQUIPPABLE).assetId();
+            helper.assertValueEqual(asset.map(ResourceKey::identifier), Optional.of(tier.getId()), Component.literal(tier.getId() + "'s equipment asset"));
+        }
         helper.succeed();
     }
 
