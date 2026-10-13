@@ -233,7 +233,7 @@ ARM_SIDE = [  # 4x12, at 40, 44, 48 and 52, 20
     "2211",
     "1111",
     "dmmd",
-    "moom",
+    "dmmd",
     "dmmd",
     "dmmd",
     "....",
