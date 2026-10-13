@@ -172,20 +172,21 @@ TIERS = {
 }
 
 # The humanoid layer is 64x32; the chest slot draws its body (u 16-40, v 16-32) and arms (u 40-56).
-# Each map below is one face, placed at its u, v.
+# Each map below is one face, placed at its u, v. Like a chestplate's, the body opens at the neck in
+# front and narrows to the waist, its last row and the sides' last three left bare.
 BODY_FRONT = [  # 8x12 at 20, 20
-    "43222221",
+    "43....21",
+    "322..211",
     "3dmllmd1",
-    "32dmmd21",
     "32KOoK21",
     "32KooK21",
     "dd2KK2dd",
     "mmmmmmmd",
     "33221111",
     "mmmmmmmd",
-    "32211111",
-    "dmmmmmmd",
-    "Kddddddd",
+    ".322111.",
+    "..mmmd..",
+    "........",
 ]
 BODY_BACK = [  # 8x12 at 32, 20
     "43222221",
@@ -197,9 +198,9 @@ BODY_BACK = [  # 8x12 at 32, 20
     "22221111",
     "mmmmmmmd",
     "32211111",
-    "mmmmmmmd",
-    "dmmmmmmd",
-    "Kddddddd",
+    ".222111.",
+    "..mmmd..",
+    "........",
 ]
 BODY_SIDE = [  # 4x12 at 16, 20 and 28, 20
     "3221",
@@ -211,9 +212,9 @@ BODY_SIDE = [  # 4x12 at 16, 20 and 28, 20
     "mmmd",
     "2211",
     "mmmd",
-    "2111",
-    "dmmd",
-    "Kddd",
+    "....",
+    "....",
+    "....",
 ]
 BODY_TOP = [  # 8x4 at 20, 16
     "33222221",
