@@ -131,12 +131,17 @@ public final class Gear {
             return (int) Math.min(Integer.MAX_VALUE, draws[stat.ordinal()]);
         }
 
+        /** Whether the suit holds an upgrade of that Stat and the FE for its draw: an empty suit runs nothing. */
+        public boolean canDraw(Stat stat, int energy) {
+            return has(stat) && energy > 0 && energy >= draw(stat);
+        }
+
         /**
          * What a Stat with a Ceiling gives, however many upgrades of it the suit holds (ADR 0003): close
          * to their sum while it is small, and never reaching the Ceiling.
          */
-        public double underCeiling(Stat stat, double ceiling) {
-            return Curves.underCeiling(amount(stat), ceiling);
+        public double underCeiling(Stat stat) {
+            return Curves.underCeiling(amount(stat), GearworksConfig.ceiling(stat));
         }
     }
 }

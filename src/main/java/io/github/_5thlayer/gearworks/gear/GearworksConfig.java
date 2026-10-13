@@ -25,7 +25,7 @@ public final class GearworksConfig {
                 .defineInRange("speedCeiling", 1.0, 0.0, 10.0);
         JUMP_CEILING = builder
                 .comment("The jump strength the suit's jump upgrades together approach and never reach, as a fraction",
-                        "of base strength. 0.5 keeps a jump under three blocks, so landing on flat ground does no harm.")
+                        "of base strength. The default, 0.5, keeps a jump under three blocks, so landing on flat ground does no harm.")
                 .defineInRange("jumpCeiling", 0.5, 0.0, 10.0);
         SHIELD_CEILING = builder
                 .comment("The fraction of each hit the suit's shield upgrades together approach and never reach:",
@@ -37,22 +37,17 @@ public final class GearworksConfig {
     private GearworksConfig() {
     }
 
-    /** The speed Ceiling, or its default before the server's config has loaded, as on a client's tooltip. */
-    public static double speedCeiling() {
-        return valueOf(SPEED_CEILING);
-    }
-
-    /** The jump Ceiling, or its default before the server's config has loaded. */
-    public static double jumpCeiling() {
-        return valueOf(JUMP_CEILING);
-    }
-
-    /** The shield Ceiling, or its default before the server's config has loaded. */
-    public static double shieldCeiling() {
-        return valueOf(SHIELD_CEILING);
-    }
-
-    private static double valueOf(ModConfigSpec.DoubleValue ceiling) {
+    /**
+     * The Ceiling of a Stat that has one, or its default before the server's config has loaded, as on a
+     * client's tooltip. A Stat without a Ceiling grows linearly (ADR 0003) and has none to ask for.
+     */
+    public static double ceiling(Stat stat) {
+        var ceiling = switch (stat) {
+            case SPEED -> SPEED_CEILING;
+            case JUMP -> JUMP_CEILING;
+            case SHIELD -> SHIELD_CEILING;
+            default -> throw new IllegalArgumentException(stat + " has no Ceiling");
+        };
         return SPEC.isLoaded() ? ceiling.get() : ceiling.getDefault();
     }
 }

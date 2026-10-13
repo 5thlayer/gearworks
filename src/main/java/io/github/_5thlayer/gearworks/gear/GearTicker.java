@@ -67,7 +67,7 @@ public final class GearTicker {
         if (!Gear.is(suit)) {
             modify(player, Attributes.MOVEMENT_SPEED, SPEED, 0);
             modify(player, Attributes.JUMP_STRENGTH, JUMP, 0);
-            stopSeeing(player);
+            takeNightVision(player);
             return;
         }
         var totals = Gear.totals(suit);
@@ -77,27 +77,22 @@ public final class GearTicker {
             // Never down: an open grid may hold FE over what its batteries now take.
             energy = Math.max(energy, (int) Math.min(Gear.capacity(suit), energy + totals.amount(Stat.SOLAR)));
         }
-        if (canDraw(totals, Stat.NIGHT_VISION, energy)) {
+        if (totals.canDraw(Stat.NIGHT_VISION, energy)) {
             energy -= totals.draw(Stat.NIGHT_VISION);
-            see(player);
+            giveNightVision(player);
         } else {
-            stopSeeing(player);
+            takeNightVision(player);
         }
-        boolean fast = totals.amount(Stat.SPEED) > 0 && canDraw(totals, Stat.SPEED, energy);
-        modify(player, Attributes.MOVEMENT_SPEED, SPEED, fast ? totals.underCeiling(Stat.SPEED, GearworksConfig.speedCeiling()) : 0);
+        boolean fast = totals.canDraw(Stat.SPEED, energy);
+        modify(player, Attributes.MOVEMENT_SPEED, SPEED, fast ? totals.underCeiling(Stat.SPEED) : 0);
         if (fast && player.getKnownMovement().horizontalDistanceSqr() > WALKING) {
             energy -= totals.draw(Stat.SPEED);
         }
-        boolean springy = totals.amount(Stat.JUMP) > 0 && canDraw(totals, Stat.JUMP, energy);
-        modify(player, Attributes.JUMP_STRENGTH, JUMP, springy ? totals.underCeiling(Stat.JUMP, GearworksConfig.jumpCeiling()) : 0);
+        boolean springy = totals.canDraw(Stat.JUMP, energy);
+        modify(player, Attributes.JUMP_STRENGTH, JUMP, springy ? totals.underCeiling(Stat.JUMP) : 0);
         if (energy != before) {
             Gear.setEnergy(suit, energy);
         }
-    }
-
-    /** Whether the suit holds an upgrade of the Stat and the FE for its draw: an empty suit runs nothing. */
-    private static boolean canDraw(Gear.Totals totals, Stat stat, int energy) {
-        return totals.has(stat) && energy > 0 && energy >= totals.draw(stat);
     }
 
     /** Sets the modifier to that fraction of the attribute's base, or takes it away at 0. */
@@ -114,23 +109,23 @@ public final class GearTicker {
     }
 
     /** Keeps night vision on, topping it up before it runs low, unless another source gave it. */
-    private static void see(Player player) {
+    private static void giveNightVision(Player player) {
         var effect = player.getEffect(MobEffects.NIGHT_VISION);
-        if (effect == null || isSuits(effect) && effect.getDuration() <= NIGHT_VISION_REFRESH) {
+        if (effect == null || isFromSuit(effect) && effect.getDuration() <= NIGHT_VISION_REFRESH) {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_TICKS, 0, true, false, true));
         }
     }
 
     /** Takes away the suit's night vision, and none a potion or another mod gave. */
-    private static void stopSeeing(Player player) {
+    private static void takeNightVision(Player player) {
         var effect = player.getEffect(MobEffects.NIGHT_VISION);
-        if (effect != null && isSuits(effect)) {
+        if (effect != null && isFromSuit(effect)) {
             player.removeEffect(MobEffects.NIGHT_VISION);
         }
     }
 
     /** The suit's night vision is ambient and shows no particles, which a potion's never is. */
-    private static boolean isSuits(MobEffectInstance effect) {
+    private static boolean isFromSuit(MobEffectInstance effect) {
         return effect.isAmbient() && !effect.isVisible() && effect.getAmplifier() == 0 && effect.getDuration() <= NIGHT_VISION_TICKS;
     }
 

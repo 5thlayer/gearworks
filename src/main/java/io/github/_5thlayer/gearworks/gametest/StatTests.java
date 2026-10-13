@@ -14,6 +14,7 @@ import java.util.List;
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
+import io.github._5thlayer.gearworks.gear.Stat;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -112,8 +113,8 @@ final class StatTests {
 
         helper.assertTrue(takenSeveral < takenOne, Component.literal("three shields absorbed no more than one"));
         double absorbed = 1 - takenSeveral / takenBare;
-        helper.assertTrue(absorbed < GearworksConfig.shieldCeiling(),
-                Component.literal("three shields absorbed " + absorbed + ", over the Ceiling " + GearworksConfig.shieldCeiling()));
+        helper.assertTrue(absorbed < GearworksConfig.ceiling(Stat.SHIELD),
+                Component.literal("three shields absorbed " + absorbed + ", over the Ceiling " + GearworksConfig.ceiling(Stat.SHIELD)));
         helper.succeed();
     }
 
@@ -135,8 +136,8 @@ final class StatTests {
 
         helper.assertTrue(riseSeveral > riseOne, Component.literal("four jump upgrades rose no higher than one"));
         double added = riseSeveral / riseBare - 1;
-        helper.assertTrue(added < GearworksConfig.jumpCeiling(),
-                Component.literal("four jump upgrades added " + added + ", over the Ceiling " + GearworksConfig.jumpCeiling()));
+        helper.assertTrue(added < GearworksConfig.ceiling(Stat.JUMP),
+                Component.literal("four jump upgrades added " + added + ", over the Ceiling " + GearworksConfig.ceiling(Stat.JUMP)));
         helper.succeed();
     }
 

@@ -33,7 +33,7 @@ final class GearShield {
         if (!totals.has(Stat.SHIELD)) {
             return;
         }
-        var hit = Shielding.absorb(event.getNewDamage(), totals.underCeiling(Stat.SHIELD, GearworksConfig.shieldCeiling()),
+        var hit = Shielding.absorb(event.getNewDamage(), totals.underCeiling(Stat.SHIELD),
                 Gear.energy(suit), totals.draw(Stat.SHIELD));
         if (hit.absorbed() > 0) {
             event.setNewDamage(event.getNewDamage() - hit.absorbed());

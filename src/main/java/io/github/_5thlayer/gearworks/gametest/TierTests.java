@@ -3,6 +3,7 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
+import static io.github._5thlayer.gearworks.gametest.GearFixtures.addAtLevel;
 import static io.github._5thlayer.gearworks.gametest.GearFixtures.charge;
 import static io.github._5thlayer.gearworks.gametest.GearFixtures.tierWith;
 import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
@@ -14,14 +15,12 @@ import java.util.List;
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -109,17 +108,15 @@ final class TierTests {
     /** A suit of that tier holding a battery at Level 3, a solar and a speed upgrade, and some FE. */
     private static ItemStack laidOut(Item tier) {
         var suit = tierWith(tier, GearContent.SOLAR_UPGRADE.get(), GearContent.SPEED_UPGRADE.get());
-        var levelled = new ItemStackTemplate(GearContent.BATTERY_UPGRADE.get(),
-                DataComponentPatch.builder().set(GearContent.LEVEL.get(), 3).build());
-        var battery = GearFixtures.upgrade(GearContent.BATTERY_UPGRADE.get());
-        Gear.setGrid(suit, Gear.grid(suit).place(3, 0, battery.width(), battery.height(), levelled).orElseThrow());
+        addAtLevel(suit, GearContent.BATTERY_UPGRADE.get(), 3);
         charge(suit, 1234);
         return suit;
     }
 
     private static void assertKeptLayout(GameTestHelper helper, ItemStack before, ItemStack after) {
         helper.assertValueEqual(Gear.grid(after).placements(), Gear.grid(before).placements(), Component.literal("the layout"));
-        var battery = Gear.grid(after).at(3, 0).orElseThrow().item();
+        var battery = Gear.grid(after).placements().stream()
+                .filter(placement -> placement.item().is(GearContent.BATTERY_UPGRADE.get())).findFirst().orElseThrow().item();
         helper.assertValueEqual(GearUpgrade.level(battery), 3, Component.literal("the battery's Level"));
         helper.assertValueEqual(Gear.energy(after), 1234, Component.literal("the suit's FE"));
     }

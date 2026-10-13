@@ -8,7 +8,6 @@ import java.util.Locale;
 
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
-import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -47,17 +46,11 @@ final class GearTooltips {
         if (totals.amount(Stat.SOLAR) > 0) {
             lines.add(gray(Component.translatable("tooltip.gearworks.solar", format(totals.amount(Stat.SOLAR)))));
         }
-        if (totals.amount(Stat.SPEED) > 0) {
-            var percent = format(totals.underCeiling(Stat.SPEED, GearworksConfig.speedCeiling()) * 100);
-            lines.add(gray(Component.translatable("tooltip.gearworks.speed", percent, totals.draw(Stat.SPEED))));
-        }
-        if (totals.amount(Stat.SHIELD) > 0) {
-            var percent = format(totals.underCeiling(Stat.SHIELD, GearworksConfig.shieldCeiling()) * 100);
-            lines.add(gray(Component.translatable("tooltip.gearworks.shield", percent, totals.draw(Stat.SHIELD))));
-        }
-        if (totals.amount(Stat.JUMP) > 0) {
-            var percent = format(totals.underCeiling(Stat.JUMP, GearworksConfig.jumpCeiling()) * 100);
-            lines.add(gray(Component.translatable("tooltip.gearworks.jump", percent, totals.draw(Stat.JUMP))));
+        for (var stat : List.of(Stat.SPEED, Stat.SHIELD, Stat.JUMP)) {
+            if (totals.has(stat)) {
+                lines.add(gray(Component.translatable("tooltip.gearworks." + stat.getSerializedName(),
+                        format(totals.underCeiling(stat) * 100), totals.draw(stat))));
+            }
         }
         if (totals.has(Stat.NIGHT_VISION)) {
             lines.add(gray(Component.translatable("tooltip.gearworks.night_vision", totals.draw(Stat.NIGHT_VISION))));
