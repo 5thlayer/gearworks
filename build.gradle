@@ -1,19 +1,21 @@
 // Every piece of the build comes from the libworks convention plugin (libworks ADR 0003).
 plugins {
-    id 'io.github.5thlayer.libworks.module' version '0.2.1'
+    id 'io.github.5thlayer.libworks.module' version '0.3.0'
 }
 
 libworks {
     // Nested by jar-in-jar, so players install nothing more; FML loads the newest nested copy in range,
     // which runs to the next minor. The Works tab and the Gear Bench's ghosts come from it.
-    runtime = '0.1.7'
+    runtime = '0.1.8'
 }
 
 repositories {
-    // libworks-runtime, from the local maven only, where its releases publish it. CI builds its tag there first.
+    // libworks-runtime and libworks-gametest, from the local maven only, where their releases publish them.
+    // CI builds the runtime's tag there first.
     mavenLocal {
         content {
             includeModule 'io.github.5thlayer', 'libworks-runtime'
+            includeModule 'io.github.5thlayer', 'libworks-gametest'
         }
     }
 }
