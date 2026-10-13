@@ -21,7 +21,6 @@ record DayTime(int time) implements TestEnvironmentDefinition<Long> {
     ).apply(instance, DayTime::new));
 
     static final int NOON = 6000;
-    static final int MIDNIGHT = 18000;
 
     @Override
     public Long setup(ServerLevel level) {
