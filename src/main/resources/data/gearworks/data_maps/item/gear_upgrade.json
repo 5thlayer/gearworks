@@ -22,6 +22,30 @@
       "amount_per_level": 0.1,
       "draw": 20,
       "draw_per_level": 5
+    },
+    "gearworks:shield_upgrade": {
+      "width": 2,
+      "height": 2,
+      "stat": "shield",
+      "amount": 0.25,
+      "amount_per_level": 0.05,
+      "draw": 200
+    },
+    "gearworks:jump_upgrade": {
+      "width": 1,
+      "height": 2,
+      "stat": "jump",
+      "amount": 0.15,
+      "amount_per_level": 0.05,
+      "draw": 50,
+      "draw_per_level": 10
+    },
+    "gearworks:night_vision_upgrade": {
+      "width": 1,
+      "height": 1,
+      "stat": "night_vision",
+      "amount": 1,
+      "draw": 2
     }
   }
 }

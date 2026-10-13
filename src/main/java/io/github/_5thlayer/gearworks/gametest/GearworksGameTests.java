@@ -57,6 +57,8 @@ public final class GearworksGameTests {
         var tests = new Registrar(event, environment);
         LoadTests.register(tests);
         GearTests.register(tests);
+        TierTests.register(tests);
+        StatTests.register(tests);
         GridTests.register(tests);
         SolarTests.register(tests);
         BenchTests.register(tests);

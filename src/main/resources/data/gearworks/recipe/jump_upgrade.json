@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#c:slime_balls",
+    "I": "#c:ingots/iron",
+    "P": "minecraft:piston",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "IBI",
+    "BPB",
+    "IRI"
+  ],
+  "result": {
+    "id": "gearworks:jump_upgrade"
+  }
+}

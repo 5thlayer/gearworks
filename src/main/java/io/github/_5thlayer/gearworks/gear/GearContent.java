@@ -41,7 +41,7 @@ import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 
 /**
- * What Gearworks registers: the suit, the first upgrades, the components the suit and its upgrades
+ * What Gearworks registers: the suit's three tiers, the upgrades, the components the suit and its upgrades
  * save, the Gear Grid's menu, the Gear Bench, and the data maps that make an item an upgrade, size
  * each tier's grid and price each upgrade's Levels.
  */
@@ -74,9 +74,20 @@ public final class GearContent {
     public static final DeferredItem<GearItem> IRON_GEAR = ITEMS.registerItem("iron_gear", GearItem::new,
             properties -> suit(properties, ArmorMaterials.IRON));
 
+    /** Tier 2, with a diamond chestplate's armor, crafted from tier 1. */
+    public static final DeferredItem<GearItem> DIAMOND_GEAR = ITEMS.registerItem("diamond_gear", GearItem::new,
+            properties -> suit(properties, ArmorMaterials.DIAMOND));
+
+    /** Tier 3, with a netherite chestplate's armor, and like it unharmed by fire and lava; smithed from tier 2. */
+    public static final DeferredItem<GearItem> NETHERITE_GEAR = ITEMS.registerItem("netherite_gear", GearItem::new,
+            properties -> suit(properties, ArmorMaterials.NETHERITE).fireResistant());
+
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
     public static final DeferredItem<Item> SOLAR_UPGRADE = ITEMS.registerSimpleItem("solar_upgrade");
     public static final DeferredItem<Item> SPEED_UPGRADE = ITEMS.registerSimpleItem("speed_upgrade");
+    public static final DeferredItem<Item> SHIELD_UPGRADE = ITEMS.registerSimpleItem("shield_upgrade");
+    public static final DeferredItem<Item> JUMP_UPGRADE = ITEMS.registerSimpleItem("jump_upgrade");
+    public static final DeferredItem<Item> NIGHT_VISION_UPGRADE = ITEMS.registerSimpleItem("night_vision_upgrade");
 
     public static final DeferredHolder<MenuType<?>, MenuType<GearGridMenu>> GRID_MENU =
             MENUS.register("gear_grid", () -> IMenuTypeExtension.create(GearGridMenu::new));
@@ -107,6 +118,8 @@ public final class GearContent {
         modBus.addListener(GearContent::fillCreativeTabs);
         modBus.addListener(GearContent::registerPayloads);
         NeoForge.EVENT_BUS.addListener(GearTicker::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(GearTicker::onJump);
+        NeoForge.EVENT_BUS.addListener(GearShield::onDamage);
     }
 
     /**
@@ -137,7 +150,7 @@ public final class GearContent {
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.Energy.ITEM,
                 (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), Gear.capacity(stack)),
-                IRON_GEAR);
+                IRON_GEAR, DIAMOND_GEAR, NETHERITE_GEAR);
         event.registerBlockEntity(Capabilities.Item.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.stockFace());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.energyFace());
     }
@@ -151,9 +164,14 @@ public final class GearContent {
         if (event.getTabKey() == WorksTab.KEY) {
             event.accept(GEAR_BENCH_ITEM);
             event.accept(IRON_GEAR);
+            event.accept(DIAMOND_GEAR);
+            event.accept(NETHERITE_GEAR);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(SPEED_UPGRADE);
+            event.accept(SHIELD_UPGRADE);
+            event.accept(JUMP_UPGRADE);
+            event.accept(NIGHT_VISION_UPGRADE);
         }
     }
 }

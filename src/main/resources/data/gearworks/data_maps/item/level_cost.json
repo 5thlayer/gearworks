@@ -173,6 +173,122 @@
           ]
         }
       ]
+    },
+    "gearworks:shield_upgrade": {
+      "energy": 10000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/iron",
+              "count": 4
+            },
+            {
+              "tag": "c:dusts/redstone",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 2
+            },
+            {
+              "tag": "c:obsidians",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            },
+            {
+              "tag": "c:obsidians",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 15,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "gearworks:jump_upgrade": {
+      "energy": 10000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/copper",
+              "count": 2
+            },
+            {
+              "tag": "c:slime_balls",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 2
+            },
+            {
+              "tag": "c:slime_balls",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            },
+            {
+              "tag": "c:feathers",
+              "count": 8
+            }
+          ]
+        },
+        {
+          "from": 15,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
     }
   }
 }

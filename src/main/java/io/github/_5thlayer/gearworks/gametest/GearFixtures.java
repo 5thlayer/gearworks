@@ -6,9 +6,11 @@ package io.github._5thlayer.gearworks.gametest;
 import io.github._5thlayer.gearworks.gear.Gear;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.GameType;
@@ -27,7 +29,12 @@ final class GearFixtures {
 
     /** A tier-1 suit holding those upgrades, each in the first rectangle it fits. */
     static ItemStack suitWith(ItemLike... upgrades) {
-        var suit = new ItemStack(GearContent.IRON_GEAR.get());
+        return tierWith(GearContent.IRON_GEAR.get(), upgrades);
+    }
+
+    /** A suit of that tier holding those upgrades, each in the first rectangle it fits. */
+    static ItemStack tierWith(Item tier, ItemLike... upgrades) {
+        var suit = new ItemStack(tier);
         var grid = Gear.grid(suit);
         for (var upgrade : upgrades) {
             var entry = upgrade(upgrade);
@@ -35,6 +42,13 @@ final class GearFixtures {
         }
         Gear.setGrid(suit, grid);
         return suit;
+    }
+
+    /** Places that upgrade, at that Level, in the first rectangle of the suit's grid it fits. */
+    static void addAtLevel(ItemStack suit, ItemLike upgrade, int level) {
+        var entry = upgrade(upgrade);
+        var levelled = new ItemStackTemplate(upgrade.asItem(), DataComponentPatch.builder().set(GearContent.LEVEL.get(), level).build());
+        Gear.setGrid(suit, Gear.grid(suit).placeFirstFit(entry.width(), entry.height(), levelled).orElseThrow());
     }
 
     /** The suit's energy capability, as another mod's charger finds it. */

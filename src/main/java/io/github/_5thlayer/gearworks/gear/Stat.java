@@ -16,7 +16,16 @@ public enum Stat implements StringRepresentable {
     /** Adds FE in daylight under open sky: the amount is FE per tick. */
     SOLAR("solar"),
     /** Raises walking speed while it draws FE: the amount is the fraction of base speed added. */
-    SPEED("speed");
+    SPEED("speed"),
+    /**
+     * Absorbs damage while the suit has FE: the amount is the fraction of each hit absorbed, and the draw
+     * the FE spent for each point of damage absorbed.
+     */
+    SHIELD("shield"),
+    /** Raises jump height while it has FE: the amount is the fraction of base jump strength added, and the draw the FE each jump spends. */
+    JUMP("jump"),
+    /** Gives night vision while it draws FE: on with any upgrade, whose amount is not read; the draw is FE per tick. */
+    NIGHT_VISION("night_vision");
 
     public static final Codec<Stat> CODEC = StringRepresentable.fromEnum(Stat::values);
 

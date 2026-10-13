@@ -3,6 +3,14 @@
     "gearworks:iron_gear": {
       "width": 5,
       "height": 5
+    },
+    "gearworks:diamond_gear": {
+      "width": 7,
+      "height": 5
+    },
+    "gearworks:netherite_gear": {
+      "width": 9,
+      "height": 6
     }
   }
 }

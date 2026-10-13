@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:golden_carrot",
+    "G": "#c:glass_panes",
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "IGI",
+    "GCG",
+    "IRI"
+  ],
+  "result": {
+    "id": "gearworks:night_vision_upgrade"
+  }
+}

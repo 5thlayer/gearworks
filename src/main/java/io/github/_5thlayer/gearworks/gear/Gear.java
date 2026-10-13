@@ -79,15 +79,12 @@ public final class Gear {
 
     /** The FE the suit can hold: the sum of its batteries, as much as an int carries. */
     public static int capacity(ItemStack suit) {
-        return (int) Math.min(Integer.MAX_VALUE, totals(suit).battery());
+        return (int) Math.min(Integer.MAX_VALUE, totals(suit).amount(Stat.BATTERY));
     }
 
     /** What the suit's upgrades give together, Stat by Stat. */
     public static Totals totals(ItemStack suit) {
-        double battery = 0;
-        double solar = 0;
-        double speed = 0;
-        long speedDraw = 0;
+        var totals = new Totals();
         for (var placement : grid(suit).placements()) {
             var upgrade = GearUpgrade.of(placement.item().typeHolder());
             if (upgrade == null) {
@@ -95,30 +92,51 @@ public final class Gear {
                 continue;
             }
             int level = GearUpgrade.level(placement.item());
-            switch (upgrade.stat()) {
-                case BATTERY -> battery += upgrade.amountAt(level);
-                case SOLAR -> solar += upgrade.amountAt(level);
-                case SPEED -> {
-                    speed += upgrade.amountAt(level);
-                    speedDraw += upgrade.drawAt(level);
-                }
-            }
+            totals.add(upgrade.stat(), upgrade.amountAt(level), upgrade.drawAt(level));
         }
-        return new Totals(battery, solar, speed, (int) Math.min(Integer.MAX_VALUE, speedDraw));
+        return totals;
     }
 
     /**
-     * The sums of a suit's Stats at their upgrades' Levels, before any Ceiling: battery in FE, solar in FE per tick, speed as a
-     * fraction of base walking speed with the FE per tick it draws while walking.
+     * The sums of a suit's Stats at their upgrades' Levels, before any Ceiling, each in its Stat's unit
+     * ({@link Stat}), with the FE the Stat's upgrades draw together.
      */
-    public record Totals(double battery, double solar, double speed, int speedDraw) {
+    public static final class Totals {
+
+        private final double[] amounts = new double[Stat.values().length];
+        private final long[] draws = new long[Stat.values().length];
+        private final int[] upgrades = new int[Stat.values().length];
+
+        private Totals() {
+        }
+
+        private void add(Stat stat, double amount, int draw) {
+            amounts[stat.ordinal()] += amount;
+            draws[stat.ordinal()] += draw;
+            upgrades[stat.ordinal()]++;
+        }
+
+        /** Whether the suit holds an upgrade of that Stat. */
+        public boolean has(Stat stat) {
+            return upgrades[stat.ordinal()] > 0;
+        }
+
+        /** The sum of what the suit's upgrades of that Stat give, before any Ceiling. */
+        public double amount(Stat stat) {
+            return amounts[stat.ordinal()];
+        }
+
+        /** The FE the suit's upgrades of that Stat draw together, as much as an int carries. */
+        public int draw(Stat stat) {
+            return (int) Math.min(Integer.MAX_VALUE, draws[stat.ordinal()]);
+        }
 
         /**
-         * The walking speed added, under the Ceiling however many speed upgrades the suit holds (ADR
-         * 0003): close to their sum while it is small, and never reaching the Ceiling.
+         * What a Stat with a Ceiling gives, however many upgrades of it the suit holds (ADR 0003): close
+         * to their sum while it is small, and never reaching the Ceiling.
          */
-        public double speedBonus(double ceiling) {
-            return Curves.underCeiling(speed, ceiling);
+        public double underCeiling(Stat stat, double ceiling) {
+            return Curves.underCeiling(amount(stat), ceiling);
         }
     }
 }
