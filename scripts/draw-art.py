@@ -2,13 +2,13 @@
 """Draws Gearworks' item icons and worn suit textures.
 
 Every upgrade and worn suit shares the flight chestplate's metal, lit from the top left. The
-upgrades add one accent each; the suits share a cyan core and differ by their plates, so a new
+upgrades add one accent each; the suits share an orange core and differ by their plates, so a new
 tier's art is a new entry in TIERS; the tier still needs its item model, its equipment asset and
 its place in ArtTest. Run from the repository root; it overwrites the PNGs it draws.
 
 The suits' icons are Futureazoo's flight chestplate (art/flight_chestplate.png, CC BY-NC-SA 4.0,
-github.com/Futureazoo/TextureRepository), its grey plates retinted to each tier's and its cyan core
-kept. Iron gear keeps the original's own greys. The worn suits are drawn here in iron's greys and
+github.com/Futureazoo/TextureRepository), its cyan core recolored orange and its grey plates retinted to
+each tier's. Iron gear keeps the original's own greys. The worn suits are drawn here in iron's greys and
 retinted the same way, so each tier's worn look and icon share one ramp.
 
     python3 scripts/draw-art.py
@@ -22,7 +22,7 @@ ROOT = Path("src/main/resources/assets/gearworks/textures")
 SUIT_BASE = Path("art/flight_chestplate.png")
 
 # The metal of every upgrade and worn suit is the flight chestplate's: an outline and a ramp of
-# purple-tinged greys, and for the suits its cyan core.
+# purple-tinged greys, and for the worn suits an orange core.
 METAL = {
     ".": None,
     "K": "#414047",  # outline
@@ -33,11 +33,11 @@ METAL = {
     "L": "#bab9c0",
     "w": "#dcdbdf",
     "W": "#f6f6f7",  # highlight
-    "o": "#2bbdc6",  # core
-    "O": "#c6fafd",  # core, glowing
+    "o": "#f07a24",  # core
+    "O": "#fff0c8",  # core, glowing
 }
 
-# A to D are an upgrade's accent, from shaded to glowing; the shield's are the suits' core.
+# A to D are an upgrade's accent, from shaded to glowing.
 ACCENTS = {
     "battery_upgrade": ("#7a1a1a", "#c42a22", "#ff5a3c", "#ffb08a"),
     "solar_upgrade": ("#1a2a6a", "#2a4fb0", "#4f86e8", "#b8dcff"),
@@ -161,6 +161,9 @@ ICONS = {
     ],
 }
 
+# The suits' icons' core, from shaded to glowing, onto which the flight chestplate's cyan one moves.
+CORE = ("#5a1a08", "#b8401a", "#f07a24", "#ffb85a", "#fff0c8")
+
 # Each tier's plates, 1 to 4 from shaded to highlight; iron's are the flight chestplate's own greys.
 TIERS = {
     "iron_gear": ("#888591", "#a2a0aa", "#cdccd1", "#f6f6f7"),
@@ -266,24 +269,35 @@ def icon(rows, palette):
 
 
 def is_grey(rgb):
-    """A plate pixel, not one of the core's or its glass ring's, which lean blue."""
-    return rgb[2] - rgb[0] < 20
+    """A plate pixel: neither the core and its glass ring, which lean blue, nor an orange core."""
+    return abs(rgb[2] - rgb[0]) < 20
 
 
-def retinted(base, plates):
-    """The base with its greys moved onto the plates' ramp by brightness; anything else is kept."""
+def is_core(rgb):
+    """One of the flight chestplate's core pixels, or its glass ring's."""
+    return rgb[2] - rgb[0] >= 20
+
+
+def recolored(base, layers):
+    """The base with each pixel that a layer picks moved onto that layer's ramp by brightness.
+
+    A layer is a pick and a ramp, and pixels are picked in the base, so a pixel moved by one layer
+    is never picked again by another. Pixels no layer picks are kept.
+    """
     image = base.copy()
-    greys = [p for p in base.get_flattened_data() if p[3] and is_grey(p)]
-    lows, highs = min(sum(p[:3]) for p in greys), max(sum(p[:3]) for p in greys)
-    ramp = [color(plate) for plate in plates]
-    for y in range(base.height):
-        for x in range(base.width):
-            pixel = base.getpixel((x, y))
-            if pixel[3] and is_grey(pixel):
-                t = (sum(pixel[:3]) - lows) / (highs - lows) * (len(ramp) - 1)
-                i = min(int(t), len(ramp) - 2)
-                f = t - i
-                image.putpixel((x, y), tuple(round(a + (b - a) * f) for a, b in zip(ramp[i], ramp[i + 1])))
+    pixels = [p for p in base.get_flattened_data() if p[3]]
+    for pick, colors in layers:
+        picked = [sum(p[:3]) for p in pixels if pick(p)]
+        lows, highs = min(picked), max(picked)
+        ramp = [color(c) for c in colors]
+        for y in range(base.height):
+            for x in range(base.width):
+                pixel = base.getpixel((x, y))
+                if pixel[3] and pick(pixel):
+                    t = (sum(pixel[:3]) - lows) / max(highs - lows, 1) * (len(ramp) - 1)
+                    i = min(int(t), len(ramp) - 2)
+                    f = t - i
+                    image.putpixel((x, y), tuple(round(a + (b - a) * f) for a, b in zip(ramp[i], ramp[i + 1])))
     return image
 
 
@@ -311,9 +325,11 @@ def main():
     base = Image.open(SUIT_BASE).convert("RGBA")
     iron = worn(dict(METAL, **dict(zip("1234", TIERS["iron_gear"]))))
     for name, plates in TIERS.items():
-        ramp = ("#141011",) + plates
-        (base if name == "iron_gear" else retinted(base, ramp)).save(items / f"{name}.png")
-        (iron if name == "iron_gear" else retinted(iron, ramp)).save(humanoid / f"{name}.png")
+        layers = [(is_core, CORE)]
+        if name != "iron_gear":
+            layers.append((is_grey, ("#141011",) + plates))
+        recolored(base, layers).save(items / f"{name}.png")
+        recolored(iron, layers[1:]).save(humanoid / f"{name}.png")
 
 
 if __name__ == "__main__":
