@@ -14,14 +14,16 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
  * The worn suit's Stats, each server tick: solar charges it in daylight under open sky; night vision
  * runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
- * drawing it while the player walks; and jump raises jump strength while it has the FE for a jump,
- * which each boosted jump spends.
+ * drawing it while the player walks; jump raises jump strength while it has the FE for a jump,
+ * which each boosted jump spends; and flight lets the player fly while it has the FE to draw each tick
+ * in the air, and lets them down slowly when it runs dry there.
  */
 public final class GearTicker {
 
@@ -31,12 +33,19 @@ public final class GearTicker {
     /** The jump strength modifier the suit's jump upgrades give. */
     public static final Identifier JUMP = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_jump");
 
+    /** The creative flight modifier the suit's flight upgrade gives. */
+    public static final Identifier FLIGHT = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_flight");
+
     // A player standing still still reports a little movement from the client's rounding.
     private static final double WALKING = 1.0E-5;
 
     // Over 200 ticks, under which the screen starts to flicker as night vision runs out.
     private static final int NIGHT_VISION_TICKS = 400;
     private static final int NIGHT_VISION_REFRESH = 220;
+
+    // Slow falling as the suit lets a player down, topped up until they land.
+    private static final int SLOW_FALL_TICKS = 40;
+    private static final int SLOW_FALL_REFRESH = 20;
 
     private GearTicker() {
     }
@@ -68,6 +77,8 @@ public final class GearTicker {
             modify(player, Attributes.MOVEMENT_SPEED, SPEED, 0);
             modify(player, Attributes.JUMP_STRENGTH, JUMP, 0);
             takeNightVision(player);
+            takeFlight(player);
+            letDown(player);
             return;
         }
         var totals = Gear.totals(suit);
@@ -83,6 +94,8 @@ public final class GearTicker {
         } else {
             takeNightVision(player);
         }
+        energy = fly(player, totals, energy);
+        letDown(player);
         boolean fast = totals.canDraw(Stat.SPEED, energy);
         modify(player, Attributes.MOVEMENT_SPEED, SPEED, fast ? totals.underCeiling(Stat.SPEED) : 0);
         if (fast && player.getKnownMovement().horizontalDistanceSqr() > WALKING) {
@@ -108,10 +121,66 @@ public final class GearTicker {
         }
     }
 
+    /**
+     * Lets the player fly while the suit has the FE for it, drawing it each tick they fly unless their
+     * game mode lets them fly anyway, and takes flight away once it has not; gives back the FE left.
+     */
+    private static int fly(Player player, Gear.Totals totals, int energy) {
+        if (!totals.canDraw(Stat.FLIGHT, energy)) {
+            takeFlight(player);
+            return energy;
+        }
+        var flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
+        if (flight != null && !flight.hasModifier(FLIGHT)) {
+            flight.addTransientModifier(new AttributeModifier(FLIGHT, 1, AttributeModifier.Operation.ADD_VALUE));
+        }
+        if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
+            energy -= totals.draw(Stat.FLIGHT);
+        }
+        return energy;
+    }
+
+    /**
+     * Takes away the flight the suit gave, and none a game mode or another mod gave; a player it leaves
+     * in the air stops flying and comes down slowly, at no cost.
+     */
+    private static void takeFlight(Player player) {
+        var flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
+        if (flight == null || !flight.hasModifier(FLIGHT)) {
+            return;
+        }
+        flight.removeModifier(FLIGHT);
+        if (player.mayFly() || player.onGround()) {
+            return;
+        }
+        if (player.getAbilities().flying) {
+            player.getAbilities().flying = false;
+            player.onUpdateAbilities();
+        }
+        slowFall(player);
+    }
+
+    /** Keeps up the slow falling the suit gave until the player lands or swims, then takes it away. */
+    private static void letDown(Player player) {
+        var effect = player.getEffect(MobEffects.SLOW_FALLING);
+        if (effect == null || !isFromSuit(effect, SLOW_FALL_TICKS)) {
+            return;
+        }
+        if (player.onGround() || player.isInWater()) {
+            player.removeEffect(MobEffects.SLOW_FALLING);
+        } else if (effect.getDuration() <= SLOW_FALL_REFRESH) {
+            slowFall(player);
+        }
+    }
+
+    private static void slowFall(Player player) {
+        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALL_TICKS, 0, true, false, true));
+    }
+
     /** Keeps night vision on, topping it up before it runs low, unless another source gave it. */
     private static void giveNightVision(Player player) {
         var effect = player.getEffect(MobEffects.NIGHT_VISION);
-        if (effect == null || isFromSuit(effect) && effect.getDuration() <= NIGHT_VISION_REFRESH) {
+        if (effect == null || isFromSuit(effect, NIGHT_VISION_TICKS) && effect.getDuration() <= NIGHT_VISION_REFRESH) {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_TICKS, 0, true, false, true));
         }
     }
@@ -119,14 +188,17 @@ public final class GearTicker {
     /** Takes away the suit's night vision, and none a potion or another mod gave. */
     private static void takeNightVision(Player player) {
         var effect = player.getEffect(MobEffects.NIGHT_VISION);
-        if (effect != null && isFromSuit(effect)) {
+        if (effect != null && isFromSuit(effect, NIGHT_VISION_TICKS)) {
             player.removeEffect(MobEffects.NIGHT_VISION);
         }
     }
 
-    /** The suit's night vision is ambient and shows no particles, which a potion's never is. */
-    private static boolean isFromSuit(MobEffectInstance effect) {
-        return effect.isAmbient() && !effect.isVisible() && effect.getAmplifier() == 0 && effect.getDuration() <= NIGHT_VISION_TICKS;
+    /**
+     * The suit's effects are ambient and show no particles, which a potion's never are, and last no longer
+     * than the suit gives them for.
+     */
+    private static boolean isFromSuit(MobEffectInstance effect, int ticks) {
+        return effect.isAmbient() && !effect.isVisible() && effect.getAmplifier() == 0 && effect.getDuration() <= ticks;
     }
 
     private static boolean inSunlight(Player player) {

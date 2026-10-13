@@ -347,6 +347,51 @@
           ]
         }
       ]
+    },
+    "gearworks:flight_upgrade": {
+      "energy": 100000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:feathers",
+              "count": 8
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 2
+            },
+            {
+              "tag": "c:gems/diamond",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            },
+            {
+              "tag": "c:ingots/netherite",
+              "count": 2
+            }
+          ]
+        }
+      ]
     }
   }
 }

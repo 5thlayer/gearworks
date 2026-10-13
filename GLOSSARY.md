@@ -50,7 +50,7 @@ _Avoid_: cap, max
 
 **Floor**:
 The FE draw that a Stat's upgrade approaches but never goes under as its Level lowers the draw, as
-night vision's does and Flight's will, so the Stat never becomes free.
+night vision's and Flight's do, so the Stat never becomes free.
 
 **Gear Bench**:
 The placed block where the player raises the Level of one Gear Upgrade inside a suit. Automation stocks

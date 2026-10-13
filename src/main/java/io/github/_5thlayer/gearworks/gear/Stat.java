@@ -29,7 +29,13 @@ public enum Stat implements StringRepresentable {
      * Gives night vision while it draws FE: on or off, so a suit holds one, whose amount is not read. The
      * draw is FE per tick, and each Level lowers it toward the {@code nightVisionFloor}.
      */
-    NIGHT_VISION("night_vision", Draw.FALLS, PerSuit.ONE);
+    NIGHT_VISION("night_vision", Draw.FALLS, PerSuit.ONE),
+    /**
+     * Creative-style flight while it draws FE: on or off, so a suit holds one, whose amount is not read.
+     * The draw is FE per tick in the air, and each Level lowers it toward the {@code flightFloor}; no
+     * Level makes the player fly faster. A suit that runs dry mid-air lets the player down slowly.
+     */
+    FLIGHT("flight", Draw.FALLS, PerSuit.ONE);
 
     public static final Codec<Stat> CODEC = StringRepresentable.fromEnum(Stat::values);
 

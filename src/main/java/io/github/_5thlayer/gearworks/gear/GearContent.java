@@ -91,6 +91,7 @@ public final class GearContent {
     public static final DeferredItem<Item> SHIELD_UPGRADE = ITEMS.registerSimpleItem("shield_upgrade");
     public static final DeferredItem<Item> JUMP_UPGRADE = ITEMS.registerSimpleItem("jump_upgrade");
     public static final DeferredItem<Item> NIGHT_VISION_UPGRADE = ITEMS.registerSimpleItem("night_vision_upgrade");
+    public static final DeferredItem<Item> FLIGHT_UPGRADE = ITEMS.registerSimpleItem("flight_upgrade");
 
     public static final DeferredHolder<MenuType<?>, MenuType<GearGridMenu>> GRID_MENU =
             MENUS.register("gear_grid", () -> IMenuTypeExtension.create(GearGridMenu::new));
@@ -175,6 +176,7 @@ public final class GearContent {
             event.accept(SHIELD_UPGRADE);
             event.accept(JUMP_UPGRADE);
             event.accept(NIGHT_VISION_UPGRADE);
+            event.accept(FLIGHT_UPGRADE);
         }
     }
 }

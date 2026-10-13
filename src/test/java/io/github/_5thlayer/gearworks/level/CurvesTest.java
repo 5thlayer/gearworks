@@ -83,6 +83,22 @@ class CurvesTest {
     }
 
     @Test
+    void aLargeDrawClosesInOnItsFloorWithoutPassingIt() {
+        // Flight's defaults: 200 FE/t falling by about 20 a Level toward a Floor of 20.
+        assertEquals(181, Curves.overFloor(200, 20, 20, 1));
+        int previous = 200;
+        for (int level = 1; level <= 30; level++) {
+            int draw = Curves.overFloor(200, 20, 20, level);
+            assertTrue(draw < previous, "Level " + level + " lowers the draw no further");
+            previous = draw;
+        }
+        for (int level = 30; level <= 10_000; level += 10) {
+            assertTrue(Curves.overFloor(200, 20, 20, level) >= 20, "Level " + level + " draws under the Floor");
+        }
+        assertEquals(20, Curves.overFloor(200, 20, 20, 10_000), "the draw approaches the Floor");
+    }
+
+    @Test
     void aDrawAlreadyAtItsFloorStaysThere() {
         assertEquals(1, Curves.overFloor(1, 1, 2, 5));
     }

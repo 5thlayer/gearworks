@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": "#c:feathers",
+    "N": "#c:ingots/netherite",
+    "S": "#c:nether_stars"
+  },
+  "pattern": [
+    "NFN",
+    "FSF",
+    "NFN"
+  ],
+  "result": {
+    "id": "gearworks:flight_upgrade"
+  }
+}

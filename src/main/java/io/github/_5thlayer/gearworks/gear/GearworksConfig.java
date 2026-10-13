@@ -17,6 +17,7 @@ public final class GearworksConfig {
     private static final ModConfigSpec.DoubleValue JUMP_CEILING;
     private static final ModConfigSpec.DoubleValue SHIELD_CEILING;
     private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
+    private static final ModConfigSpec.IntValue FLIGHT_FLOOR;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -35,6 +36,10 @@ public final class GearworksConfig {
         NIGHT_VISION_FLOOR = builder
                 .comment("The FE per tick a night vision upgrade's draw approaches as it levels, and is never pushed under.")
                 .defineInRange("nightVisionFloor", 1, 0, 1_000_000);
+        FLIGHT_FLOOR = builder
+                .comment("The FE per tick in the air a flight upgrade's draw approaches as it levels, and is never pushed under.",
+                        "Over 0, so flight is never free.")
+                .defineInRange("flightFloor", 20, 1, 1_000_000);
         SPEC = builder.build();
     }
 
@@ -60,9 +65,11 @@ public final class GearworksConfig {
      * loaded; a Stat whose draw rises has none to ask for.
      */
     public static int floor(Stat stat) {
-        if (stat != Stat.NIGHT_VISION) {
-            throw new IllegalArgumentException(stat + " has no Floor");
-        }
-        return SPEC.isLoaded() ? NIGHT_VISION_FLOOR.get() : NIGHT_VISION_FLOOR.getDefault();
+        var floor = switch (stat) {
+            case NIGHT_VISION -> NIGHT_VISION_FLOOR;
+            case FLIGHT -> FLIGHT_FLOOR;
+            default -> throw new IllegalArgumentException(stat + " has no Floor");
+        };
+        return SPEC.isLoaded() ? floor.get() : floor.getDefault();
     }
 }

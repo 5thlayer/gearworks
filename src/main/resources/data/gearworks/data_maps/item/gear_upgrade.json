@@ -47,6 +47,14 @@
       "amount": 1,
       "draw": 10,
       "draw_per_level": 1
+    },
+    "gearworks:flight_upgrade": {
+      "width": 2,
+      "height": 5,
+      "stat": "flight",
+      "amount": 1,
+      "draw": 200,
+      "draw_per_level": 20
     }
   }
 }
