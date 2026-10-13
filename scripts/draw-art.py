@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Draws Gearworks' item icons and worn suit textures.
 
-The upgrades share the flight chestplate's metal, lit from the top left, and one accent each. The
-worn suits share a gunmetal frame with a dark outline. The suits share a cyan core and differ by their plates, so a
-new tier's art is a new entry in TIERS; the tier still needs its item model, its equipment asset and
+Every upgrade and worn suit shares the flight chestplate's metal, lit from the top left. The
+upgrades add one accent each; the suits share a cyan core and differ by their plates, so a new
+tier's art is a new entry in TIERS; the tier still needs its item model, its equipment asset and
 its place in ArtTest. Run from the repository root; it overwrites the PNGs it draws.
 
 The suits' icons are Futureazoo's flight chestplate (art/flight_chestplate.png, CC BY-NC-SA 4.0,
 github.com/Futureazoo/TextureRepository), its grey plates retinted to each tier's and its cyan core
-kept. Iron gear keeps the original's own greys.
+kept. Iron gear keeps the original's own greys. The worn suits are drawn here in iron's greys and
+retinted the same way, so each tier's worn look and icon share one ramp.
 
     python3 scripts/draw-art.py
 """
@@ -20,19 +21,9 @@ from PIL import Image
 ROOT = Path("src/main/resources/assets/gearworks/textures")
 SUIT_BASE = Path("art/flight_chestplate.png")
 
-FRAME = {
-    ".": None,
-    "K": "#1b1e24",  # outline
-    "d": "#363c45",  # gunmetal, shaded
-    "m": "#58616c",  # gunmetal
-    "l": "#8a949f",  # gunmetal, lit
-    "w": "#c8d0d8",  # gunmetal, highlight
-    "o": "#2fb8d8",  # core
-    "O": "#c8f8ff",  # core, glowing
-}
-
-# The upgrades' metal is the flight chestplate's: an outline and a ramp of purple-tinged greys.
-UPGRADE_FRAME = {
+# The metal of every upgrade and worn suit is the flight chestplate's: an outline and a ramp of
+# purple-tinged greys, and for the suits its cyan core.
+METAL = {
     ".": None,
     "K": "#414047",  # outline
     "d": "#57555f",
@@ -42,6 +33,8 @@ UPGRADE_FRAME = {
     "L": "#bab9c0",
     "w": "#dcdbdf",
     "W": "#f6f6f7",  # highlight
+    "o": "#2bbdc6",  # core
+    "O": "#c6fafd",  # core, glowing
 }
 
 # A to D are an upgrade's accent, from shaded to glowing; the shield's are the suits' core.
@@ -168,9 +161,9 @@ ICONS = {
     ],
 }
 
-# Each tier's plates, 1 to 4 from shaded to highlight; the netherite tier's are dark, so its trim lights them.
+# Each tier's plates, 1 to 4 from shaded to highlight; iron's are the flight chestplate's own greys.
 TIERS = {
-    "iron_gear": ("#5e6266", "#9a9fa4", "#cdd1d5", "#f2f4f6"),
+    "iron_gear": ("#888591", "#a2a0aa", "#cdccd1", "#f6f6f7"),
     "diamond_gear": ("#16716c", "#2fb9ad", "#74e8dc", "#c8fff8"),
     "netherite_gear": ("#2b2427", "#4a3f43", "#6e5d62", "#a08a8f"),
 }
@@ -313,14 +306,14 @@ def main():
     humanoid = ROOT / "entity/equipment/humanoid"
     humanoid.mkdir(parents=True, exist_ok=True)
     for name, rows in ICONS.items():
-        palette = dict(UPGRADE_FRAME, **SUN, **dict(zip("ABCD", ACCENTS[name])))
+        palette = dict(METAL, **SUN, **dict(zip("ABCD", ACCENTS[name])))
         icon(rows, palette).save(items / f"{name}.png")
     base = Image.open(SUIT_BASE).convert("RGBA")
+    iron = worn(dict(METAL, **dict(zip("1234", TIERS["iron_gear"]))))
     for name, plates in TIERS.items():
-        palette = dict(FRAME, **dict(zip("1234", plates)))
-        suit = base if name == "iron_gear" else retinted(base, ("#141011",) + plates)
-        suit.save(items / f"{name}.png")
-        worn(palette).save(humanoid / f"{name}.png")
+        ramp = ("#141011",) + plates
+        (base if name == "iron_gear" else retinted(base, ramp)).save(items / f"{name}.png")
+        (iron if name == "iron_gear" else retinted(iron, ramp)).save(humanoid / f"{name}.png")
 
 
 if __name__ == "__main__":
