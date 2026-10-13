@@ -7,6 +7,7 @@ import io.github._5thlayer.gearworks.Gearworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -174,14 +175,14 @@ public final class GearTicker {
     }
 
     private static void slowFall(Player player) {
-        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALL_TICKS, 0, true, false, true));
+        player.addEffect(suitEffect(MobEffects.SLOW_FALLING, SLOW_FALL_TICKS));
     }
 
     /** Keeps night vision on, topping it up before it runs low, unless another source gave it. */
     private static void giveNightVision(Player player) {
         var effect = player.getEffect(MobEffects.NIGHT_VISION);
         if (effect == null || isFromSuit(effect, NIGHT_VISION_TICKS) && effect.getDuration() <= NIGHT_VISION_REFRESH) {
-            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_TICKS, 0, true, false, true));
+            player.addEffect(suitEffect(MobEffects.NIGHT_VISION, NIGHT_VISION_TICKS));
         }
     }
 
@@ -191,6 +192,11 @@ public final class GearTicker {
         if (effect != null && isFromSuit(effect, NIGHT_VISION_TICKS)) {
             player.removeEffect(MobEffects.NIGHT_VISION);
         }
+    }
+
+    /** An effect as the suit gives it, which {@link #isFromSuit} tells from a potion's. */
+    private static MobEffectInstance suitEffect(Holder<MobEffect> effect, int ticks) {
+        return new MobEffectInstance(effect, ticks, 0, true, false, true);
     }
 
     /**
