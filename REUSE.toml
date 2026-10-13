@@ -22,11 +22,30 @@ path = [
     "**/src/gametest/resources/**/*.nbt",
     "**/src/main/resources/**/*.nbt",
     "LICENSE",
+    "NOTICE",
     "publish/summary.txt",
     ".github/**",
 ]
 SPDX-FileCopyrightText = "2026 5thlayer"
 SPDX-License-Identifier = "MIT"
+
+# Malcolm Riley's unused textures: the Gear Bench's plating, copied unmodified, the workbench top it is
+# built from, and the top scripts/build-textures.py builds from it (NOTICE).
+[[annotations]]
+path = [
+    "data/art/*.png",
+    "src/main/resources/assets/gearworks/textures/block/gear_bench/side.png",
+    "src/main/resources/assets/gearworks/textures/block/gear_bench/bottom.png",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Malcolm Riley"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = ["src/main/resources/assets/gearworks/textures/block/gear_bench/top.png"]
+precedence = "override"
+SPDX-FileCopyrightText = ["Malcolm Riley", "2026 5thlayer"]
+SPDX-License-Identifier = "CC-BY-4.0"
 
 # The Gradle wrapper is Gradle's.
 [[annotations]]

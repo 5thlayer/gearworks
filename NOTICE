@@ -1,0 +1,35 @@
+Third-party material committed to this repository
+==================================================
+
+Each entry names the files, their author, where they came from and the licence they are under. A
+file listed here is NOT covered by the licence this repository states for its own work; its own
+licence governs it. Which licence covers which file is REUSE.toml's to say; this list is the
+credits for what was copied in.
+
+Gear Bench
+----------
+
+Files:   data/art/device_workbench_top.png
+         src/main/resources/assets/gearworks/textures/block/gear_bench/side.png
+         src/main/resources/assets/gearworks/textures/block/gear_bench/bottom.png
+         src/main/resources/assets/gearworks/textures/block/gear_bench/top.png
+Author:  Malcolm Riley
+Source:  https://github.com/malcolmriley/unused-textures
+         at commit 9218cb8997bf1dc83617bd7748acf44a16c19c42. side.png is blocks/space-plating-square.png
+         and bottom.png blocks/space-plating-plain.png, copied unmodified and renamed. The file under
+         data/art/ is the unmodified copy of blocks/device_workbench_top.png; the bench's top is built
+         from it by scripts/build-textures.py, which lets an orange gem into the middle of its grid.
+Licence: Creative Commons Attribution 4.0 International
+         https://creativecommons.org/licenses/by/4.0/
+
+Suits' icons
+------------
+
+Files:   art/flight_chestplate.png
+         src/main/resources/assets/gearworks/textures/item/*_gear.png and their .mcmeta
+Author:  Futureazoo
+Source:  https://github.com/Futureazoo/TextureRepository, its flight chestplate. The file under art/
+         is the unmodified copy; the suits' icons are built from it by scripts/draw-art.py, which
+         recolors its core orange and retints its plates to each tier's (ADR 0004).
+Licence: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+         https://creativecommons.org/licenses/by-nc-sa/4.0/
