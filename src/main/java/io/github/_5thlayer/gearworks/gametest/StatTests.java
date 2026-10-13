@@ -46,6 +46,7 @@ final class StatTests {
         tests.test("night_vision_stops_when_the_suit_runs_empty", 20, StatTests::nightVisionRunsOut);
         tests.test("an_empty_suit_leaves_a_potions_night_vision_alone", 1, StatTests::potionNightVisionKept);
         tests.test("a_raised_night_vision_upgrade_draws_less_fe", 1, StatTests::raisedNightVisionDrawsLess);
+        tests.test("a_suit_holding_two_night_vision_upgrades_draws_for_one", 1, StatTests::secondNightVisionDrawsNothing);
     }
 
     private static void shieldWithEnergy(GameTestHelper helper) {
@@ -211,6 +212,18 @@ final class StatTests {
 
         helper.assertTrue(drawRaised > 0, Component.literal("the raised upgrade drew no FE"));
         helper.assertTrue(drawRaised < drawFresh, Component.literal("Level 10 drew " + drawRaised + " FE, Level 0 " + drawFresh));
+        helper.succeed();
+    }
+
+    private static void secondNightVisionDrawsNothing(GameTestHelper helper) {
+        // Placed past the grid's own refusal, as a suit laid out before one-per-suit holds them.
+        var two = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get());
+        charge(two, 1000);
+        int draw = GearFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw();
+
+        wearer(helper, two).tick();
+
+        helper.assertValueEqual(Gear.energy(two), 1000 - draw, Component.literal("FE after a tick"));
         helper.succeed();
     }
 

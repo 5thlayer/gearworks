@@ -140,8 +140,7 @@ public final class GearGridMenu extends AbstractContainerMenu {
             if (at.isEmpty()) {
                 return false;
             }
-            Gear.setGrid(suit, grid.remove(at.get()));
-            setCarried(at.get().item().create());
+            setCarried(take(suit, grid, at.get()));
             return true;
         }
         if (at.isPresent()) {
@@ -162,11 +161,10 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     /** Moves the upgrade to the player's inventory, as a shift-click on a slot does, if it has room. */
     private static boolean toInventory(Player player, ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement) {
-        var stack = placement.item().create();
-        if (!player.getInventory().add(stack)) {
+        if (!player.getInventory().add(placement.item().create())) {
             return false;
         }
-        Gear.setGrid(suit, grid.remove(placement));
+        take(suit, grid, placement);
         return true;
     }
 
@@ -175,13 +173,18 @@ public final class GearGridMenu extends AbstractContainerMenu {
      * as a click on a slot gathers what matches, and the stack has room.
      */
     private static boolean stackIntoHand(ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement, ItemStack carried) {
-        var stack = placement.item().create();
-        if (!ItemStack.isSameItemSameComponents(stack, carried) || carried.getCount() >= carried.getMaxStackSize()) {
+        if (!ItemStack.isSameItemSameComponents(placement.item().create(), carried) || carried.getCount() >= carried.getMaxStackSize()) {
             return false;
         }
-        Gear.setGrid(suit, grid.remove(placement));
+        take(suit, grid, placement);
         carried.grow(1);
         return true;
+    }
+
+    /** Takes the upgrade out of the suit's grid, and gives it as a stack. */
+    private static ItemStack take(ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement) {
+        Gear.setGrid(suit, grid.remove(placement));
+        return placement.item().create();
     }
 
     /** A shift-click puts one upgrade in the first rectangle it fits. */

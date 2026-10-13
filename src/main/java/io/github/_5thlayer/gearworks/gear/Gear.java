@@ -108,6 +108,10 @@ public final class Gear {
                 // A pack took its entry away: it keeps its cells and gives nothing.
                 continue;
             }
+            if (upgrade.stat().onePerSuit() && totals.has(upgrade.stat())) {
+                // One laid out before the grid refused a second: it gives and draws nothing.
+                continue;
+            }
             int level = GearUpgrade.level(placement.item());
             totals.add(upgrade.stat(), upgrade.amountAt(level), upgrade.drawAt(level));
         }
@@ -143,15 +147,17 @@ public final class Gear {
             return amounts[stat.ordinal()];
         }
 
-        /** The mean of what the suit's upgrades of that Stat draw, rounded up, or 0 with none. */
-        public int meanDraw(Stat stat) {
-            int count = upgrades[stat.ordinal()];
-            return count == 0 ? 0 : (int) Math.min(Integer.MAX_VALUE, (draws[stat.ordinal()] + count - 1) / count);
-        }
-
-        /** The FE the suit's upgrades of that Stat draw together, as much as an int carries. */
+        /**
+         * The FE the suit's upgrades of that Stat draw together, as much as an int carries: their sum, or
+         * for a Stat whose upgrades share one price, their mean, rounded up.
+         */
         public int draw(Stat stat) {
-            return (int) Math.min(Integer.MAX_VALUE, draws[stat.ordinal()]);
+            long draw = draws[stat.ordinal()];
+            int count = upgrades[stat.ordinal()];
+            if (stat.draw() == Stat.Draw.SHARED && count > 0) {
+                draw = (draw + count - 1) / count;
+            }
+            return (int) Math.min(Integer.MAX_VALUE, draw);
         }
 
         /** Whether the suit holds an upgrade of that Stat and the FE for its draw: an empty suit runs nothing. */

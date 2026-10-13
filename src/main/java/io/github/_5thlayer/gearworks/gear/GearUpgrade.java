@@ -62,7 +62,7 @@ public record GearUpgrade(int width, int height, Stat stat, double amount, doubl
      * whose draw falls, less toward its Floor.
      */
     public int drawAt(int level) {
-        return stat.drawFalls()
+        return stat.draw() == Stat.Draw.FALLS
                 ? Curves.overFloor(draw, drawPerLevel, GearworksConfig.floor(stat), level)
                 : Curves.draw(draw, drawPerLevel, level);
     }

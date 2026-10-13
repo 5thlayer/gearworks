@@ -61,7 +61,8 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         }
         int x = cell.get()[0];
         int y = cell.get()[1];
-        boolean fits = Gear.grid(menu.suit()).fits(x, y, upgrade.width(), upgrade.height());
+        var grid = Gear.grid(menu.suit());
+        boolean fits = grid.fits(x, y, upgrade.width(), upgrade.height()) && Gear.admits(grid, upgrade);
         int right = Math.min(x + upgrade.width(), menu.gridWidth());
         int bottom = Math.min(y + upgrade.height(), menu.gridHeight());
         graphics.fill(cellX(x), cellY(y), cellX(right) - 2, cellY(bottom) - 2, fits ? FITS : REFUSED);

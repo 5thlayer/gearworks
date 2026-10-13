@@ -214,6 +214,7 @@ final class GridTests {
         menu.setCarried(new ItemStack(GearContent.NIGHT_VISION_UPGRADE.get()));
 
         helper.assertFalse(menu.clickMenuButton(player, cell(4, 1)), Component.literal("a click placed a second night vision upgrade"));
+        // Menu slot 1, past the locked suit, stands over inventory slot 9.
         menu.quickMoveStack(player, 1);
 
         helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
