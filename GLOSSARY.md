@@ -49,7 +49,8 @@ total: two upgrades of one Stat together stay under it.
 _Avoid_: cap, max
 
 **Floor**:
-The FE draw Flight approaches but never reaches as it levels, so flying never becomes free.
+The FE draw a Stat whose draw falls as it levels approaches and never goes under, such as Flight's, so
+flying never becomes free, and night vision's.
 
 **Gear Bench**:
 The placed block where the player raises the Level of one Gear Upgrade inside a suit. Automation stocks

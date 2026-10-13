@@ -24,6 +24,19 @@ public final class Curves {
     }
 
     /**
+     * An upgrade's FE per tick at that Level when its Stat has a Floor: each Level takes about
+     * {@code perLevel} off the draw at first, less as it nears the Floor, which it approaches and is
+     * never pushed under. A draw already at or under the Floor stays as it is.
+     */
+    public static int overFloor(int base, int perLevel, int floor, int level) {
+        if (base <= floor) {
+            return base;
+        }
+        double span = base - floor;
+        return (int) Math.round(floor + span * Math.exp(-(double) perLevel * level / span));
+    }
+
+    /**
      * The value a Stat gives for the suit's total under its Ceiling: close to the total while it is
      * small, and never reaching the Ceiling.
      */

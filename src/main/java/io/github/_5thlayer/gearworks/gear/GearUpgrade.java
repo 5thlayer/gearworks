@@ -57,8 +57,13 @@ public record GearUpgrade(int width, int height, Stat stat, double amount, doubl
         return Curves.linear(amount, amountPerLevel, level);
     }
 
-    /** The FE per tick the upgrade draws at that Level, when its Stat runs on FE. */
+    /**
+     * The FE the upgrade draws at that Level, when its Stat runs on FE: more each Level, or for a Stat
+     * whose draw falls, less toward its Floor.
+     */
     public int drawAt(int level) {
-        return Curves.draw(draw, drawPerLevel, level);
+        return stat.drawFalls()
+                ? Curves.overFloor(draw, drawPerLevel, GearworksConfig.floor(stat), level)
+                : Curves.draw(draw, drawPerLevel, level);
     }
 }

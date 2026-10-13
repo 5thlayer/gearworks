@@ -40,10 +40,12 @@ final class StatTests {
         tests.test("jump_rises_and_each_jump_spends_fe_while_the_suit_has_it", 1, StatTests::jumpWithEnergy);
         tests.test("jump_stays_at_base_in_an_empty_suit", 1, StatTests::noJumpWhenEmpty);
         tests.test("several_shields_absorb_more_than_one_and_stay_under_the_ceiling", 1, StatTests::shieldCeiling);
+        tests.test("several_shields_spend_one_shields_fe_for_each_point", 1, StatTests::shieldsShareTheirCost);
         tests.test("several_jump_upgrades_rise_more_than_one_and_stay_under_the_ceiling", 1, StatTests::jumpCeiling);
         tests.test("night_vision_runs_while_the_suit_has_fe_and_draws_it", 1, StatTests::nightVisionWithEnergy);
         tests.test("night_vision_stops_when_the_suit_runs_empty", 20, StatTests::nightVisionRunsOut);
         tests.test("an_empty_suit_leaves_a_potions_night_vision_alone", 1, StatTests::potionNightVisionKept);
+        tests.test("a_raised_night_vision_upgrade_draws_less_fe", 1, StatTests::raisedNightVisionDrawsLess);
     }
 
     private static void shieldWithEnergy(GameTestHelper helper) {
@@ -118,6 +120,23 @@ final class StatTests {
         helper.succeed();
     }
 
+    private static void shieldsShareTheirCost(GameTestHelper helper) {
+        var two = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.SHIELD_UPGRADE.get(), GearContent.SHIELD_UPGRADE.get());
+        charge(two, 10_000);
+        var bare = suitWith(GearContent.BATTERY_UPGRADE.get());
+        charge(bare, 10_000);
+        int draw = GearFixtures.upgrade(GearContent.SHIELD_UPGRADE.get()).draw();
+
+        float absorbed = healthLost(helper, bare) - healthLost(helper, two);
+        double perPoint = (10_000 - Gear.energy(two)) / absorbed;
+
+        helper.assertTrue(absorbed > 0, Component.literal("the shields absorbed nothing"));
+        // Spending rounds up to a whole FE, which spread over the points absorbed is under one each.
+        helper.assertTrue(Math.abs(perPoint - draw) < 1,
+                Component.literal("two shields spent " + perPoint + " FE a point, against one shield's " + draw));
+        helper.succeed();
+    }
+
     private static void jumpCeiling(GameTestHelper helper) {
         var one = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
         addAtLevel(one, GearContent.JUMP_UPGRADE.get(), 10);
@@ -175,6 +194,23 @@ final class StatTests {
         player.tick();
 
         helper.assertTrue(player.hasEffect(MobEffects.NIGHT_VISION), Component.literal("the empty suit took the potion's night vision"));
+        helper.succeed();
+    }
+
+    private static void raisedNightVisionDrawsLess(GameTestHelper helper) {
+        var fresh = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get());
+        var raised = suitWith(GearContent.BATTERY_UPGRADE.get());
+        addAtLevel(raised, GearContent.NIGHT_VISION_UPGRADE.get(), 10);
+        for (var suit : List.of(fresh, raised)) {
+            charge(suit, 1000);
+            wearer(helper, suit).tick();
+        }
+
+        int drawFresh = 1000 - Gear.energy(fresh);
+        int drawRaised = 1000 - Gear.energy(raised);
+
+        helper.assertTrue(drawRaised > 0, Component.literal("the raised upgrade drew no FE"));
+        helper.assertTrue(drawRaised < drawFresh, Component.literal("Level 10 drew " + drawRaised + " FE, Level 0 " + drawFresh));
         helper.succeed();
     }
 

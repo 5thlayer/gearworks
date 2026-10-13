@@ -41,6 +41,23 @@ public final class Gear {
         suit.set(GearContent.GRID.get(), new GridContents(grid.placements()));
     }
 
+    /**
+     * Whether the grid takes another upgrade of that kind wherever it fits: no, when its Stat is one a suit
+     * holds once and the grid holds one already.
+     */
+    public static boolean admits(GearGrid<ItemStackTemplate> grid, GearUpgrade upgrade) {
+        if (!upgrade.stat().onePerSuit()) {
+            return true;
+        }
+        for (var placement : grid.placements()) {
+            var placed = GearUpgrade.of(placement.item().typeHolder());
+            if (placed != null && placed.stat() == upgrade.stat()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Keeps no more FE than the suit's batteries can hold, once its layout is settled. */
     public static void keepWhatBatteriesHold(ItemStack suit) {
         int capacity = capacity(suit);
@@ -124,6 +141,12 @@ public final class Gear {
         /** The sum of what the suit's upgrades of that Stat give, before any Ceiling. */
         public double amount(Stat stat) {
             return amounts[stat.ordinal()];
+        }
+
+        /** The mean of what the suit's upgrades of that Stat draw, rounded up, or 0 with none. */
+        public int meanDraw(Stat stat) {
+            int count = upgrades[stat.ordinal()];
+            return count == 0 ? 0 : (int) Math.min(Integer.MAX_VALUE, (draws[stat.ordinal()] + count - 1) / count);
         }
 
         /** The FE the suit's upgrades of that Stat draw together, as much as an int carries. */

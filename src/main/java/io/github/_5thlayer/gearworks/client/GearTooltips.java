@@ -48,8 +48,10 @@ final class GearTooltips {
         }
         for (var stat : List.of(Stat.SPEED, Stat.SHIELD, Stat.JUMP)) {
             if (totals.has(stat)) {
+                // Shields share one price a point, where speed and jump upgrades each draw their own.
+                int draw = stat == Stat.SHIELD ? totals.meanDraw(stat) : totals.draw(stat);
                 lines.add(gray(Component.translatable("tooltip.gearworks." + stat.getSerializedName(),
-                        format(totals.underCeiling(stat) * 100), totals.draw(stat))));
+                        format(totals.underCeiling(stat) * 100), draw)));
             }
         }
         if (totals.has(Stat.NIGHT_VISION)) {

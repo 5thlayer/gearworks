@@ -64,4 +64,26 @@ class CurvesTest {
     void aZeroCeilingGivesNothing() {
         assertEquals(0, Curves.underCeiling(5, 0));
     }
+
+    @Test
+    void aDrawWithAFloorFallsByAboutItsStepAtFirst() {
+        assertEquals(10, Curves.overFloor(10, 1, 1, 0));
+        assertEquals(9, Curves.overFloor(10, 1, 1, 1));
+    }
+
+    @Test
+    void aDrawWithAFloorNeverFallsUnderIt() {
+        int previous = Curves.overFloor(10, 1, 1, 0);
+        for (int level = 1; level <= 200; level++) {
+            int draw = Curves.overFloor(10, 1, 1, level);
+            assertTrue(draw <= previous, "Level " + level + " draws more than the last");
+            assertTrue(draw >= 1, "Level " + level + " draws under the Floor");
+            previous = draw;
+        }
+    }
+
+    @Test
+    void aDrawAlreadyAtItsFloorStaysThere() {
+        assertEquals(1, Curves.overFloor(1, 1, 2, 5));
+    }
 }

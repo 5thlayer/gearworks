@@ -3,6 +3,8 @@
 
 package io.github._5thlayer.gearworks.gear;
 
+import io.github._5thlayer.gearworks.grid.GearGrid;
+import io.github._5thlayer.gearworks.grid.Placement;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,8 +20,10 @@ import net.minecraft.world.item.ItemStackTemplate;
 /**
  * The Gear Grid of the worn suit, opened anywhere by a key. A click
  * on a cell, sent as a menu button, places the carried upgrade with its top-left there, or picks up
- * the upgrade covering it, so moving one is picking it up and placing it again. The server decides
- * every placement from the grid, never from the client.
+ * the upgrade covering it, so moving one is picking it up and placing it again; with the same upgrade
+ * at the same Level in hand, it adds the clicked one to that stack. A shift-click sends the upgrade to
+ * the inventory. A suit holds one upgrade of a Stat that is {@link Stat#onePerSuit}. The server
+ * decides every placement from the grid, never from the client.
  *
  * <p>The chest slot is in the menu, locked, so the suit's layout syncs to the client as it changes and
  * the suit cannot come off while its grid is open.
@@ -28,6 +32,7 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     /** A cell's button id is {@code y * CELL_STRIDE + x}, past any grid's size. */
     public static final int CELL_STRIDE = 64;
+    private static final int SHIFT = CELL_STRIDE * CELL_STRIDE;
     public static final int CELL = 18;
     /** The panel's width, a vanilla container's, which holds nine columns of slots. */
     public static final int WIDTH = 176;
@@ -94,6 +99,11 @@ public final class GearGridMenu extends AbstractContainerMenu {
         return y * CELL_STRIDE + x;
     }
 
+    /** The menu button a shift-click on that cell sends, past every plain click's. */
+    public static int shiftCellButton(int x, int y) {
+        return SHIFT + cellButton(x, y);
+    }
+
     public ItemStack suit() {
         return inventory.getItem(CHEST);
     }
@@ -116,21 +126,29 @@ public final class GearGridMenu extends AbstractContainerMenu {
         if (id < 0 || !Gear.is(suit)) {
             return false;
         }
-        int x = id % CELL_STRIDE;
-        int y = id / CELL_STRIDE;
+        boolean shift = id >= SHIFT;
+        int cell = shift ? id - SHIFT : id;
+        int x = cell % CELL_STRIDE;
+        int y = cell / CELL_STRIDE;
         var grid = Gear.grid(suit);
+        var at = grid.at(x, y);
         var carried = getCarried();
+        if (shift) {
+            return at.isPresent() && toInventory(player, suit, grid, at.get());
+        }
         if (carried.isEmpty()) {
-            var picked = grid.at(x, y);
-            if (picked.isEmpty()) {
+            if (at.isEmpty()) {
                 return false;
             }
-            Gear.setGrid(suit, grid.remove(picked.get()));
-            setCarried(picked.get().item().create());
+            Gear.setGrid(suit, grid.remove(at.get()));
+            setCarried(at.get().item().create());
             return true;
         }
+        if (at.isPresent()) {
+            return stackIntoHand(suit, grid, at.get(), carried);
+        }
         var upgrade = GearUpgrade.of(carried.typeHolder());
-        if (upgrade == null) {
+        if (upgrade == null || !Gear.admits(grid, upgrade)) {
             return false;
         }
         var placed = grid.place(x, y, upgrade.width(), upgrade.height(), ItemStackTemplate.fromNonEmptyStack(carried.copyWithCount(1)));
@@ -139,6 +157,30 @@ public final class GearGridMenu extends AbstractContainerMenu {
         }
         Gear.setGrid(suit, placed.get());
         carried.shrink(1);
+        return true;
+    }
+
+    /** Moves the upgrade to the player's inventory, as a shift-click on a slot does, if it has room. */
+    private static boolean toInventory(Player player, ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement) {
+        var stack = placement.item().create();
+        if (!player.getInventory().add(stack)) {
+            return false;
+        }
+        Gear.setGrid(suit, grid.remove(placement));
+        return true;
+    }
+
+    /**
+     * Takes the clicked upgrade onto the stack in hand when it is the same upgrade at the same Level,
+     * as a click on a slot gathers what matches, and the stack has room.
+     */
+    private static boolean stackIntoHand(ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement, ItemStack carried) {
+        var stack = placement.item().create();
+        if (!ItemStack.isSameItemSameComponents(stack, carried) || carried.getCount() >= carried.getMaxStackSize()) {
+            return false;
+        }
+        Gear.setGrid(suit, grid.remove(placement));
+        carried.grow(1);
         return true;
     }
 
@@ -152,7 +194,11 @@ public final class GearGridMenu extends AbstractContainerMenu {
         if (upgrade == null || !Gear.is(suit) || !slot.mayPickup(player)) {
             return ItemStack.EMPTY;
         }
-        var placed = Gear.grid(suit).placeFirstFit(upgrade.width(), upgrade.height(), ItemStackTemplate.fromNonEmptyStack(stack.copyWithCount(1)));
+        var grid = Gear.grid(suit);
+        if (!Gear.admits(grid, upgrade)) {
+            return ItemStack.EMPTY;
+        }
+        var placed = grid.placeFirstFit(upgrade.width(), upgrade.height(), ItemStackTemplate.fromNonEmptyStack(stack.copyWithCount(1)));
         if (placed.isPresent()) {
             Gear.setGrid(suit, placed.get());
             stack.shrink(1);

@@ -40,6 +40,11 @@ final class GridTests {
         tests.test("a_closed_grid_keeps_no_more_fe_than_its_batteries_hold", 1, GridTests::closingDropsFeNoBatteryHolds);
         tests.test("a_datapacks_upgrade_fits_the_grid_with_no_code", 1, GridTests::datapackUpgrade);
         tests.test("the_layout_survives_a_save_and_reload", 1, GridTests::savesAndLoads);
+        tests.test("a_shift_click_moves_an_upgrade_from_the_grid_to_the_inventory", 1, GridTests::shiftClickTakesOut);
+        tests.test("a_shift_click_leaves_an_upgrade_in_the_grid_when_the_inventory_is_full", 1, GridTests::shiftClickKeepsWhenFull);
+        tests.test("a_click_with_the_same_upgrade_in_hand_stacks_it_there", 1, GridTests::stacksIntoHand);
+        tests.test("a_click_with_the_same_upgrade_at_another_level_in_hand_does_not_stack", 1, GridTests::otherLevelDoesNotStack);
+        tests.test("a_suit_holds_one_night_vision_upgrade", 1, GridTests::oneNightVision);
     }
 
     private static void places(GameTestHelper helper) {
@@ -61,9 +66,10 @@ final class GridTests {
         var player = wearer(helper, suitWith());
         var menu = grid(player);
         menu.setCarried(new ItemStack(GearContent.SPEED_UPGRADE.get(), 2));
-        menu.clickMenuButton(player, cell(0, 0));
+        menu.clickMenuButton(player, cell(1, 1));
 
-        helper.assertFalse(menu.clickMenuButton(player, cell(1, 1)), Component.literal("an overlapping upgrade was placed"));
+        // The clicked cell is free, but a speed upgrade's two by two from there would cover (1, 1).
+        helper.assertFalse(menu.clickMenuButton(player, cell(0, 0)), Component.literal("an overlapping upgrade was placed"));
         helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades placed"));
         helper.assertValueEqual(menu.getCarried().getCount(), 1, Component.literal("upgrades left in hand"));
         helper.succeed();
@@ -145,6 +151,73 @@ final class GridTests {
         helper.assertValueEqual(Gear.grid(loaded).placements(), Gear.grid(suit).placements(), Component.literal("the layout"));
         helper.assertValueEqual(Gear.grid(loaded).placements().size(), 3, Component.literal("upgrades placed"));
         helper.assertValueEqual(Gear.energy(loaded), 500, Component.literal("FE held"));
+        helper.succeed();
+    }
+
+    private static void shiftClickTakesOut(GameTestHelper helper) {
+        var player = wearer(helper, suitWith(GearContent.SOLAR_UPGRADE.get()));
+        var menu = grid(player);
+
+        helper.assertTrue(menu.clickMenuButton(player, GearGridMenu.shiftCellButton(0, 0)), Component.literal("the shift-click took nothing"));
+
+        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
+        helper.assertTrue(menu.getCarried().isEmpty(), Component.literal("the upgrade went to the hand"));
+        helper.assertValueEqual(player.getInventory().countItem(GearContent.SOLAR_UPGRADE.get()), 1, Component.literal("solar upgrades in the inventory"));
+        helper.succeed();
+    }
+
+    private static void shiftClickKeepsWhenFull(GameTestHelper helper) {
+        var player = wearer(helper, suitWith(GearContent.SOLAR_UPGRADE.get()));
+        var inventory = player.getInventory();
+        for (int i = 0; i < inventory.getNonEquipmentItems().size(); i++) {
+            inventory.setItem(i, new ItemStack(Items.STONE, 64));
+        }
+        var menu = grid(player);
+
+        helper.assertFalse(menu.clickMenuButton(player, GearGridMenu.shiftCellButton(0, 0)), Component.literal("the shift-click took the upgrade"));
+
+        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.succeed();
+    }
+
+    private static void stacksIntoHand(GameTestHelper helper) {
+        var player = wearer(helper, suitWith(GearContent.SOLAR_UPGRADE.get()));
+        var menu = grid(player);
+        menu.setCarried(new ItemStack(GearContent.SOLAR_UPGRADE.get(), 3));
+
+        helper.assertTrue(menu.clickMenuButton(player, cell(0, 0)), Component.literal("the click did nothing"));
+
+        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
+        helper.assertValueEqual(menu.getCarried().getCount(), 4, Component.literal("upgrades in hand"));
+        helper.succeed();
+    }
+
+    private static void otherLevelDoesNotStack(GameTestHelper helper) {
+        var player = wearer(helper, suitWith(GearContent.SOLAR_UPGRADE.get()));
+        var menu = grid(player);
+        var raised = new ItemStack(GearContent.SOLAR_UPGRADE.get(), 3);
+        raised.set(GearContent.LEVEL.get(), 2);
+        menu.setCarried(raised);
+
+        helper.assertFalse(menu.clickMenuButton(player, cell(0, 0)), Component.literal("the click did something"));
+
+        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.assertValueEqual(menu.getCarried().getCount(), 3, Component.literal("upgrades in hand"));
+        helper.succeed();
+    }
+
+    private static void oneNightVision(GameTestHelper helper) {
+        var player = wearer(helper, suitWith(GearContent.NIGHT_VISION_UPGRADE.get()));
+        // The first slot past the locked suit is the inventory's first main slot.
+        player.getInventory().setItem(9, new ItemStack(GearContent.NIGHT_VISION_UPGRADE.get()));
+        var menu = grid(player);
+        menu.setCarried(new ItemStack(GearContent.NIGHT_VISION_UPGRADE.get()));
+
+        helper.assertFalse(menu.clickMenuButton(player, cell(4, 1)), Component.literal("a click placed a second night vision upgrade"));
+        menu.quickMoveStack(player, 1);
+
+        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.assertValueEqual(player.getInventory().getItem(9).getCount(), 1, Component.literal("night vision upgrades left in the inventory"));
         helper.succeed();
     }
 

@@ -45,7 +45,8 @@
       "height": 1,
       "stat": "night_vision",
       "amount": 1,
-      "draw": 2
+      "draw": 10,
+      "draw_per_level": 1
     }
   }
 }

@@ -16,6 +16,7 @@ public final class GearworksConfig {
     private static final ModConfigSpec.DoubleValue SPEED_CEILING;
     private static final ModConfigSpec.DoubleValue JUMP_CEILING;
     private static final ModConfigSpec.DoubleValue SHIELD_CEILING;
+    private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -31,6 +32,9 @@ public final class GearworksConfig {
                 .comment("The fraction of each hit the suit's shield upgrades together approach and never reach:",
                         "1.0 would absorb every hit whole.")
                 .defineInRange("shieldCeiling", 0.8, 0.0, 1.0);
+        NIGHT_VISION_FLOOR = builder
+                .comment("The FE per tick a night vision upgrade's draw approaches as it levels, and is never pushed under.")
+                .defineInRange("nightVisionFloor", 1, 0, 1_000_000);
         SPEC = builder.build();
     }
 
@@ -49,5 +53,16 @@ public final class GearworksConfig {
             default -> throw new IllegalArgumentException(stat + " has no Ceiling");
         };
         return SPEC.isLoaded() ? ceiling.get() : ceiling.getDefault();
+    }
+
+    /**
+     * The Floor of a Stat whose draw falls as it levels, or its default before the server's config has
+     * loaded; a Stat whose draw rises has none to ask for.
+     */
+    public static int floor(Stat stat) {
+        if (stat != Stat.NIGHT_VISION) {
+            throw new IllegalArgumentException(stat + " has no Floor");
+        }
+        return SPEC.isLoaded() ? NIGHT_VISION_FLOOR.get() : NIGHT_VISION_FLOOR.getDefault();
     }
 }

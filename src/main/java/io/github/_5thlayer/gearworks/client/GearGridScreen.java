@@ -18,7 +18,8 @@ import net.minecraft.world.item.ItemStackTemplate;
 
 /**
  * The Gear Grid: its cells, the upgrades placed over them, and where the carried upgrade would go. A
- * click on a cell asks the server to place or pick up there; the server answers by syncing the suit.
+ * click on a cell asks the server to place, pick up or stack there, and a shift-click to send the
+ * upgrade to the inventory; the server answers by syncing the suit.
  */
 public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> {
 
@@ -89,7 +90,10 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         var cell = cellAt(event.x(), event.y());
         if (cell.isPresent() && event.button() == 0) {
             if (minecraft.gameMode != null) {
-                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, GearGridMenu.cellButton(cell.get()[0], cell.get()[1]));
+                int x = cell.get()[0];
+                int y = cell.get()[1];
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId,
+                        event.hasShiftDown() ? GearGridMenu.shiftCellButton(x, y) : GearGridMenu.cellButton(x, y));
             }
             return true;
         }
