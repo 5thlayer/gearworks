@@ -20,3 +20,6 @@ grow linearly, since more of either never breaks the game.
 
 - An upgrade's contribution depends on what else the suit holds, so a tooltip shows the suit's total
   for the Stat, not the upgrade's value alone.
+- The option rejected above, one upgrade per Stat, still fits a Stat that is on or off, which has no
+  Ceiling and to which a second upgrade adds nothing: a suit holds one night vision upgrade, whose
+  Levels lower its draw toward a Floor instead.
