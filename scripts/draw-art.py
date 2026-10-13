@@ -173,7 +173,8 @@ TIERS = {
 
 # The humanoid layer is 64x32; the chest slot draws its body (u 16-40, v 16-32) and arms (u 40-56).
 # Each map below is one face, placed at its u, v. Like a chestplate's, the body opens at the neck in
-# front and narrows to the waist, its last row and the sides' last three left bare.
+# front and narrows to the waist, its last row and the sides' last three left bare, and its top and
+# bottom faces are left bare, so nothing floats under the waist or lids the neck.
 BODY_FRONT = [  # 8x12 at 20, 20
     "43....21",
     "322..211",
@@ -215,18 +216,6 @@ BODY_SIDE = [  # 4x12 at 16, 20 and 28, 20
     "....",
     "....",
     "....",
-]
-BODY_TOP = [  # 8x4 at 20, 16
-    "33222221",
-    "3dmllmd1",
-    "3dmmmmd1",
-    "22222211",
-]
-BODY_BOTTOM = [  # 8x4 at 28, 16
-    "dddddddd",
-    "dddddddd",
-    "dddddddd",
-    "dddddddd",
 ]
 ARM_SIDE = [  # 4x12, at 40, 44, 48 and 52, 20
     "4332",
@@ -304,8 +293,6 @@ def recolored(base, layers):
 
 def worn(palette):
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
-    paint(image, BODY_TOP, palette, 20, 16)
-    paint(image, BODY_BOTTOM, palette, 28, 16)
     paint(image, BODY_SIDE, palette, 16, 20)
     paint(image, BODY_FRONT, palette, 20, 20)
     paint(image, BODY_SIDE, palette, 28, 20)
