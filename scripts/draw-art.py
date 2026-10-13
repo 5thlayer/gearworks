@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Draws Gearworks' item icons and worn suit textures from the pixel maps below.
+"""Draws Gearworks' item icons and worn suit textures.
 
-Every suit and upgrade shares one palette: a gunmetal frame with a dark outline, lit from the top
-left, and one accent of its own. The suits share a cyan core and differ by their plates, so a new
-tier's art is a new entry in TIERS; the tier still needs its item model, its equipment asset and
+Every upgrade and worn suit shares one palette: a gunmetal frame with a dark outline, lit from the
+top left, and one accent of its own. The suits share a cyan core and differ by their plates, so a
+new tier's art is a new entry in TIERS; the tier still needs its item model, its equipment asset and
 its place in ArtTest. Run from the repository root; it overwrites the PNGs it draws.
+
+The suits' icons are Futureazoo's flight chestplate (art/flight_chestplate.png, CC BY-NC-SA 4.0,
+github.com/Futureazoo/TextureRepository), its grey plates retinted to each tier's and its cyan core
+kept. Iron gear keeps the original's own greys.
 
     python3 scripts/draw-art.py
 """
@@ -14,6 +18,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path("src/main/resources/assets/gearworks/textures")
+SUIT_BASE = Path("art/flight_chestplate.png")
 
 FRAME = {
     ".": None,
@@ -157,25 +162,6 @@ TIERS = {
     "netherite_gear": ("#2b2427", "#4a3f43", "#6e5d62", "#a08a8f"),
 }
 
-SUIT_ICON = [
-    "................",
-    ".KKKKK....KKKKK.",
-    "K44332KKKK23321K",
-    "K4332dmllmd2221K",
-    "K3322KdmmdK2211K",
-    ".KKK32KOoK21KKK.",
-    "...K32KooK21K...",
-    "...K32dKKd21K...",
-    "...KdmmmmmmdK...",
-    "...K33222111K...",
-    "...K32221111K...",
-    "...KdmmmmmmdK...",
-    "...K32221111K...",
-    "...K22211111K...",
-    "...KKKKKKKKKK...",
-    "................",
-]
-
 # The humanoid layer is 64x32; the chest slot draws its body (u 16-40, v 16-32) and arms (u 40-56).
 # Each map below is one face, placed at its u, v.
 BODY_FRONT = [  # 8x12 at 20, 20
@@ -273,6 +259,28 @@ def icon(rows, palette):
     return image
 
 
+def is_grey(rgb):
+    """A plate pixel, not one of the core's or its glass ring's, which lean blue."""
+    return rgb[2] - rgb[0] < 20
+
+
+def retinted(base, plates):
+    """The base with its greys moved onto the plates' ramp by brightness; anything else is kept."""
+    image = base.copy()
+    greys = [p for p in base.get_flattened_data() if p[3] and is_grey(p)]
+    lows, highs = min(sum(p[:3]) for p in greys), max(sum(p[:3]) for p in greys)
+    ramp = [color(plate) for plate in plates]
+    for y in range(base.height):
+        for x in range(base.width):
+            pixel = base.getpixel((x, y))
+            if pixel[3] and is_grey(pixel):
+                t = (sum(pixel[:3]) - lows) / (highs - lows) * (len(ramp) - 1)
+                i = min(int(t), len(ramp) - 2)
+                f = t - i
+                image.putpixel((x, y), tuple(round(a + (b - a) * f) for a, b in zip(ramp[i], ramp[i + 1])))
+    return image
+
+
 def worn(palette):
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     paint(image, BODY_TOP, palette, 20, 16)
@@ -294,9 +302,11 @@ def main():
     for name, rows in ICONS.items():
         palette = dict(FRAME, **SUN, **dict(zip("ABC", ACCENTS[name])))
         icon(rows, palette).save(items / f"{name}.png")
+    base = Image.open(SUIT_BASE).convert("RGBA")
     for name, plates in TIERS.items():
         palette = dict(FRAME, **dict(zip("1234", plates)))
-        icon(SUIT_ICON, palette).save(items / f"{name}.png")
+        suit = base if name == "iron_gear" else retinted(base, ("#141011",) + plates)
+        suit.save(items / f"{name}.png")
         worn(palette).save(humanoid / f"{name}.png")
 
 

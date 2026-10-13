@@ -20,7 +20,7 @@ The `skillworks:quicklaunch` skill opens the dev client into the most recent sav
 
 ## Releases
 
-A change a Consumer can use or will notice adds its line under `## Unreleased` in `CHANGELOG.md` as it lands. Before bumping `mod_version`, publishing to `~/.m2`, tagging a release or uploading to Modrinth or CurseForge, read `docs/agents/releases.md`: releases go through `sh ./gradlew release`, which uploads last with the `upload` task when `gradle.properties` names a project, and a published version never changes, in `~/.m2` or on either site. ADR 0001, inherited from 5thlayer/libworks, sets the version bumps.
+A change a Consumer can use or will notice adds its line under `## Unreleased` in `CHANGELOG.md` as it lands. Before bumping `mod_version`, publishing to `~/.m2`, tagging a release or uploading to Modrinth or CurseForge, read `docs/agents/releases.md`: releases go through `sh ./gradlew release`, which uploads last with the `upload` task when `gradle.properties` names a project, and a published version never changes, in `~/.m2` or on either site. ADR 0001, inherited from 5thlayer/libworks, sets the version bumps. Gearworks is never monetized on either site while it ships the CC BY-NC-SA suit icons (ADR 0004).
 
 A release that must reach a Consumer in another checkout, a Library or a pack that pins the jar, follows the `release-train` skill: one owning session per checkout, and pushes only on the user's word.
 
