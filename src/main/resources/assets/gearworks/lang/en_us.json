@@ -35,7 +35,7 @@
   "gui.gearworks.gear_bench.pick": "Pick an upgrade to raise",
   "gui.gearworks.gear_bench.next": "%s: Level %s → %s",
   "gui.gearworks.gear_bench.not_raised": "%s: Level %s, not raised here",
-  "gui.gearworks.gear_bench.stocked": "%s / %s",
   "gui.gearworks.gear_bench.energy": "%s / %s FE",
+  "gui.gearworks.gear_bench.energy_held": "%s FE",
   "gui.gearworks.gear_bench.raise": "Raise"
 }

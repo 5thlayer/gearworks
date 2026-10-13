@@ -26,14 +26,20 @@ import net.minecraft.world.item.ItemStackTemplate;
  */
 public final class GearGridMenu extends AbstractContainerMenu {
 
-    /** A cell's button id is {@code y * CELL_STRIDE + x}; a grid is at most 16 cells a side. */
+    /** A cell's button id is {@code y * CELL_STRIDE + x}, past any grid's size. */
     public static final int CELL_STRIDE = 64;
     public static final int CELL = 18;
-    public static final int GRID_LEFT = 30;
-    /** Below the title and the energy line. */
+    /** The panel's width, a vanilla container's, which holds nine columns of slots. */
+    public static final int WIDTH = 176;
+    /** The grid's columns stand over the inventory's, nine of them at most ({@link GridSize#MAX_WIDTH}). */
+    public static final int GRID_LEFT = 8;
+    /** Below the suit's slot, the title and the energy line, which share the top row. */
     public static final int GRID_TOP = 30;
     public static final int SUIT_LEFT = 8;
-    private static final int INVENTORY_WIDTH = 9 * CELL - 2;
+    public static final int SUIT_TOP = 8;
+    /** Where the title and the energy line start, right of the suit's slot. */
+    public static final int LABEL_LEFT = 30;
+    public static final int INVENTORY_LEFT = GRID_LEFT;
 
     /** The chest slot's index in the player's inventory, where a worn suit is. */
     public static final int CHEST = Inventory.EQUIPMENT_SLOT_MAPPING.int2ObjectEntrySet().stream()
@@ -45,7 +51,6 @@ public final class GearGridMenu extends AbstractContainerMenu {
     private final Inventory inventory;
     private final int gridWidth;
     private final int gridHeight;
-    private final int inventoryLeft;
     private final int inventoryTop;
 
     GearGridMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf extraData) {
@@ -58,17 +63,15 @@ public final class GearGridMenu extends AbstractContainerMenu {
         var size = GridSize.of(suit().typeHolder());
         gridWidth = size.width();
         gridHeight = size.height();
-        int width = Math.max(GRID_LEFT + gridWidth * CELL + 6, INVENTORY_WIDTH + 16);
-        inventoryLeft = (width - INVENTORY_WIDTH) / 2;
         inventoryTop = GRID_TOP + Math.max(gridHeight, 1) * CELL + 14;
-        addSlot(new Locked(inventory, CHEST, SUIT_LEFT, GRID_TOP));
+        addSlot(new Locked(inventory, CHEST, SUIT_LEFT, SUIT_TOP));
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                addInventorySlot(column + row * 9 + 9, inventoryLeft + column * CELL, inventoryTop + row * CELL);
+                addInventorySlot(column + row * 9 + 9, INVENTORY_LEFT + column * CELL, inventoryTop + row * CELL);
             }
         }
         for (int column = 0; column < 9; column++) {
-            addInventorySlot(column, inventoryLeft + column * CELL, inventoryTop + 3 * CELL + 4);
+            addInventorySlot(column, INVENTORY_LEFT + column * CELL, inventoryTop + 3 * CELL + 4);
         }
     }
 
@@ -101,10 +104,6 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     public int gridHeight() {
         return gridHeight;
-    }
-
-    public int inventoryLeft() {
-        return inventoryLeft;
     }
 
     public int inventoryTop() {

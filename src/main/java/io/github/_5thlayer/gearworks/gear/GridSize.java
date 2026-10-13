@@ -15,15 +15,20 @@ import net.neoforged.neoforge.registries.datamaps.DataMapType;
 
 /**
  * The size of a tier's Gear Grid, as the {@code gearworks:gear_grid} item data map gives it for each
- * suit item, so a pack can resize a tier with no code. A suit with no entry has no grid.
+ * suit item, so a pack can resize a tier with no code. A suit with no entry has no grid. A grid is at
+ * most nine columns, the inventory's, so its cells stand over the inventory's slots, and six rows, the
+ * room the Gear Bench keeps for it; the tiers differ in rows.
  */
 public record GridSize(int width, int height) {
+
+    public static final int MAX_WIDTH = 9;
+    public static final int MAX_HEIGHT = 6;
 
     public static final GridSize NONE = new GridSize(0, 0);
 
     public static final Codec<GridSize> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtraCodecs.intRange(1, 16).fieldOf("width").forGetter(GridSize::width),
-            ExtraCodecs.intRange(1, 16).fieldOf("height").forGetter(GridSize::height)
+            ExtraCodecs.intRange(1, MAX_WIDTH).fieldOf("width").forGetter(GridSize::width),
+            ExtraCodecs.intRange(1, MAX_HEIGHT).fieldOf("height").forGetter(GridSize::height)
     ).apply(instance, GridSize::new));
 
     /** Synced, since the client draws the grid. */

@@ -90,9 +90,9 @@ final class GridTests {
         helper.assertTrue(menu.getCarried().is(GearContent.SOLAR_UPGRADE.get()), Component.literal("the upgrade is not in hand"));
         helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
 
-        helper.assertTrue(menu.clickMenuButton(player, cell(2, 3)), Component.literal("the click placed nothing"));
+        helper.assertTrue(menu.clickMenuButton(player, cell(5, 2)), Component.literal("the click placed nothing"));
         helper.assertTrue(menu.getCarried().isEmpty(), Component.literal("the upgrade is still in hand"));
-        helper.assertTrue(Gear.grid(menu.suit()).at(2, 3).isPresent(), Component.literal("the upgrade is not where it was placed"));
+        helper.assertTrue(Gear.grid(menu.suit()).at(5, 2).isPresent(), Component.literal("the upgrade is not where it was placed"));
         helper.succeed();
     }
 
@@ -129,7 +129,7 @@ final class GridTests {
         var menu = grid(player);
         menu.setCarried(new ItemStack(Items.REDSTONE_BLOCK));
 
-        helper.assertTrue(menu.clickMenuButton(player, cell(4, 4)), Component.literal("the redstone block did not fit"));
+        helper.assertTrue(menu.clickMenuButton(player, cell(8, 2)), Component.literal("the redstone block did not fit"));
         helper.assertValueEqual(Gear.capacity(menu.suit()), 1234, Component.literal("capacity"));
         helper.succeed();
     }

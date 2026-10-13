@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearGridMenu;
+import io.github._5thlayer.gearworks.gear.GridSize;
 import io.github._5thlayer.gearworks.gear.LevelCost;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,17 +36,20 @@ public final class GearBenchMenu extends AbstractContainerMenu {
     public static final int FIRST_STOCK_SLOT = 1;
     public static final int FIRST_PLAYER_SLOT = FIRST_STOCK_SLOT + LevelCost.MAX_MATERIALS;
 
-    public static final int SUIT_LEFT = 8;
-    public static final int GRID_LEFT = 30;
-    public static final int GRID_TOP = 30;
-    /** The grid is drawn within a square this wide, its cells shrunk to fit a grid wider than five. */
-    public static final int GRID_AREA = 5 * GearGridMenu.CELL;
-    public static final int STOCK_LEFT = 128;
-    public static final int STOCK_TOP = 30;
-    public static final int STOCK_STEP = 20;
-    public static final int WIDTH = 216;
-    public static final int INVENTORY_LEFT = (WIDTH - 9 * GearGridMenu.CELL + 2) / 2;
-    public static final int INVENTORY_TOP = 150;
+    /** Laid out as the Gear Grid's screen is: the suit beside the heading, the grid over the inventory's columns. */
+    public static final int WIDTH = GearGridMenu.WIDTH;
+    public static final int SUIT_LEFT = GearGridMenu.SUIT_LEFT;
+    public static final int SUIT_TOP = GearGridMenu.SUIT_TOP;
+    public static final int GRID_LEFT = GearGridMenu.GRID_LEFT;
+    public static final int GRID_TOP = GearGridMenu.GRID_TOP;
+    /** Below the room the tallest grid takes, whatever the suit held. */
+    public static final int STOCK_TOP = GRID_TOP + GridSize.MAX_HEIGHT * GearGridMenu.CELL + 4;
+    public static final int STOCK_LEFT = GRID_LEFT;
+    /** The material slots sit in a row, each a cell right of the last. */
+    public static final int STOCK_STEP = GearGridMenu.CELL;
+    public static final int ENERGY_TOP = STOCK_TOP + GearGridMenu.CELL + 2;
+    public static final int INVENTORY_LEFT = GRID_LEFT;
+    public static final int INVENTORY_TOP = ENERGY_TOP + 29;
 
     private static final int DATA_SELECTED_X = 0;
     private static final int DATA_SELECTED_Y = 1;
@@ -83,9 +87,9 @@ public final class GearBenchMenu extends AbstractContainerMenu {
         this.suit = suit;
         this.stock = stock;
         this.data = data;
-        addSlot(new ResourceHandlerSlot(suit, suit::set, 0, SUIT_LEFT, GRID_TOP));
+        addSlot(new ResourceHandlerSlot(suit, suit::set, 0, SUIT_LEFT, SUIT_TOP));
         for (int i = 0; i < LevelCost.MAX_MATERIALS; i++) {
-            addSlot(new ResourceHandlerSlot(stock, stock::set, i, STOCK_LEFT, STOCK_TOP + i * STOCK_STEP));
+            addSlot(new ResourceHandlerSlot(stock, stock::set, i, STOCK_LEFT + i * STOCK_STEP, STOCK_TOP));
         }
         addStandardInventorySlots(inventory, INVENTORY_LEFT, INVENTORY_TOP);
         addDataSlots(data);

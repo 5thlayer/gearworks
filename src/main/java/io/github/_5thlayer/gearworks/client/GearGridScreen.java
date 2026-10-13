@@ -27,19 +27,15 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
     private static final int REFUSED = 0x60FF0000;
 
     public GearGridScreen(GearGridMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, width(menu), menu.inventoryTop() + 3 * CELL + 4 + CELL + 6);
-    }
-
-    private static int width(GearGridMenu menu) {
-        return Math.max(GearGridMenu.GRID_LEFT + menu.gridWidth() * CELL + 8, menu.inventoryLeft() * 2 + 9 * CELL - 2);
+        super(menu, inventory, title, GearGridMenu.WIDTH, menu.inventoryTop() + 3 * CELL + 4 + CELL + 6);
     }
 
     @Override
     protected void init() {
         super.init();
-        titleLabelX = GearGridMenu.GRID_LEFT;
-        titleLabelY = 6;
-        inventoryLabelX = menu.inventoryLeft();
+        titleLabelX = GearGridMenu.LABEL_LEFT;
+        titleLabelY = 7;
+        inventoryLabelX = GearGridMenu.INVENTORY_LEFT;
         inventoryLabelY = menu.inventoryTop() - 11;
     }
 
