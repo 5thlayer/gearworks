@@ -15,6 +15,7 @@ Each version has two sections: Players, what a player or pack developer sees, an
 - The suits and upgrades have Gearworks' own art. Each tier has an icon of its own, Futureazoo's flight chestplate retinted to its material with an orange gem (CC BY-NC-SA 4.0), and is worn in a look of its own, plates of its material around a glowing orange gem, where it used to look like a plain chestplate; the upgrade icons are drawn as one set. (#7)
 - The suit's gem glows: worn, it is lit in the dark and pulses every two seconds, and the suits' icons pulse with it.
 - **Flight** (2×5, one per suit), the capstone, fits only netherite gear's grid: creative-style flight while the suit has FE, drawing 200 FE/t in the air. Each Level takes about 20 FE/t off the draw, less as it nears the `flightFloor` server config (20 FE/t), which it never goes under, and never changes how fast the player flies. A suit that runs dry mid-air lets the player down slowly, at no cost and without fall damage. It is crafted from four netherite ingots, four feathers and a nether star, and its Levels cost netherite, then diamonds, then nether stars. (#4)
+- The Gear Bench has art of its own, a plated casing with an orange core let into its work top, where it used to borrow the smithing table's top and iron block sides, and the suit it holds floats above it, turning, for every player nearby to see.
 
 ### Consumers
 

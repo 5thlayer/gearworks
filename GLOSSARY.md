@@ -54,5 +54,5 @@ night vision's and Flight's do, so the Stat never becomes free.
 
 **Gear Bench**:
 The placed block where the player raises the Level of one Gear Upgrade inside a suit. Automation stocks
-its cost; the player raises one Level at a time.
+its cost; the player raises one Level at a time. The suit it holds floats above it, turning.
 _Avoid_: upgrade station, workbench, anvil

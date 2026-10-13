@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -48,6 +50,7 @@ final class BenchTests {
         tests.test("the_bench_stocks_only_what_the_next_level_costs_and_gives_nothing_back", 1, BenchTests::stocksOnlyTheCost);
         tests.test("a_raised_level_stays_on_the_upgrade_in_another_suit", 1, BenchTests::levelTravels);
         tests.test("gearworks_own_upgrades_cost_tagged_materials_and_fe", 1, BenchTests::defaultCosts);
+        tests.test("a_watcher_sees_the_suit_the_bench_holds_and_none_once_it_is_taken", 1, BenchTests::watcherSeesSuit);
     }
 
     private static void hopperFed(GameTestHelper helper) {
@@ -153,6 +156,27 @@ final class BenchTests {
         helper.assertTrue(!cost.materials().isEmpty(), Component.literal("the first Level costs no materials"));
         helper.assertTrue(stock(helper, new ItemStack(Items.IRON_INGOT)) == 1, Component.literal("iron is not a material of the first Level"));
         helper.succeed();
+    }
+
+    private static void watcherSeesSuit(GameTestHelper helper) {
+        var player = helper.makeMockPlayer(GameType.SURVIVAL);
+        var suit = suitWith(Items.REDSTONE_BLOCK);
+        var menu = benchWith(helper, player, suit.copy());
+        assertWatcherSees(helper, suit, "a bench holding a suit");
+
+        menu.getSlot(GearBenchMenu.SUIT_SLOT).set(ItemStack.EMPTY);
+        assertWatcherSees(helper, ItemStack.EMPTY, "an emptied bench");
+        helper.succeed();
+    }
+
+    /** Reads what the bench sends its watchers into a bench of their own, and checks it shows {@code expected}. */
+    private static void assertWatcherSees(GameTestHelper helper, ItemStack expected, String what) {
+        var registries = helper.getLevel().registryAccess();
+        var held = bench(helper);
+        var watched = new GearBenchBlockEntity(held.getBlockPos(), held.getBlockState());
+        watched.handleUpdateTag(TagValueInput.create(ProblemReporter.DISCARDING, registries, held.getUpdateTag(registries)));
+        helper.assertTrue(ItemStack.matches(watched.shown(), expected),
+                Component.literal(what + " shows its watchers " + watched.shown() + ", not " + expected));
     }
 
     /** A bench at {@link #BENCH} holding the suit and set to its top-left upgrade, and its menu. */

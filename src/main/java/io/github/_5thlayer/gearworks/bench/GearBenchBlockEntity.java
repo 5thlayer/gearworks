@@ -11,7 +11,15 @@ import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.grid.Placement;
 import io.github._5thlayer.gearworks.level.CostCurve.Cost;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,8 +27,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
@@ -29,6 +39,7 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A placed Gear Bench: the suit it holds, the upgrade in that suit's grid it is set to raise, and the
@@ -43,6 +54,7 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
     private static final String ENERGY_KEY = "energy";
     private static final String SELECTED_X_KEY = "selected_x";
     private static final String SELECTED_Y_KEY = "selected_y";
+    private static final String SHOWN_KEY = "shown";
 
     private final ItemStacksResourceHandler suit = new SuitSlot(this::suitChanged);
     private final BenchStock stock = new BenchStock(() -> target().map(BenchTarget::cost).orElse(null), this::setChanged);
@@ -65,6 +77,8 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
     private int selectedY = -1;
     /** While {@link #raise} puts the raised suit back, which is no new suit. */
     private boolean raising;
+    /** On a watcher's copy, the suit the bench was last sent holding, which floats above it. */
+    private ItemStack shown = ItemStack.EMPTY;
 
     public GearBenchBlockEntity(BlockPos pos, BlockState state) {
         super(GearContent.GEAR_BENCH_ENTITY.get(), pos, state);
@@ -93,6 +107,11 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
     /** A copy of the suit the bench holds, or an empty stack. */
     public ItemStack suit() {
         return suit.getResource(0).toStack(suit.getAmountAsInt(0));
+    }
+
+    /** The suit a watcher's copy of the bench draws floating above it, or an empty stack. */
+    public ItemStack shown() {
+        return shown;
     }
 
     public int selectedX() {
@@ -147,13 +166,19 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
         return true;
     }
 
-    /** Any suit put in or taken out leaves the bench set to nothing; raising a Level keeps it set. */
+    /**
+     * Any suit put in or taken out leaves the bench set to nothing; raising a Level keeps it set. Its
+     * watchers are sent the suit either way, to draw.
+     */
     private void suitChanged(ItemStack previous) {
         if (!raising) {
             selectedX = -1;
             selectedY = -1;
         }
         setChanged();
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override
@@ -184,6 +209,34 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
         energy.set(Math.max(0, input.getLongOr(ENERGY_KEY, 0)));
         selectedX = input.getIntOr(SELECTED_X_KEY, -1);
         selectedY = input.getIntOr(SELECTED_Y_KEY, -1);
+    }
+
+    /** Only what its watchers draw: the suit it holds. */
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        var held = suit();
+        if (!held.isEmpty()) {
+            output.store(SHOWN_KEY, ItemStack.CODEC, held);
+        }
+        return output.buildResult();
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    /** A watcher reads only what {@link #getUpdateTag} sends, as the chunk arrives. */
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        shown = input.read(SHOWN_KEY, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+    }
+
+    /** A watcher reads only what {@link #getUpdateTag} sends, as it changes. */
+    @Override
+    public void onDataPacket(Connection connection, ValueInput input) {
+        handleUpdateTag(input);
     }
 
     /** A broken bench drops its suit and its stocked materials; its FE is lost. */
