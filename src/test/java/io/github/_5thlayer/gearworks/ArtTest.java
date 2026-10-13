@@ -42,8 +42,43 @@ class ArtTest {
                 json(ASSETS.resolve("models/item/" + item + ".json")));
         var icon = image(ASSETS.resolve("textures/item/" + item + ".png"));
         assertEquals(16, icon.getWidth());
-        assertEquals(16, icon.getHeight());
+        assertEquals(0, icon.getHeight() % 16, "an icon's frames are 16x16");
     }
+
+    @ParameterizedTest
+    @MethodSource("suits")
+    void eachSuitsIconPulses(String suit) throws IOException {
+        assertTrue(image(ASSETS.resolve("textures/item/" + suit + ".png")).getHeight() > 16, suit + "'s icon has one frame");
+        assertTrue(json(ASSETS.resolve("textures/item/" + suit + ".png.mcmeta")).contains("\"frametime\":"), suit + "'s icon is not animated");
+    }
+
+    @ParameterizedTest
+    @MethodSource("upgrades")
+    void noUpgradesIconIsAnimated(String upgrade) throws IOException {
+        assertEquals(16, image(ASSETS.resolve("textures/item/" + upgrade + ".png")).getHeight());
+    }
+
+    @ParameterizedTest
+    @MethodSource("suits")
+    void theGlowLightsEachWornGem(String suit) throws IOException {
+        var glow = image(ASSETS.resolve("textures/entity/gear_glow.png"));
+        var worn = image(ASSETS.resolve("textures/entity/equipment/humanoid/" + suit + ".png"));
+        assertEquals(worn.getWidth(), glow.getWidth());
+        assertEquals(worn.getHeight(), glow.getHeight());
+        int gem = 0;
+        for (int y = 0; y < glow.getHeight(); y++) {
+            for (int x = 0; x < glow.getWidth(); x++) {
+                // The halo is faint; the gem's own glow is opaque, and lies on the worn gem's orange.
+                if (glow.getRGB(x, y) >>> 24 == 0xFF) {
+                    int under = worn.getRGB(x, y);
+                    assertTrue((under >> 16 & 0xFF) - (under & 0xFF) > 0x30, suit + " is not orange under the glow at " + x + ", " + y);
+                    gem++;
+                }
+            }
+        }
+        assertTrue(gem > 0, "the glow lights nothing");
+    }
+
 
     @ParameterizedTest
     @MethodSource("suits")
@@ -67,6 +102,10 @@ class ArtTest {
 
     private static List<String> suits() {
         return SUITS;
+    }
+
+    private static List<String> upgrades() {
+        return UPGRADES;
     }
 
     private static List<String> items() {

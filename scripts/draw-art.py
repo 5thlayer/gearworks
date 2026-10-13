@@ -11,9 +11,14 @@ github.com/Futureazoo/TextureRepository), its cyan core recolored orange and its
 each tier's. Iron gear keeps the original's own greys. The worn suits are drawn here in iron's greys and
 retinted the same way, so each tier's worn look and icon share one ramp.
 
+The suits' icons pulse, and GearGlowLayer lights the worn gem with entity/gear_glow.png at the same
+pulse; PULSE_PERIOD and PULSE_DIM must match GlowPulse's.
+
     python3 scripts/draw-art.py
 """
 
+import json
+import math
 from pathlib import Path
 
 from PIL import Image
@@ -164,6 +169,19 @@ ICONS = {
 # The suits' icons' core, from shaded to glowing, onto which the flight chestplate's cyan one moves.
 CORE = ("#5a1a08", "#b8401a", "#f07a24", "#ffb85a", "#fff0c8")
 
+# The pulse of the suits' gem, as GlowPulse has it: brightest every PERIOD ticks, dimming to DIM.
+PULSE_PERIOD = 40
+PULSE_DIM = 0.35
+# The icons' pulse, in frames of equal length that the game blends between. An icon is never in the
+# dark, so its gem dims only to ICON_DIM of its colour, not to PULSE_DIM.
+PULSE_FRAMES = 8
+ICON_DIM = 0.6
+
+# The gem's glow, blended fullbright over the worn suit: the gem brighter than the worn one, so the
+# glow only ever lightens it, and a halo around it at HALO_ALPHA.
+GLOW = {"o": "#ffb85a", "O": "#fff0c8", "halo": "#ff9a3c"}
+HALO_ALPHA = 0x50
+
 # Each tier's plates, 1 to 4 from shaded to highlight; iron's are the flight chestplate's own greys.
 TIERS = {
     "iron_gear": ("#888591", "#a2a0aa", "#cdccd1", "#f6f6f7"),
@@ -291,6 +309,39 @@ def recolored(base, layers):
     return image
 
 
+def pulse(age):
+    wave = math.cos(2 * math.pi * age / PULSE_PERIOD)
+    return PULSE_DIM + (1 - PULSE_DIM) * (wave + 1) / 2
+
+
+def pulsing(icon, gem):
+    """The icon as a strip of PULSE_FRAMES frames, its gem's pixels dimmed and brightened in turn."""
+    strip = Image.new("RGBA", (icon.width, icon.height * PULSE_FRAMES), (0, 0, 0, 0))
+    for frame in range(PULSE_FRAMES):
+        # The brightest frame keeps the icon's own colours, the dimmest takes them down to ICON_DIM.
+        fraction = (pulse(frame * PULSE_PERIOD / PULSE_FRAMES) - PULSE_DIM) / (1 - PULSE_DIM)
+        shade = ICON_DIM + (1 - ICON_DIM) * fraction
+        image = icon.copy()
+        for x, y in gem:
+            r, g, b, a = icon.getpixel((x, y))
+            image.putpixel((x, y), (round(r * shade), round(g * shade), round(b * shade), a))
+        strip.paste(image, (0, frame * icon.height))
+    return strip
+
+
+def glow():
+    """The gem's glow: its pixels on the worn suit's front, and a halo on those around them."""
+    image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    gem = {(x, y): key for y, row in enumerate(BODY_FRONT) for x, key in enumerate(row) if key in "oO"}
+    for (x, y), key in gem.items():
+        image.putpixel((20 + x, 20 + y), color(GLOW[key]))
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if (x + dx, y + dy) not in gem:
+                    image.putpixel((20 + x + dx, 20 + y + dy), color(GLOW["halo"])[:3] + (HALO_ALPHA,))
+    return image
+
+
 def worn(palette):
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     paint(image, BODY_SIDE, palette, 16, 20)
@@ -312,12 +363,16 @@ def main():
         icon(rows, palette).save(items / f"{name}.png")
     base = Image.open(SUIT_BASE).convert("RGBA")
     iron = worn(dict(METAL, **dict(zip("1234", TIERS["iron_gear"]))))
+    gem = [(x, y) for y in range(base.height) for x in range(base.width) if base.getpixel((x, y))[3] and is_core(base.getpixel((x, y)))]
+    animation = {"animation": {"frametime": PULSE_PERIOD // PULSE_FRAMES, "interpolate": True}}
     for name, plates in TIERS.items():
         layers = [(is_core, CORE)]
         if name != "iron_gear":
             layers.append((is_grey, ("#141011",) + plates))
-        recolored(base, layers).save(items / f"{name}.png")
+        pulsing(recolored(base, layers), gem).save(items / f"{name}.png")
+        (items / f"{name}.png.mcmeta").write_text(json.dumps(animation, indent=2) + "\n")
         recolored(iron, layers[1:]).save(humanoid / f"{name}.png")
+    glow().save(ROOT / "entity/gear_glow.png")
 
 
 if __name__ == "__main__":

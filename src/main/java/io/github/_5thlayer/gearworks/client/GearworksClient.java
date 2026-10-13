@@ -12,6 +12,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -20,7 +21,8 @@ import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * The client's side of Gear: the Gear Bench's screen, the Gear Grid's screen and the key that opens
- * it, the worn suit's FE on the HUD, the tooltips of suits and upgrades, and the configs and the mod list's screen for them.
+ * it, the worn suit's glowing gem and its FE on the HUD, the tooltips of suits and upgrades, and the
+ * configs and the mod list's screen for them.
  */
 @Mod(value = Gearworks.MOD_ID, dist = Dist.CLIENT)
 public final class GearworksClient {
@@ -35,6 +37,8 @@ public final class GearworksClient {
         modBus.addListener(GridKey::onRegisterKeys);
         modBus.addListener(GearworksClient::registerScreens);
         modBus.addListener(EnergyHud::onRegisterLayers);
+        // Named, since a generic class's method reference leaves the event type for javac to infer.
+        modBus.addListener(EntityRenderersEvent.AddLayers.class, GearGlowLayer::onAddLayers);
         NeoForge.EVENT_BUS.addListener(GridKey::onClientTick);
         NeoForge.EVENT_BUS.addListener(GearTooltips::onTooltip);
     }
