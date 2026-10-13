@@ -14,6 +14,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.armorstand.ArmorStandArmorModel;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.ArmorStandRenderer;
@@ -23,8 +24,9 @@ import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
@@ -39,8 +41,16 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  */
 final class GearGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
 
-    private static final RenderType GLOW =
-            RenderTypes.eyes(Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "textures/entity/gear_glow.png"));
+    /**
+     * Vanilla's eyes, fullbright and blended, but nudged toward the camera as armor is: without the
+     * armor's view offset the glow sits behind the suit's pixels and shows only where it has none.
+     */
+    private static final RenderType GLOW = RenderType.create(Gearworks.MOD_ID + "_gem_glow",
+            RenderSetup.builder(RenderPipelines.EYES)
+                    .withTexture("Sampler0", Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "textures/entity/gear_glow.png"))
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .sortOnUpload()
+                    .createRenderSetup());
 
     private final Model<? super S> chest;
     private final Model<? super S> babyChest;
