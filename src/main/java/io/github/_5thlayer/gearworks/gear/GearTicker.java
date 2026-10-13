@@ -4,6 +4,7 @@
 package io.github._5thlayer.gearworks.gear;
 
 import io.github._5thlayer.gearworks.Gearworks;
+import io.github._5thlayer.gearworks.level.Solar;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -85,9 +86,11 @@ public final class GearTicker {
         var totals = Gear.totals(suit);
         int energy = Gear.energy(suit);
         int before = energy;
-        if (totals.amount(Stat.SOLAR) > 0 && inSunlight(player)) {
-            // Never down: an open grid may hold FE over what its batteries now take.
-            energy = Math.max(energy, (int) Math.min(Gear.capacity(suit), energy + totals.amount(Stat.SOLAR)));
+        double solar = totals.amount(Stat.SOLAR);
+        if (solar > 0) {
+            var level = player.level();
+            energy = Solar.charge(energy, Gear.capacity(suit), solar,
+                    level.isBrightOutside(), level.canSeeSky(BlockPos.containing(player.getEyePosition())));
         }
         if (totals.canDraw(Stat.NIGHT_VISION, energy)) {
             energy -= totals.draw(Stat.NIGHT_VISION);
@@ -205,10 +208,5 @@ public final class GearTicker {
      */
     private static boolean isFromSuit(MobEffectInstance effect, int ticks) {
         return effect.isAmbient() && !effect.isVisible() && effect.getAmplifier() == 0 && effect.getDuration() <= ticks;
-    }
-
-    private static boolean inSunlight(Player player) {
-        var level = player.level();
-        return level.isBrightOutside() && level.canSeeSky(BlockPos.containing(player.getEyePosition()));
     }
 }
