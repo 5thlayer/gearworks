@@ -66,6 +66,7 @@ public final class GearworksGameTests {
         CreativeTabTests.register(tests);
         LanceTests.register(tests);
         LungeBoringTests.register(tests);
+        NetheriteLanceTests.register(tests);
     }
 
     private static Identifier id(String path) {

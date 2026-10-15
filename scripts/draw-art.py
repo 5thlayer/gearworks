@@ -368,6 +368,7 @@ def glow():
 LANCES = {
     "iron_bore_lance": TIERS["iron_gear"],
     "diamond_bore_lance": TIERS["diamond_gear"],
+    "netherite_bore_lance": TIERS["netherite_gear"],
 }
 SHAFT = ("#414047", "#57555f", "#6e6b78")
 

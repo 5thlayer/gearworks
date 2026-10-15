@@ -68,7 +68,8 @@ _Avoid_: upgrade station, workbench, anvil
 The Gear that is both a spear and a mining tool, in three tiers of iron, diamond and netherite, each
 made from the one below. Each tier has Lunge built in and mines rock up to its material's level. The
 iron tier wears out and breaks; the diamond tier wears out but never breaks, stopping at none left
-until repaired; the netherite tier runs on FE, which a worn Suit tops up. It has no Gear Grid.
+until repaired; the netherite tier runs on FE, which a worn Suit tops up, and is dry without the FE for
+a Bore or a lunge, when it still fights and mines single blocks. It has no Gear Grid.
 _Avoid_: spear (vanilla's), drill, powered spear
 
 **Bore**:

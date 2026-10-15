@@ -4,10 +4,13 @@
 package io.github._5thlayer.gearworks.gear;
 
 import io.github._5thlayer.gearworks.Gearworks;
+import io.github._5thlayer.gearworks.lance.BoreLance;
+import io.github._5thlayer.gearworks.level.LanceCharge;
 import io.github._5thlayer.gearworks.level.Solar;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -25,7 +29,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
  * drawing it while the player walks; jump raises jump strength while it has the FE for a jump,
  * which each boosted jump spends; and flight lets the player fly while it has the FE to draw each tick
- * in the air, and lets them down slowly when it runs dry there.
+ * in the air, and lets them down slowly when it runs dry there. Last, it charges a netherite Bore Lance
+ * in either hand.
  */
 public final class SuitTicker {
 
@@ -109,6 +114,22 @@ public final class SuitTicker {
         modify(player, Attributes.JUMP_STRENGTH, JUMP, springy ? totals.underCeiling(Stat.JUMP) : 0);
         if (energy != before) {
             Suit.setEnergy(suit, energy);
+        }
+        chargeLances(player, suit);
+    }
+
+    /** Charges a Bore Lance on FE in either of the player's hands from the suit, while it holds over its reserve. */
+    private static void chargeLances(Player player, ItemStack suit) {
+        for (var hand : InteractionHand.values()) {
+            var lance = player.getItemInHand(hand);
+            if (!BoreLance.runsOnEnergy(lance)) {
+                continue;
+            }
+            int moved = LanceCharge.transfer(Suit.energy(suit), Suit.capacity(suit), BoreLance.energy(lance),
+                    GearworksConfig.lanceCapacity(), GearworksConfig.lanceChargeRate(), GearworksConfig.lanceChargeReserve());
+            if (moved > 0) {
+                Suit.setEnergy(suit, Suit.energy(suit) - BoreLance.fill(lance, moved));
+            }
         }
     }
 

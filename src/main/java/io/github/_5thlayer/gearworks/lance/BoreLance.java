@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.gear.GearContent;
+import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -19,8 +20,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The Bore Lance as a stack: the Bore its key last chose, which it keeps, and whether it is worn out.
- * The blocks it mines and bores are in {@link #MINEABLE}, up to its tier's level.
+ * The Bore Lance as a stack: the Bore its key last chose, which it keeps, whether it is worn out, and on
+ * the tier that runs on FE, the FE it holds. The blocks it mines and bores are in {@link #MINEABLE}, up
+ * to its tier's level.
  */
 public final class BoreLance {
 
@@ -52,9 +54,60 @@ public final class BoreLance {
         return tier(lance).wornOut(lance);
     }
 
-    /** Whether the lance can break on: still in the player's main hand, not broken and not worn out. */
-    public static boolean lasts(ItemStack lance, Player player) {
-        return player.getMainHandItem() == lance && !lance.isEmpty() && !wornOut(lance);
+    /** Whether the lance is a tier that runs on FE rather than durability. */
+    public static boolean runsOnEnergy(ItemStack lance) {
+        return is(lance) && tier(lance).upkeep() == BoreLanceItem.Upkeep.ENERGY;
+    }
+
+    /** The FE the lance holds: none on a tier that doesn't run on it. */
+    public static int energy(ItemStack lance) {
+        return runsOnEnergy(lance) ? lance.getOrDefault(GearContent.ENERGY.get(), 0) : 0;
+    }
+
+    /** Puts FE into a lance that runs on it, up to what it holds, and gives back how much went in. */
+    public static int fill(ItemStack lance, int fe) {
+        if (!runsOnEnergy(lance)) {
+            return 0;
+        }
+        int energy = energy(lance);
+        int added = Math.max(0, Math.min(fe, GearworksConfig.lanceCapacity() - energy));
+        if (added > 0) {
+            lance.set(GearContent.ENERGY.get(), energy + added);
+        }
+        return added;
+    }
+
+    /** Takes that FE from a lance that runs on it, down to none; one on durability pays nothing here. */
+    static void spend(ItemStack lance, int fe) {
+        if (runsOnEnergy(lance) && fe > 0) {
+            lance.set(GearContent.ENERGY.get(), Math.max(0, energy(lance) - fe));
+        }
+    }
+
+    /** Whether the lance runs on FE and lacks a Bore's block of it: it mines single blocks and neither bores nor lunges. */
+    public static boolean dry(ItemStack lance) {
+        return runsOnEnergy(lance) && energy(lance) < Math.max(1, GearworksConfig.lanceBoreEnergy());
+    }
+
+    /**
+     * Whether the lance can break on, a block at a time at that price in FE: still in the player's main
+     * hand, not broken, not worn out, and on FE, holding the price.
+     */
+    public static boolean lasts(ItemStack lance, Player player, int fe) {
+        if (player.getMainHandItem() != lance || lance.isEmpty()) {
+            return false;
+        }
+        return runsOnEnergy(lance) ? energy(lance) >= fe : !wornOut(lance);
+    }
+
+    /** Pays for a lunge that fired: on FE, its price a level. */
+    static void payForLunge(ItemStack lance) {
+        spend(lance, tier(lance).lungeEnergy());
+    }
+
+    /** Whether the lance runs on FE and holds its lunge's price: such a lunge has no food gate. */
+    static boolean affordsLunge(ItemStack lance) {
+        return runsOnEnergy(lance) && energy(lance) >= tier(lance).lungeEnergy();
     }
 
     /**

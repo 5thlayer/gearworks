@@ -33,7 +33,7 @@ class ArtTest {
 
     private static final Path ASSETS = Path.of("src/main/resources/assets/gearworks");
     private static final List<String> SUITS = List.of("iron_gear", "diamond_gear", "netherite_gear");
-    private static final List<String> LANCES = List.of("iron_bore_lance", "diamond_bore_lance");
+    private static final List<String> LANCES = List.of("iron_bore_lance", "diamond_bore_lance", "netherite_bore_lance");
     private static final List<String> UPGRADES = List.of(
             "battery_upgrade", "solar_upgrade", "speed_upgrade", "shield_upgrade", "jump_upgrade", "night_vision_upgrade",
             "flight_upgrade");

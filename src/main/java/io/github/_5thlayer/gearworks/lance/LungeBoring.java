@@ -29,8 +29,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * as air, water or grass. The dash stops at the first block of the Bore that is beyond the lance's tier,
  * unbreakable, or protected from the player, and the lance breaks nothing past it: an iron lance stops
  * at obsidian, and in vanilla nothing stops a diamond one but bedrock and its like. Each block is broken
- * as the player breaking it and costs {@link GearworksConfig#lungeBoringCost()} durability, so a lance
- * that wears out or breaks partway stops the dash there.
+ * as the player breaking it and costs {@link GearworksConfig#lungeBoringCost()} durability, or on FE
+ * {@link GearworksConfig#lanceLungeBoringEnergy()}, so a lance that wears out, breaks or runs dry partway
+ * stops the dash there. A lunge on FE pays {@link GearworksConfig#lanceLungeEnergy()} a level of Lunge as
+ * it fires, and needs no food.
  *
  * <p>The server bores the whole Bore ahead the tick the lunge fires, so the blocks a lunge carries the
  * player into are gone on the client before it moves them there.
@@ -39,6 +41,9 @@ public final class LungeBoring {
 
     /** The longest a lunge carries the player: the grace vanilla gives an impulse. */
     public static final int DASH_TICKS = 10;
+
+    /** The food vanilla's Lunge needs a player to have more than. */
+    private static final int LUNGE_FOOD = 6;
 
     private static final Map<Player, Dash> DASHES = new WeakHashMap<>();
 
@@ -58,9 +63,31 @@ public final class LungeBoring {
             return;
         }
         var lance = player.getMainHandItem();
+        BoreLance.payForLunge(lance);
         int reach = ((BoreLanceItem) lance.getItem()).lunge();
         DASHES.put(player, new Dash(lance, player.blockPosition(), player.getDirection(), reach));
         tick(player);
+    }
+
+    /**
+     * Runs a jab's enchantment effects, with vanilla's food gate on Lunge lifted for a lance on FE that holds
+     * its lunge's price: the player's food reads above 6 while they run, and is as it was after. Lunge's
+     * exhaustion still lands, as vanilla's does.
+     */
+    public static void withoutFoodGate(LivingEntity user, Runnable effects) {
+        if (!(user instanceof Player player) || !BoreLance.affordsLunge(player.getMainHandItem())
+                || player.getFoodData().getFoodLevel() > LUNGE_FOOD) {
+            effects.run();
+            return;
+        }
+        var food = player.getFoodData();
+        int level = food.getFoodLevel();
+        food.setFoodLevel(LUNGE_FOOD + 1);
+        try {
+            effects.run();
+        } finally {
+            food.setFoodLevel(level);
+        }
     }
 
     /** Each tick of a dashing player's, their dash bores on. */
@@ -90,7 +117,7 @@ public final class LungeBoring {
         breaking = true;
         try {
             for (var pos : ahead(BoreLance.bore(lance), dash.reached(player), dash.direction)) {
-                if (!BoreLance.lasts(lance, player)) {
+                if (!BoreLance.lasts(lance, player, GearworksConfig.lanceLungeBoringEnergy())) {
                     return false;
                 }
                 var state = level.getBlockState(pos);

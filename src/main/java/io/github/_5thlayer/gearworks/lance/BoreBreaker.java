@@ -6,6 +6,7 @@ package io.github._5thlayer.gearworks.lance;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,9 +18,10 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * A Bore Lance mining a block breaks its Bore with it: the blocks around and behind the hit one, on
  * the face that was hit, each as the player breaking it, so each passes the same protection, drops
- * where it stood under the lance's Fortune or Silk Touch, and costs the lance its durability. A Bore
- * breaks only what the lance mines at its tier and nothing harder than the hit block, and none at all
- * while sneaking, from a block the lance doesn't mine, or from a worn-out lance.
+ * where it stood under the lance's Fortune or Silk Touch, and costs the lance its durability, or on FE
+ * {@link GearworksConfig#lanceBoreEnergy()}, the hit block's included. A Bore breaks only what the lance
+ * mines at its tier and nothing harder than the hit block, and none at all while sneaking, from a block
+ * the lance doesn't mine, or from a worn-out or dry lance, which mine the hit block alone and free.
  */
 public final class BoreBreaker {
 
@@ -30,14 +32,29 @@ public final class BoreBreaker {
     }
 
     /**
+     * After the lance mined a block: a block of a Bore pays its FE, and any other the player is mining
+     * breaks the rest of its Bore.
+     */
+    static void mined(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
+        if (breaking) {
+            BoreLance.spend(lance, GearworksConfig.lanceBoreEnergy());
+        } else {
+            bore(lance, player, pos, hit);
+        }
+    }
+
+    /**
      * Breaks the rest of the Bore around a block the player is mining with the lance, once the lance has
      * paid for that block and before it is removed, so a lance that wears out partway never leaves the
      * hit block undropped.
      */
-    static void bore(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
-        if (breaking || player.isShiftKeyDown() || !lance.isCorrectToolForDrops(hit)) {
+    private static void bore(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
+        int price = GearworksConfig.lanceBoreEnergy();
+        if (player.isShiftKeyDown() || !lance.isCorrectToolForDrops(hit) || !BoreLance.lasts(lance, player, price)) {
             return;
         }
+        // Durability paid for the hit block as it was mined; FE pays for it as the Bore's first block.
+        BoreLance.spend(lance, price);
         var level = player.level();
         float hardness = hit.getDestroySpeed(level, pos);
         var blocks = blocks(BoreLance.bore(lance), pos, face(player, pos, hit), player.getDirection());
@@ -45,7 +62,7 @@ public final class BoreBreaker {
         try {
             // The first is the hit block, which the player is breaking already.
             for (var block : blocks.subList(1, blocks.size())) {
-                if (!BoreLance.lasts(lance, player)) {
+                if (!BoreLance.lasts(lance, player, price)) {
                     break;
                 }
                 if (bores(lance, level, block, hardness)) {

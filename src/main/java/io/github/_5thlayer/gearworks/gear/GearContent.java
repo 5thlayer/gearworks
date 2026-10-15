@@ -88,7 +88,7 @@ public final class GearContent {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<GridContents>> GRID = COMPONENTS.registerComponentType(
             "gear_grid", builder -> builder.persistent(GridContents.CODEC).networkSynchronized(GridContents.STREAM_CODEC));
 
-    /** The FE a suit holds, in its batteries. */
+    /** The FE a suit holds, in its batteries, or the netherite Bore Lance holds. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ENERGY = COMPONENTS.registerComponentType(
             "energy", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
@@ -118,7 +118,7 @@ public final class GearContent {
 
     /** The Bore Lance's tier 1: an iron spear that mines at iron's level, in Bores of 1×1×3, with Lunge I. It breaks. */
     public static final DeferredItem<BoreLanceItem> IRON_BORE_LANCE = ITEMS.registerItem("iron_bore_lance",
-            properties -> new BoreLanceItem(properties, Bore.ONE, 1, false),
+            properties -> new BoreLanceItem(properties, Bore.ONE, 1, BoreLanceItem.Upkeep.BREAKS),
             properties -> lance(properties, ToolMaterial.IRON, 0.95f, 0.95f, 0.6f, 2.5f, 11.0f, 6.75f, 5.1f, 11.25f, 4.6f));
 
     /**
@@ -126,8 +126,17 @@ public final class GearContent {
      * Lunge II. It never breaks, and worn out neither bores nor lunges until repaired.
      */
     public static final DeferredItem<BoreLanceItem> DIAMOND_BORE_LANCE = ITEMS.registerItem("diamond_bore_lance",
-            properties -> new BoreLanceItem(properties, Bore.THREE, 2, true),
+            properties -> new BoreLanceItem(properties, Bore.THREE, 2, BoreLanceItem.Upkeep.WEARS_OUT),
             properties -> lance(properties, ToolMaterial.DIAMOND, 1.05f, 1.075f, 0.5f, 3.0f, 10.0f, 6.5f, 5.1f, 10.0f, 4.6f));
+
+    /**
+     * Tier 3, smithed from tier 2: a netherite spear that mines at netherite's level, in Bores up to 5×3×3,
+     * with Lunge III. It runs on FE, and has no durability; like netherite, fire and lava leave it be.
+     */
+    public static final DeferredItem<BoreLanceItem> NETHERITE_BORE_LANCE = ITEMS.registerItem("netherite_bore_lance",
+            properties -> new BoreLanceItem(properties, Bore.FIVE, 3, BoreLanceItem.Upkeep.ENERGY),
+            properties -> withoutDurability(lance(properties, ToolMaterial.NETHERITE, 1.15f, 1.2f, 0.4f, 2.5f, 9.0f, 5.5f, 5.1f, 8.75f, 4.6f))
+                    .fireResistant());
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoreLanceRecipe>> BORE_LANCE_RECIPE =
             RECIPE_SERIALIZERS.register("crafting_bore_lance", () -> BoreLanceRecipe.SERIALIZER);
@@ -212,6 +221,13 @@ public final class GearContent {
                         .build());
     }
 
+    /** Takes away the durability a spear comes with, and its repair, for a lance that runs on FE. */
+    private static Item.Properties withoutDurability(Item.Properties properties) {
+        return properties.component(DataComponents.MAX_DAMAGE, null)
+                .component(DataComponents.DAMAGE, null)
+                .component(DataComponents.REPAIRABLE, null);
+    }
+
     private static void registerDataMaps(RegisterDataMapTypesEvent event) {
         event.register(GearUpgrade.DATA_MAP);
         event.register(GridSize.DATA_MAP);
@@ -219,13 +235,16 @@ public final class GearContent {
     }
 
     /**
-     * Any mod's charger fills the suit, over the sum of its batteries; any mod's pipes, hoppers and
-     * cables stock a Gear Bench, on every face.
+     * Any mod's charger fills the suit, over the sum of its batteries, and the netherite Bore Lance; any
+     * mod's pipes, hoppers and cables stock a Gear Bench, on every face.
      */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.Energy.ITEM,
                 (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), Suit.capacity(stack)),
                 IRON_SUIT, DIAMOND_SUIT, NETHERITE_SUIT);
+        event.registerItem(Capabilities.Energy.ITEM,
+                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), GearworksConfig.lanceCapacity()),
+                NETHERITE_BORE_LANCE);
         event.registerBlockEntity(Capabilities.Item.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.stockFace());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.energyFace());
     }
@@ -245,6 +264,7 @@ public final class GearContent {
             event.accept(NETHERITE_SUIT);
             event.accept(IRON_BORE_LANCE);
             event.accept(DIAMOND_BORE_LANCE);
+            event.accept(NETHERITE_BORE_LANCE);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(SPEED_UPGRADE);

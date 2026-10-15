@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "#c:ingots/netherite",
+  "base": "gearworks:diamond_bore_lance",
+  "result": {
+    "id": "gearworks:netherite_bore_lance"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template"
+}

@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
  * The server's numbers that no data map entry holds: those that belong to a Stat rather than to an
- * upgrade, whose own values are in its data map entry, and the Bore Lance's costs.
+ * upgrade, whose own values are in its data map entry, and the Bore Lance's costs and FE.
  */
 public final class GearworksConfig {
 
@@ -19,6 +19,12 @@ public final class GearworksConfig {
     private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
     private static final ModConfigSpec.IntValue FLIGHT_FLOOR;
     private static final ModConfigSpec.IntValue LUNGE_BORING_COST;
+    private static final ModConfigSpec.IntValue LANCE_CAPACITY;
+    private static final ModConfigSpec.IntValue LANCE_LUNGE_ENERGY;
+    private static final ModConfigSpec.IntValue LANCE_BORE_ENERGY;
+    private static final ModConfigSpec.IntValue LANCE_LUNGE_BORING_ENERGY;
+    private static final ModConfigSpec.IntValue LANCE_CHARGE_RATE;
+    private static final ModConfigSpec.DoubleValue LANCE_CHARGE_RESERVE;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -44,6 +50,25 @@ public final class GearworksConfig {
         LUNGE_BORING_COST = builder
                 .comment("The durability a Bore Lance pays for each block its Lunge breaks, where mining one costs 1.")
                 .defineInRange("lungeBoringCost", 10, 0, 1_000);
+        LANCE_CAPACITY = builder
+                .comment("The FE the netherite Bore Lance holds.")
+                .defineInRange("netheriteLanceCapacity", 1_000_000, 1, Integer.MAX_VALUE);
+        LANCE_LUNGE_ENERGY = builder
+                .comment("The FE the netherite Bore Lance pays for a lunge, for each level of its Lunge.")
+                .defineInRange("netheriteLanceLungeEnergy", 2_000, 0, 1_000_000);
+        LANCE_BORE_ENERGY = builder
+                .comment("The FE the netherite Bore Lance pays for each block it mines in a Bore.")
+                .defineInRange("netheriteLanceBoreEnergy", 50, 0, 1_000_000);
+        LANCE_LUNGE_BORING_ENERGY = builder
+                .comment("The FE the netherite Bore Lance pays for each block its Lunge breaks.")
+                .defineInRange("netheriteLanceLungeBoringEnergy", 500, 0, 1_000_000);
+        LANCE_CHARGE_RATE = builder
+                .comment("The FE per tick a worn Suit gives a netherite Bore Lance in either of the player's hands.")
+                .defineInRange("netheriteLanceChargeRate", 1_000, 0, 1_000_000);
+        LANCE_CHARGE_RESERVE = builder
+                .comment("The fraction of what its batteries hold that a Suit keeps for itself: it charges a lance",
+                        "only while it holds more, and never goes under it doing so.")
+                .defineInRange("netheriteLanceChargeReserve", 0.25, 0.0, 1.0);
         SPEC = builder.build();
     }
 
@@ -79,6 +104,41 @@ public final class GearworksConfig {
 
     /** The durability Lunge Boring costs a block, or its default before the server's config has loaded. */
     public static int lungeBoringCost() {
-        return SPEC.isLoaded() ? LUNGE_BORING_COST.get() : LUNGE_BORING_COST.getDefault();
+        return value(LUNGE_BORING_COST);
+    }
+
+    /** The FE the netherite Bore Lance holds. */
+    public static int lanceCapacity() {
+        return value(LANCE_CAPACITY);
+    }
+
+    /** The FE a netherite Bore Lance's lunge costs for each level of its Lunge. */
+    public static int lanceLungeEnergy() {
+        return value(LANCE_LUNGE_ENERGY);
+    }
+
+    /** The FE a block mined in a netherite Bore Lance's Bore costs. */
+    public static int lanceBoreEnergy() {
+        return value(LANCE_BORE_ENERGY);
+    }
+
+    /** The FE a block broken by a netherite Bore Lance's Lunge Boring costs. */
+    public static int lanceLungeBoringEnergy() {
+        return value(LANCE_LUNGE_BORING_ENERGY);
+    }
+
+    /** The FE per tick a worn Suit gives a netherite Bore Lance in hand. */
+    public static int lanceChargeRate() {
+        return value(LANCE_CHARGE_RATE);
+    }
+
+    /** The fraction of its capacity a Suit keeps when it charges a lance. */
+    public static double lanceChargeReserve() {
+        return SPEC.isLoaded() ? LANCE_CHARGE_RESERVE.get() : LANCE_CHARGE_RESERVE.getDefault();
+    }
+
+    /** The server's value, or its default before the server's config has loaded, as on a client's tooltip. */
+    private static int value(ModConfigSpec.IntValue value) {
+        return SPEC.isLoaded() ? value.get() : value.getDefault();
     }
 }

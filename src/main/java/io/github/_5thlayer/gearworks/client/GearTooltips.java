@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
+import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.lance.BoreLanceItem;
@@ -21,7 +22,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
  * A suit's FE and the totals of its Stats, not each upgrade's value, since a Stat's Ceiling holds for
  * their sum (ADR 0003); every Gear Upgrade's size, Level and Stat at that Level, from its data map
  * entry, so an upgrade a datapack adds says so as Gearworks' own do; and a Bore Lance's Bore and its
- * built-in Lunge, which vanilla's enchantment lines don't show.
+ * built-in Lunge, which vanilla's enchantment lines don't show, and the netherite lance's FE.
  */
 final class GearTooltips {
 
@@ -66,13 +67,19 @@ final class GearTooltips {
         }
     }
 
-    /** The Bore the lance breaks, its built-in Lunge, and whether it is worn out. */
+    /** The Bore the lance breaks, its built-in Lunge, whether it is worn out, and on FE, its FE and whether it is dry. */
     private static void lance(ItemStack stack, BoreLanceItem lance, List<Component> lines) {
+        if (BoreLance.runsOnEnergy(stack)) {
+            lines.add(gray(FeText.reading(BoreLance.energy(stack), GearworksConfig.lanceCapacity())));
+        }
         lines.add(gray(Component.translatable("tooltip.gearworks.bore_lance.bore", BoreLance.bore(stack).size())));
         lines.add(gray(Component.translatable("tooltip.gearworks.bore_lance.lunge",
                 Component.translatable("enchantment.level." + lance.lunge()))));
         if (BoreLance.wornOut(stack)) {
             lines.add(Component.translatable("tooltip.gearworks.bore_lance.worn_out").withStyle(ChatFormatting.RED));
+        }
+        if (BoreLance.dry(stack)) {
+            lines.add(Component.translatable("tooltip.gearworks.bore_lance.dry").withStyle(ChatFormatting.RED));
         }
     }
 
