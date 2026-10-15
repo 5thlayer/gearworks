@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "D": "minecraft:dispenser",
+    "G": "#c:ingots/gold",
+    "R": "minecraft:firework_rocket"
+  },
+  "pattern": [
+    "GRG",
+    "RDR",
+    "GRG"
+  ],
+  "result": {
+    "id": "gearworks:boost_upgrade"
+  }
+}

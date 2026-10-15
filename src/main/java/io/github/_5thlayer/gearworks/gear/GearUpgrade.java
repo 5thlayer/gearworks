@@ -21,10 +21,13 @@ import org.jspecify.annotations.Nullable;
  * entry fits the Gear Grid, covering {@code width} by {@code height} cells and giving its Stat
  * {@code amount}, while drawing {@code draw} FE per tick when the Stat runs on FE. Each Level the
  * upgrade carries adds {@code amount_per_level} to the amount and {@code draw_per_level} to the draw;
- * a Stat with a Ceiling bends the suit's total toward it (ADR 0003). The data map is the API: a
- * Consumer or a pack adds an upgrade, or retunes its curve, with an entry and no code.
+ * a Stat with a Ceiling bends the suit's total toward it (ADR 0003). A Stat that waits between uses,
+ * as Boost does its Cooldown, waits {@code cooldown} ticks, each Level taking about
+ * {@code cooldown_per_level} off toward its least; any other Stat ignores both. The data map is the API:
+ * a Consumer or a pack adds an upgrade, or retunes its curve, with an entry and no code.
  */
-public record GearUpgrade(int width, int height, Stat stat, double amount, double amountPerLevel, int draw, int drawPerLevel) {
+public record GearUpgrade(int width, int height, Stat stat, double amount, double amountPerLevel, int draw, int drawPerLevel,
+                          int cooldown, int cooldownPerLevel) {
 
     public static final Codec<GearUpgrade> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.POSITIVE_INT.fieldOf("width").forGetter(GearUpgrade::width),
@@ -33,7 +36,9 @@ public record GearUpgrade(int width, int height, Stat stat, double amount, doubl
             Codec.doubleRange(0, Double.MAX_VALUE).fieldOf("amount").forGetter(GearUpgrade::amount),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("amount_per_level", 0.0).forGetter(GearUpgrade::amountPerLevel),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("draw", 0).forGetter(GearUpgrade::draw),
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("draw_per_level", 0).forGetter(GearUpgrade::drawPerLevel)
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("draw_per_level", 0).forGetter(GearUpgrade::drawPerLevel),
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cooldown", 0).forGetter(GearUpgrade::cooldown),
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("cooldown_per_level", 0).forGetter(GearUpgrade::cooldownPerLevel)
     ).apply(instance, GearUpgrade::new));
 
     /** Synced, since the client sizes the upgrade it is about to place and shows the suit's totals. */
@@ -65,5 +70,13 @@ public record GearUpgrade(int width, int height, Stat stat, double amount, doubl
         return stat.draw() == Stat.Draw.FALLS
                 ? Curves.overFloor(draw, drawPerLevel, GearworksConfig.floor(stat), level)
                 : Curves.draw(draw, drawPerLevel, level);
+    }
+
+    /**
+     * The ticks the upgrade waits between uses at that Level, falling toward the
+     * {@code boostCooldownFloor}, which it never goes under.
+     */
+    public int cooldownAt(int level) {
+        return Curves.overFloor(cooldown, cooldownPerLevel, GearworksConfig.boostCooldownFloor(), level);
     }
 }

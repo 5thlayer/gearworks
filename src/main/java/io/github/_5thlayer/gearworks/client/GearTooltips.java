@@ -67,6 +67,10 @@ final class GearTooltips {
             lines.add(gray(Component.translatable("tooltip.gearworks.flight",
                     format(totals.underCeiling(Stat.FLIGHT) * 100), totals.draw(Stat.FLIGHT))));
         }
+        if (totals.has(Stat.BOOST)) {
+            lines.add(gray(Component.translatable("tooltip.gearworks.boost",
+                    format(totals.underCeiling(Stat.BOOST)), totals.draw(Stat.BOOST), seconds(totals.cooldown(Stat.BOOST)))));
+        }
     }
 
     /**
@@ -105,11 +109,19 @@ final class GearTooltips {
             // One to a suit, so what it gives under the Ceiling is the suit's total too.
             case FLIGHT -> Component.translatable("tooltip.gearworks.upgrade.flight",
                     format(Curves.underCeiling(amount, GearworksConfig.ceiling(Stat.FLIGHT)) * 100), upgrade.drawAt(level));
+            // One to a suit, as flight is.
+            case BOOST -> Component.translatable("tooltip.gearworks.upgrade.boost",
+                    format(Curves.underCeiling(amount, GearworksConfig.ceiling(Stat.BOOST))), upgrade.drawAt(level),
+                    seconds(upgrade.cooldownAt(level)));
         }));
     }
 
     private static Component gray(MutableComponent line) {
         return line.withStyle(ChatFormatting.GRAY);
+    }
+
+    private static String seconds(int ticks) {
+        return format(ticks / 20.0);
     }
 
     private static String format(double value) {

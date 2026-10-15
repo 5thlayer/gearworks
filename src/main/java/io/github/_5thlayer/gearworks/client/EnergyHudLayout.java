@@ -5,8 +5,8 @@ package io.github._5thlayer.gearworks.client;
 
 /**
  * Where the HUD's energy reading sits in its corner: aligned to the corner's side, the text against
- * the screen's edge and the bar inside it. It moves aside for nothing: the corner is the player's to
- * choose.
+ * the screen's edge, the bar inside it, and while a Boost cools down, a thinner bar past that. It moves
+ * aside for nothing: the corner is the player's to choose.
  *
  * @param textX the text's left edge
  * @param textY the text's top edge
@@ -21,6 +21,8 @@ record EnergyHudLayout(int textX, int textY, int barX, int barY) {
     static final int BAR_HEIGHT = 5;
     /** The bar inside its one-pixel frame, which the stored FE fills. */
     static final int FILL_WIDTH = BAR_WIDTH - 2;
+    /** The Cooldown's bar, as wide as the energy bar, its frame included. */
+    static final int COOLDOWN_HEIGHT = 3;
 
     enum Corner {
         TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;
@@ -57,5 +59,18 @@ record EnergyHudLayout(int textX, int textY, int barX, int barY) {
         }
         long width = (long) energy * FILL_WIDTH / capacity;
         return (int) Math.clamp(width, 1, FILL_WIDTH - 1);
+    }
+
+    /** The Cooldown bar's top edge, its frame included: on the energy bar's side away from the text. */
+    int cooldownY(Corner corner) {
+        return corner.bottom() ? barY - GAP - COOLDOWN_HEIGHT : barY + BAR_HEIGHT + GAP;
+    }
+
+    /** How much of {@link #FILL_WIDTH} the Cooldown left fills: some until it has run out. */
+    static int cooldownFilled(double fraction) {
+        if (fraction <= 0) {
+            return 0;
+        }
+        return (int) Math.clamp((long) Math.ceil(fraction * FILL_WIDTH - 1.0E-9), 1, FILL_WIDTH);
     }
 }

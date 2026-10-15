@@ -51,6 +51,7 @@ ACCENTS = {
     "jump_upgrade": ("#4c1f7a", "#7e3fc4", "#a86ce8", "#e2c4ff"),
     "night_vision_upgrade": ("#1d5a2a", "#2f9a3a", "#5ad04a", "#c8ff9a"),
     "flight_upgrade": ("#6a1a4a", "#b82a7a", "#e85aa8", "#ffc4e6"),
+    "boost_upgrade": ("#7a4a0e", "#c4861a", "#f0c03a", "#fff2a8"),
 }
 
 # S and Y, the solar upgrade's sun.
@@ -182,6 +183,24 @@ ICONS = {
         "KdKAKK..........",
         "KKKK............",
         "................",
+    ],
+    "boost_upgrade": [
+        "................",
+        ".......KK.......",
+        "......KDDK......",
+        ".....KDCCBK.....",
+        ".....KCCBBK.....",
+        ".....KKKKKK.....",
+        ".....KWwlnK.....",
+        ".....KwLlmK.....",
+        ".....KBBAAK.....",
+        ".....KwLlmK.....",
+        "....KKwLlmKK....",
+        "...KdKwLlmKdK...",
+        "...KdKKKKKKdK...",
+        "...KKK.DC.KKK...",
+        "......DCCB......",
+        ".......CB.......",
     ],
 }
 

@@ -71,7 +71,12 @@ final class SuitFixtures {
 
     /** A player standing on the platform and wearing the suit, ticked by the test each game tick. */
     static Player wearer(GameTestHelper helper, ItemStack suit) {
-        var player = helper.makeMockPlayer(GameType.SURVIVAL);
+        return wearer(helper, suit, GameType.SURVIVAL);
+    }
+
+    /** A player in that game mode standing on the platform and wearing the suit. */
+    static Player wearer(GameTestHelper helper, ItemStack suit, GameType mode) {
+        var player = helper.makeMockPlayer(mode);
         var feet = helper.absoluteVec(new Vec3(1.5, 1, 1.5));
         player.setPos(feet.x, feet.y, feet.z);
         player.setItemSlot(EquipmentSlot.CHEST, suit);

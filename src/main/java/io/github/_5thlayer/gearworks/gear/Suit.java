@@ -113,7 +113,7 @@ public final class Suit {
                 continue;
             }
             int level = GearUpgrade.level(placement.item());
-            totals.add(upgrade.stat(), upgrade.amountAt(level), upgrade.drawAt(level));
+            totals.add(upgrade.stat(), upgrade.amountAt(level), upgrade.drawAt(level), upgrade.cooldownAt(level));
         }
         return totals;
     }
@@ -127,14 +127,16 @@ public final class Suit {
         private final double[] amounts = new double[Stat.values().length];
         private final long[] draws = new long[Stat.values().length];
         private final int[] upgrades = new int[Stat.values().length];
+        private final int[] cooldowns = new int[Stat.values().length];
 
         private Totals() {
         }
 
-        private void add(Stat stat, double amount, int draw) {
+        private void add(Stat stat, double amount, int draw, int cooldown) {
             amounts[stat.ordinal()] += amount;
             draws[stat.ordinal()] += draw;
             upgrades[stat.ordinal()]++;
+            cooldowns[stat.ordinal()] = Math.max(cooldowns[stat.ordinal()], cooldown);
         }
 
         /** Whether the suit holds an upgrade of that Stat. */
@@ -158,6 +160,11 @@ public final class Suit {
                 draw = (draw + count - 1) / count;
             }
             return (int) Math.min(Integer.MAX_VALUE, draw);
+        }
+
+        /** The ticks the suit's upgrade of that Stat waits between uses, the longest if it holds several. */
+        public int cooldown(Stat stat) {
+            return cooldowns[stat.ordinal()];
         }
 
         /** Whether the suit holds an upgrade of that Stat and the FE for its draw: an empty suit runs nothing. */

@@ -21,7 +21,8 @@ import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * The client's side of Gear: the Gear Bench's screen and the suit floating above it, the Gear Grid's
- * screen and the key that opens it, the worn suit's glowing gem and its FE on the HUD, the Bore Lance's
+ * screen and the key that opens it, the worn suit's glowing gem, its FE and its Boost's Cooldown on the
+ * HUD and the key that fires its Boost, the Bore Lance's
  * mining and the key that steps its Bore, the tooltips of suits, lances and upgrades, and the configs and
  * the mod list's screen for them.
  */
@@ -37,6 +38,7 @@ public final class GearworksClient {
         modBus.addListener(RegisterKeyMappingsEvent.class, event -> event.registerCategory(KEYS));
         modBus.addListener(GridKey::onRegisterKeys);
         modBus.addListener(BoreKey::onRegisterKeys);
+        modBus.addListener(BoostKey::onRegisterKeys);
         modBus.addListener(GearworksClient::registerScreens);
         modBus.addListener(GearworksClient::registerRenderers);
         modBus.addListener(EnergyHud::onRegisterLayers);
@@ -44,6 +46,7 @@ public final class GearworksClient {
         modBus.addListener(EntityRenderersEvent.AddLayers.class, SuitGlowLayer::onAddLayers);
         NeoForge.EVENT_BUS.addListener(GridKey::onClientTick);
         NeoForge.EVENT_BUS.addListener(BoreKey::onClientTick);
+        NeoForge.EVENT_BUS.addListener(BoostKey::onClientTick);
         NeoForge.EVENT_BUS.addListener(LanceAttack::onClick);
         NeoForge.EVENT_BUS.addListener(LanceAttack::onClientTick);
         NeoForge.EVENT_BUS.addListener(GearTooltips::onTooltip);
