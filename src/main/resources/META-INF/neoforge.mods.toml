@@ -14,6 +14,9 @@ description = '''
 ${mod_description}
 '''
 
+[[mixins]]
+config = "gearworks.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"

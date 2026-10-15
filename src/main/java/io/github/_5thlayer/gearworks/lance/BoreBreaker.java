@@ -45,7 +45,7 @@ public final class BoreBreaker {
         try {
             // The first is the hit block, which the player is breaking already.
             for (var block : blocks.subList(1, blocks.size())) {
-                if (player.getMainHandItem() != lance || lance.isEmpty() || BoreLance.wornOut(lance)) {
+                if (!BoreLance.lasts(lance, player)) {
                     break;
                 }
                 if (bores(lance, level, block, hardness)) {
@@ -57,14 +57,9 @@ public final class BoreBreaker {
         }
     }
 
-    /**
-     * Whether a Bore takes that block: one the lance mines and drops at its tier, which is a block of
-     * {@link BoreLance#MINEABLE} it is not too low for, no harder than the hit block, and not unbreakable.
-     */
+    /** Whether a Bore takes that block: one the lance {@linkplain BoreLance#breaks breaks}, no harder than the hit block. */
     private static boolean bores(ItemStack lance, Level level, BlockPos pos, float hardness) {
-        var state = level.getBlockState(pos);
-        float own = state.getDestroySpeed(level, pos);
-        return !state.isAir() && own >= 0 && own <= hardness && lance.isCorrectToolForDrops(state);
+        return BoreLance.breaks(lance, level, pos) && level.getBlockState(pos).getDestroySpeed(level, pos) <= hardness;
     }
 
     /**

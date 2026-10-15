@@ -6,8 +6,8 @@ package io.github._5thlayer.gearworks.gear;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
- * The server's numbers that belong to a Stat rather than to an upgrade: an upgrade's own values are
- * in its data map entry.
+ * The server's numbers that no data map entry holds: those that belong to a Stat rather than to an
+ * upgrade, whose own values are in its data map entry, and the Bore Lance's costs.
  */
 public final class GearworksConfig {
 
@@ -18,6 +18,7 @@ public final class GearworksConfig {
     private static final ModConfigSpec.DoubleValue SHIELD_CEILING;
     private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
     private static final ModConfigSpec.IntValue FLIGHT_FLOOR;
+    private static final ModConfigSpec.IntValue LUNGE_BORING_COST;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -40,6 +41,9 @@ public final class GearworksConfig {
                 .comment("The FE per tick in the air a flight upgrade's draw approaches as it levels, and is never pushed under.",
                         "Over 0, so flight is never free.")
                 .defineInRange("flightFloor", 20, 1, 1_000_000);
+        LUNGE_BORING_COST = builder
+                .comment("The durability a Bore Lance pays for each block its Lunge breaks, where mining one costs 1.")
+                .defineInRange("lungeBoringCost", 10, 0, 1_000);
         SPEC = builder.build();
     }
 
@@ -71,5 +75,10 @@ public final class GearworksConfig {
             default -> throw new IllegalArgumentException(stat + " has no Floor");
         };
         return SPEC.isLoaded() ? floor.get() : floor.getDefault();
+    }
+
+    /** The durability Lunge Boring costs a block, or its default before the server's config has loaded. */
+    public static int lungeBoringCost() {
+        return SPEC.isLoaded() ? LUNGE_BORING_COST.get() : LUNGE_BORING_COST.getDefault();
     }
 }

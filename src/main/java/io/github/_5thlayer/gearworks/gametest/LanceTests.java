@@ -447,7 +447,7 @@ final class LanceTests {
      * A survival player holding the stack: a server player, since only one breaks blocks as the server
      * does, which the mock players of the other tests can't.
      */
-    private static ServerPlayer holding(GameTestHelper helper, ItemStack stack) {
+    static ServerPlayer holding(GameTestHelper helper, ItemStack stack) {
         var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "gearworks_lancer"));
         player.setGameMode(GameType.SURVIVAL);
         player.setShiftKeyDown(false);

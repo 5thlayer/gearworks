@@ -5,11 +5,13 @@ package io.github._5thlayer.gearworks.lance;
 
 import java.util.function.Consumer;
 
+import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
@@ -61,9 +63,16 @@ public final class BoreLanceItem extends Item {
         return neverBreaks && max > 0 && stack.getOrDefault(DataComponents.DAMAGE, 0) >= max - 1;
     }
 
-    /** Mines the block, paying for it, then breaks the rest of the Bore while the lance lasts. */
+    /**
+     * Mines the block, paying for it, then breaks the rest of the Bore while the lance lasts; a block its
+     * Lunge breaks costs Lunge Boring's price instead, and is one block alone.
+     */
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
+        if (LungeBoring.breaking()) {
+            stack.hurtAndBreak(GearworksConfig.lungeBoringCost(), owner, EquipmentSlot.MAINHAND);
+            return true;
+        }
         boolean mined = super.mineBlock(stack, level, state, pos, owner);
         if (owner instanceof ServerPlayer player) {
             BoreBreaker.bore(stack, player, pos, state);

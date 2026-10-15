@@ -16,6 +16,7 @@ import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.lance.BoreLanceItem;
 import io.github._5thlayer.gearworks.lance.BoreLanceRecipe;
 import io.github._5thlayer.gearworks.lance.CycleBorePayload;
+import io.github._5thlayer.gearworks.lance.LungeBoring;
 import io.github._5thlayer.libworks.WorksTab;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -171,6 +172,7 @@ public final class GearContent {
         NeoForge.EVENT_BUS.addListener(SuitTicker::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(SuitTicker::onJump);
         NeoForge.EVENT_BUS.addListener(SuitShield::onDamage);
+        NeoForge.EVENT_BUS.addListener(LungeBoring::onPlayerTick);
     }
 
     /**
