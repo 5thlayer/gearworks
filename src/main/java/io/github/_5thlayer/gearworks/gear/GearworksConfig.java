@@ -79,7 +79,7 @@ public final class GearworksConfig {
                         "only while it holds more, and never goes under it doing so.")
                 .defineInRange("netheriteLanceChargeReserve", 0.25, 0.0, 1.0);
         BOOST_CEILING = builder
-                .comment("The speed in blocks a tick a Boost's thrust approaches and never reaches as its upgrade levels.",
+                .comment("The speed in blocks a tick a Boost's Thrust approaches and never reaches as its upgrade levels.",
                         "A vanilla rocket pulls a glider toward 1.5.")
                 .defineInRange("boostCeiling", 2.5, 0.0, 10.0);
         BOOST_FLOOR = builder
@@ -88,7 +88,7 @@ public final class GearworksConfig {
                 .defineInRange("boostFloor", 200, 1, 1_000_000);
         BOOST_COOLDOWN_FLOOR = builder
                 .comment("The ticks a boost upgrade's Cooldown approaches as it levels, and is never pushed under.",
-                        "A Cooldown is never shorter than the thrust, whatever this says, so two Boosts never overlap.")
+                        "A Cooldown is never shorter than the Thrust, whatever this says, so two Boosts never overlap.")
                 .defineInRange("boostCooldownFloor", 25, 1, 1_000_000);
         BOOST_TICKS = builder
                 .comment("The ticks each Boost thrusts for, whatever the Level. A vanilla rocket of flight duration 1 thrusts for 20 to 31.")
@@ -174,9 +174,16 @@ public final class GearworksConfig {
         return SPEC.isLoaded() ? value.get() : value.getDefault();
     }
 
-    /** The least a boost upgrade's Cooldown falls toward, or its default before the server's config has loaded. */
-    public static int boostCooldownFloor() {
-        return SPEC.isLoaded() ? BOOST_COOLDOWN_FLOOR.get() : BOOST_COOLDOWN_FLOOR.getDefault();
+    /**
+     * The Floor of the Cooldown of a Stat that waits between uses, or its default before the server's
+     * config has loaded; a Stat that never waits has none, and its upgrades' cooldown fields go unread.
+     */
+    public static int cooldownFloor(Stat stat) {
+        var floor = switch (stat) {
+            case BOOST -> BOOST_COOLDOWN_FLOOR;
+            default -> throw new IllegalArgumentException(stat + " has no Cooldown");
+        };
+        return SPEC.isLoaded() ? floor.get() : floor.getDefault();
     }
 
     /** The ticks each Boost thrusts for, or its default before the server's config has loaded. */

@@ -90,6 +90,21 @@ class BoostingTest {
     }
 
     @Test
+    void underFlightsDragTheThrustSettlesWhereAGlidersDoesOnEveryAxis() {
+        // Flight keeps 0.91 of the horizontal speed each tick and 0.6 of the vertical.
+        for (double drag : new double[] {0.91, 0.6}) {
+            double carried = 0;
+            double moved = 0;
+            for (int tick = 0; tick < 25; tick++) {
+                moved = Boosting.step(carried, 1, 1.5, drag);
+                carried = moved * drag;
+            }
+
+            assertEquals(1.7, moved, 1.0E-6, "under a drag of " + drag);
+        }
+    }
+
+    @Test
     void aStrongerBoostGoesFaster() {
         assertTrue(Boosting.step(0, 1, 2.0) > Boosting.step(0, 1, 1.2));
     }

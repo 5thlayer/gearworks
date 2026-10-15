@@ -36,6 +36,7 @@ final class BoostTests {
     static void register(GearworksGameTests.Registrar tests) {
         tests.test("a_boost_spends_its_draw_and_throws_the_player_along_their_gaze", 40, BoostTests::throwsAlongGaze);
         tests.test("a_boost_in_its_cooldown_does_not_fire_and_the_next_does_once_it_ends", 200, BoostTests::coolsDown);
+        tests.test("a_boost_upward_climbs_as_fast_as_a_level_one_flies", 40, BoostTests::climbsAsFast);
         tests.test("a_player_on_the_ground_cannot_boost", 1, BoostTests::notOnTheGround);
         tests.test("a_suit_short_of_a_boosts_fe_does_not_boost", 1, BoostTests::shortOfFe);
         tests.test("landing_ends_the_thrust_and_keeps_the_cooldown", 1, BoostTests::landingEndsThrust);
@@ -48,11 +49,10 @@ final class BoostTests {
         charge(suit, FULL);
         var player = aloft(helper, suit, GameType.SURVIVAL);
         double z = player.getZ();
-        int draw = SuitFixtures.upgrade(GearContent.BOOST_UPGRADE.get()).draw();
 
         helper.assertTrue(SuitBoost.fire(player), Component.literal("the boost did not fire"));
 
-        helper.assertValueEqual(Suit.energy(suit), FULL - draw, Component.literal("FE after the boost"));
+        helper.assertValueEqual(Suit.energy(suit), FULL - draw(), Component.literal("FE after the boost"));
         helper.onEachTick(player::tick);
         helper.runAfterDelay(10, () -> {
             helper.assertTrue(player.getAbilities().flying, Component.literal("the player stopped flying"));
@@ -90,6 +90,30 @@ final class BoostTests {
         });
     }
 
+    private static void climbsAsFast(GameTestHelper helper) {
+        var level = aloft(helper, charged(booster(0)), GameType.SURVIVAL);
+        var upward = aloft(helper, charged(booster(0)), GameType.SURVIVAL);
+        // Apart, so the two don't push each other.
+        upward.setPos(upward.position().add(4, 0, 0));
+        upward.setXRot(-90);
+        double z = level.getZ();
+        double y = upward.getY();
+        SuitBoost.fire(level);
+        SuitBoost.fire(upward);
+
+        helper.onEachTick(() -> {
+            level.tick();
+            upward.tick();
+        });
+        helper.runAfterDelay(10, () -> {
+            double flown = level.getZ() - z;
+            double climbed = upward.getY() - y;
+            helper.assertTrue(Math.abs(climbed - flown) < 0.1 * flown,
+                    Component.literal("in 10 ticks the boost climbed " + climbed + " blocks and flew " + flown));
+            helper.succeed();
+        });
+    }
+
     private static void notOnTheGround(GameTestHelper helper) {
         var suit = booster(0);
         charge(suit, FULL);
@@ -104,7 +128,7 @@ final class BoostTests {
 
     private static void shortOfFe(GameTestHelper helper) {
         var suit = booster(0);
-        int draw = SuitFixtures.upgrade(GearContent.BOOST_UPGRADE.get()).draw();
+        int draw = draw();
         charge(suit, draw - 1);
         var player = aloft(helper, suit, GameType.SURVIVAL);
 
@@ -143,7 +167,7 @@ final class BoostTests {
         var fresh = Suit.totals(booster(0));
         var raised = Suit.totals(booster(10));
         int floor = GearworksConfig.floor(Stat.BOOST);
-        int cooldownFloor = GearworksConfig.boostCooldownFloor();
+        int cooldownFloor = GearworksConfig.cooldownFloor(Stat.BOOST);
         double ceiling = GearworksConfig.ceiling(Stat.BOOST);
 
         helper.assertTrue(raised.draw(Stat.BOOST) < fresh.draw(Stat.BOOST),
@@ -155,6 +179,15 @@ final class BoostTests {
         helper.assertTrue(raised.underCeiling(Stat.BOOST) > fresh.underCeiling(Stat.BOOST), Component.literal("Level 10 pulls no harder"));
         helper.assertTrue(raised.underCeiling(Stat.BOOST) < ceiling, Component.literal("Level 10 reaches the Ceiling " + ceiling));
         helper.succeed();
+    }
+
+    private static ItemStack charged(ItemStack suit) {
+        charge(suit, FULL);
+        return suit;
+    }
+
+    private static int draw() {
+        return SuitFixtures.upgrade(GearContent.BOOST_UPGRADE.get()).draw();
     }
 
     /** A netherite suit holding a battery, a flight upgrade, and a boost upgrade at that Level. */

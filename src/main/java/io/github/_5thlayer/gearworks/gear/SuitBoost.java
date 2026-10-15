@@ -11,21 +11,28 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * The worn suit's Boost: a key's press throws the flying player along their gaze, as a firework does a
- * glider, for {@code boostTicks}, spending the suit's Boost draw and starting its Cooldown. The server
- * decides each Boost and tells the player's client, which moves the player; both run the thrust and the
- * Cooldown each tick, so the HUD shows what the server holds. A player in creative or spectator mode
- * spends no FE and still waits out the Cooldown. Landing, or flight ending, stops the thrust.
+ * glider, for a Thrust of {@code boostTicks}, spending the suit's Boost draw and starting its Cooldown.
+ * The server decides each Boost and tells the player's client, which moves the player; both run the
+ * Thrust and the Cooldown each tick, so the HUD shows what the server holds. A player in creative or
+ * spectator mode spends no FE and still waits out the Cooldown. Landing, or flight ending, stops the
+ * Thrust.
  */
 public final class SuitBoost {
 
-    // A firework's spark, trailing the player's feet each tick of the thrust.
+    // A firework's spark, trailing the player's feet each tick of the Thrust.
     private static final double TRAIL = 0.05;
+
+    // What flight keeps of the player's speed each tick: Player.travel keeps 0.6 of the vertical, and
+    // LivingEntity.travelInAir 0.91 of the horizontal.
+    private static final double HORIZONTAL_DRAG = 0.91;
+    private static final double VERTICAL_DRAG = 0.6;
 
     private SuitBoost() {
     }
@@ -38,20 +45,26 @@ public final class SuitBoost {
     /** Whether a Boost would fire now: a flying player, a worn suit with a boost upgrade and its FE, and no Cooldown. */
     public static boolean canFire(Player player) {
         var suit = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!Suit.is(suit) || !player.getAbilities().flying || !of(player).ready()) {
+        return Suit.is(suit) && canFire(player, suit, Suit.totals(suit));
+    }
+
+    private static boolean canFire(Player player, ItemStack suit, Suit.Totals totals) {
+        if (!player.getAbilities().flying || !of(player).ready()) {
             return false;
         }
-        var totals = Suit.totals(suit);
         return free(player) ? totals.has(Stat.BOOST) : totals.canDraw(Stat.BOOST, Suit.energy(suit));
     }
 
     /** Fires a Boost when one would fire, spending its FE and telling the player's client; says whether it fired. */
     public static boolean fire(Player player) {
-        if (!canFire(player)) {
+        var suit = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!Suit.is(suit)) {
             return false;
         }
-        var suit = player.getItemBySlot(EquipmentSlot.CHEST);
         var totals = Suit.totals(suit);
+        if (!canFire(player, suit, totals)) {
+            return false;
+        }
         if (!free(player)) {
             Suit.setEnergy(suit, Suit.energy(suit) - totals.draw(Stat.BOOST));
         }
@@ -67,7 +80,7 @@ public final class SuitBoost {
         return true;
     }
 
-    /** Before the player moves: a tick of thrust while they fly, then a tick off the thrust and the Cooldown. */
+    /** Before the player moves: a tick of Thrust while they fly, then a tick off the Thrust and the Cooldown. */
     static void onPlayerTick(PlayerTickEvent.Pre event) {
         var player = event.getEntity();
         var boosting = of(player);
@@ -85,9 +98,9 @@ public final class SuitBoost {
         var look = player.getLookAngle();
         var movement = player.getDeltaMovement();
         player.setDeltaMovement(new Vec3(
-                Boosting.step(movement.x, look.x, strength),
-                Boosting.step(movement.y, look.y, strength),
-                Boosting.step(movement.z, look.z, strength)));
+                Boosting.step(movement.x, look.x, strength, HORIZONTAL_DRAG),
+                Boosting.step(movement.y, look.y, strength, VERTICAL_DRAG),
+                Boosting.step(movement.z, look.z, strength, HORIZONTAL_DRAG)));
         if (player.level() instanceof ServerLevel level) {
             level.sendParticles(ParticleTypes.FIREWORK, player.getX(), player.getY(), player.getZ(), 1, TRAIL, TRAIL, TRAIL, 0);
         }
