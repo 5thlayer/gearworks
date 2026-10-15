@@ -1,6 +1,6 @@
 ![Gearworks](https://raw.githubusercontent.com/5thlayer/gearworks/main/publish/gearworks-cover.png)
 
-Gearworks adds one suit, **Gear**, that you wear in the chest slot and build up for the whole game. Inside it is a **Gear Grid**: lay out upgrades for battery, solar, speed, jump, shield, night vision and flight, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
+Gearworks adds one **Suit**, which you wear in the chest slot and build up for the whole game. Inside it is a **Gear Grid**: lay out upgrades for battery, solar, speed, jump, shield, night vision and flight, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
 
 **Not released yet.** Gearworks is being designed and built; the design is
 [5thlayer/factoryworks#666](https://github.com/5thlayer/factoryworks/issues/666).
@@ -15,7 +15,7 @@ I also wanted the layout to matter, as in Factorio's modular armor, where every 
 
 ## Planned
 
-- **One suit, three tiers.** Gear is worn in the chest slot, giving the armor of an iron, diamond or netherite chestplate, and each tier has a larger Gear Grid. A tier is made from the one below and keeps its upgrades.
+- **One suit, three tiers.** The Suit is worn in the chest slot, giving the armor of an iron, diamond or netherite chestplate, and each tier has a larger Gear Grid. A tier is made from the one below and keeps its upgrades.
 - **A grid to lay out.** Gear Upgrades cover rectangles of the grid: battery, solar, speed, jump, shield and night vision, and Flight at the top. The grid opens anywhere.
 - **Levels with no cap.** At the **Gear Bench** an upgrade's Level rises, each costing more than the last; speed, jump and shield approach a Ceiling, and Flight's FE draw falls toward a Floor. Two upgrades of one Stat together still stay under its Ceiling.
 - **Powered by FE.** The suit stores power only in its battery upgrades, and any mod's charger fills it.
@@ -27,7 +27,7 @@ Every amount, rate, cost and curve will be datapack data, and top Levels cost ma
 
 ## For mod authors
 
-A mod adds a Gear Upgrade with an item and an entry in Gearworks' data map naming its size and Stat. Gearworks owns every behaviour; no mod ships code for Gear. `CHANGELOG.md` lists what each version changed for a mod building against it.
+A mod adds a Gear Upgrade with an item and an entry in Gearworks' data map naming its size and Stat. Gearworks owns every behaviour; no mod ships code for the Suit. `CHANGELOG.md` lists what each version changed for a mod building against it.
 
 ## Dependencies
 
