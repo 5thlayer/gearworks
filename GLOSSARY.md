@@ -1,7 +1,8 @@
 # Gearworks
 
-Gear: one suit the player wears in the chest slot, whose Gear Grid holds upgrades that run on FE and
-level without a cap. It plays alone in vanilla, and is the -works suite's Sink that drains the player.
+Gear: a suit the player wears in the chest slot, whose Gear Grid holds upgrades that run on FE and
+level without a cap, and a Bore Lance that is both spear and mining tool. It plays alone in vanilla, and
+is the -works suite's Sink that drains the player.
 
 ## Language
 
@@ -19,18 +20,22 @@ _Avoid_: client (collides with the game's client side), dependent, integration
 ### Gear
 
 **Gear**:
-The suit the player wears in the chest slot, in three tiers. Each tier gives the armor of the
+The family of things Gearworks makes for the player to wear or carry: the Suit and the Bore Lance.
+_Avoid_: equipment (that is belt equipment in the suite)
+
+**Suit**:
+The Gear the player wears in the chest slot, in three tiers. Each tier gives the armor of the
 chestplate of its material and has a larger Gear Grid; a tier is made from the one below and keeps its
-upgrades.
-_Avoid_: equipment (that is belt equipment in the suite), armor, power armor
+upgrades. Its item ids still say `gear`, from before the family had a second member.
+_Avoid_: Gear (the family), armor, power armor
 
 **Gear Grid**:
 The two-dimensional area in a piece of Gear that holds its upgrades, each covering a rectangle of it.
-It opens anywhere.
+It opens anywhere. Only the Suit has one.
 _Avoid_: equipment grid, upgrade grid
 
 **Gear Upgrade**:
-An item that fits a Gear Grid and gives the Gear one Stat. Any mod can make one.
+An item that fits a Gear Grid and gives the Suit one Stat. Any mod can make one.
 _Avoid_: equipment, module, augment
 
 **Level**:
@@ -39,7 +44,7 @@ costs more than the last by a constant factor.
 _Avoid_: tier (a tier is the suit's), rank
 
 **Stat**:
-One effect Gearworks gives Gear, such as battery, solar, speed, jump, shield, night vision or flight.
+One effect Gearworks gives the Suit, such as battery, solar, speed, jump, shield, night vision or flight.
 Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
 _Avoid_: ability, perk, attribute (vanilla's attributes are one way a Stat may act)
 
@@ -56,3 +61,23 @@ night vision's and Flight's do, so the Stat never becomes free.
 The placed block where the player raises the Level of one Gear Upgrade inside a suit. Automation stocks
 its cost; the player raises one Level at a time. The suit it holds floats above it, turning.
 _Avoid_: upgrade station, workbench, anvil
+
+### Bore Lance
+
+**Bore Lance**:
+The Gear that is both a spear and a mining tool, in three tiers of iron, diamond and netherite, each
+made from the one below. Each tier has Lunge built in and mines rock up to its material's level. The
+iron tier wears out and breaks; the diamond tier wears out but never breaks, stopping at none left
+until repaired; the netherite tier runs on FE, which a worn Suit tops up. It has no Gear Grid.
+_Avoid_: spear (vanilla's), drill, powered spear
+
+**Bore**:
+The block of rock a Bore Lance breaks at once, laid on the face it hit and three deep: 1×1, 3×3 or
+5×3 wide by tier. A key steps through its tier's Bore and the smaller ones; sneaking breaks one block,
+which is no Bore.
+_Avoid_: AoE, area, mode, pattern
+
+**Lunge Boring**:
+A Bore Lance breaking its Bore through the rock in its path while Lunge carries the player forward. It
+costs far more than mining the same rock.
+_Avoid_: dash mining, tunnelling
