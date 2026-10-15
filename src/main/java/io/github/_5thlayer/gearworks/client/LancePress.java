@@ -16,8 +16,21 @@ final class LancePress {
 
     private enum State { IDLE, PRESSED, JABBED, MINING }
 
-    /** What a tick of the press does. */
-    enum Action { NONE, JAB, MINE, STOP }
+    /** What a tick of the press, or its drop, does. */
+    enum Action {
+        /** Nothing yet, or nothing more. */
+        NONE,
+        /** The press was a click: it jabs. */
+        JAB,
+        /** The press is a hold, and mining starts. */
+        START,
+        /** Mining goes on. */
+        MINE,
+        /** Let go: mining stops. */
+        STOP,
+        /** The press ended without being let go: mining stops at once. */
+        DROP
+    }
 
     private State state = State.IDLE;
     private int heldTicks;
@@ -46,7 +59,7 @@ final class LancePress {
                     yield Action.NONE;
                 }
                 state = State.MINING;
-                yield Action.MINE;
+                yield Action.START;
             }
             case JABBED -> {
                 if (!down) {
@@ -57,7 +70,7 @@ final class LancePress {
                     yield Action.NONE;
                 }
                 state = State.MINING;
-                yield Action.MINE;
+                yield Action.START;
             }
             case MINING -> {
                 if (down) {
@@ -71,7 +84,7 @@ final class LancePress {
 
     /** The press ends without a jab, as when the lance leaves the hand or a screen opens; mining stops. */
     Action drop() {
-        var action = state == State.MINING ? Action.STOP : Action.NONE;
+        var action = state == State.MINING ? Action.DROP : Action.NONE;
         state = State.IDLE;
         return action;
     }

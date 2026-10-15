@@ -31,7 +31,7 @@ class LancePressTest {
         for (int tick = 1; tick < LancePress.HOLD_TICKS; tick++) {
             assertEquals(Action.NONE, press.tick(true, true), "tick " + tick);
         }
-        assertEquals(Action.MINE, press.tick(true, true));
+        assertEquals(Action.START, press.tick(true, true));
         assertEquals(Action.MINE, press.tick(true, true));
         assertEquals(Action.STOP, press.tick(false, true));
         assertEquals(Action.NONE, press.tick(false, true));
@@ -56,7 +56,7 @@ class LancePressTest {
         for (int tick = 0; tick < LancePress.HOLD_TICKS; tick++) {
             mining.tick(true, true);
         }
-        assertEquals(Action.STOP, mining.drop());
+        assertEquals(Action.DROP, mining.drop());
         assertEquals(Action.NONE, mining.tick(true, true));
     }
 
@@ -65,7 +65,7 @@ class LancePressTest {
         var press = new LancePress();
         press.jabbed();
         assertEquals(Action.NONE, press.tick(true, false));
-        assertEquals(Action.MINE, press.tick(true, true));
+        assertEquals(Action.START, press.tick(true, true));
         assertEquals(Action.MINE, press.tick(true, false));
         assertEquals(Action.STOP, press.tick(false, false));
     }
