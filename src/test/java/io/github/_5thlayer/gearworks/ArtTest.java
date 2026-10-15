@@ -25,13 +25,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * Every suit and upgrade is drawn in Gearworks' own art: an icon of its own, and for a suit a worn look
- * of its own, each a texture the Library ships rather than one borrowed from vanilla.
+ * Every suit, Bore Lance and upgrade is drawn in Gearworks' own art: an icon of its own, for a suit a
+ * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Library ships
+ * rather than one borrowed from vanilla.
  */
 class ArtTest {
 
     private static final Path ASSETS = Path.of("src/main/resources/assets/gearworks");
     private static final List<String> SUITS = List.of("iron_gear", "diamond_gear", "netherite_gear");
+    private static final List<String> LANCES = List.of("iron_bore_lance", "diamond_bore_lance");
     private static final List<String> UPGRADES = List.of(
             "battery_upgrade", "solar_upgrade", "speed_upgrade", "shield_upgrade", "jump_upgrade", "night_vision_upgrade",
             "flight_upgrade");
@@ -91,6 +93,23 @@ class ArtTest {
         assertEquals(32, worn.getHeight());
     }
 
+    @ParameterizedTest
+    @MethodSource("lances")
+    void eachLanceIsHeldAsASpearInASpriteOfItsOwn(String lance) throws IOException {
+        assertEquals("{\"parent\":\"minecraft:item/spear_in_hand\",\"textures\":{\"layer0\":\"gearworks:item/" + lance + "_in_hand\"}}",
+                json(ASSETS.resolve("models/item/" + lance + "_in_hand.json")));
+        assertTrue(json(ASSETS.resolve("items/" + lance + ".json")).contains("\"fallback\":{\"type\":\"minecraft:model\",\"model\":\"gearworks:item/"
+                + lance + "_in_hand\"}"), lance + " is not held in its in-hand model");
+        var held = image(ASSETS.resolve("textures/item/" + lance + "_in_hand.png"));
+        assertEquals(32, held.getWidth());
+        assertEquals(32, held.getHeight());
+    }
+
+    @Test
+    void noTwoHeldLancesAreAlike() throws IOException {
+        assertAllDistinct(LANCES, lance -> ASSETS.resolve("textures/item/" + lance + "_in_hand.png"));
+    }
+
     @Test
     void noTwoIconsAreAlike() throws IOException {
         assertAllDistinct(items(), item -> ASSETS.resolve("textures/item/" + item + ".png"));
@@ -105,12 +124,17 @@ class ArtTest {
         return SUITS;
     }
 
+    private static List<String> lances() {
+        return LANCES;
+    }
+
     private static List<String> upgrades() {
         return UPGRADES;
     }
 
     private static List<String> items() {
         var items = new ArrayList<>(SUITS);
+        items.addAll(LANCES);
         items.addAll(UPGRADES);
         return items;
     }

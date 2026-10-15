@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gearworks:item/diamond_bore_lance"
+  }
+}

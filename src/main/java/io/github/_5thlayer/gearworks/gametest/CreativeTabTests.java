@@ -12,8 +12,8 @@ import io.github._5thlayer.libworks.testkit.WorksTabCheck;
 final class CreativeTabTests {
 
     private static final List<String> WORKS_TAB_ORDER = List.of(
-            "gear_bench", "iron_gear", "diamond_gear", "netherite_gear", "battery_upgrade", "solar_upgrade", "speed_upgrade",
-            "shield_upgrade", "jump_upgrade", "night_vision_upgrade", "flight_upgrade");
+            "gear_bench", "iron_gear", "diamond_gear", "netherite_gear", "iron_bore_lance", "diamond_bore_lance", "battery_upgrade",
+            "solar_upgrade", "speed_upgrade", "shield_upgrade", "jump_upgrade", "night_vision_upgrade", "flight_upgrade");
 
     private CreativeTabTests() {
     }

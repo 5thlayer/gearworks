@@ -1,0 +1,96 @@
+// SPDX-FileCopyrightText: 2026 5thlayer
+// SPDX-License-Identifier: MIT
+
+package io.github._5thlayer.gearworks.lance;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
+/**
+ * A Bore Lance mining a block breaks its Bore with it: the blocks around and behind the hit one, on
+ * the face that was hit, each as the player breaking it, so each passes the same protection, drops
+ * where it stood under the lance's Fortune or Silk Touch, and costs the lance its durability. A Bore
+ * breaks only what the lance mines at its tier and nothing harder than the hit block, and none at all
+ * while sneaking, from a block the lance doesn't mine, or from a worn-out lance.
+ */
+public final class BoreBreaker {
+
+    // Each of a Bore's blocks is mined with the lance too; those break alone.
+    private static boolean breaking;
+
+    private BoreBreaker() {
+    }
+
+    /**
+     * Breaks the rest of the Bore around a block the player is mining with the lance, once the lance has
+     * paid for that block and before it is removed, so a lance that wears out partway never leaves the
+     * hit block undropped.
+     */
+    static void bore(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
+        if (breaking || player.isShiftKeyDown() || !lance.isCorrectToolForDrops(hit)) {
+            return;
+        }
+        var level = player.level();
+        float hardness = hit.getDestroySpeed(level, pos);
+        var blocks = blocks(BoreLance.bore(lance), pos, face(player, pos, hit), player.getDirection());
+        breaking = true;
+        try {
+            // The first is the hit block, which the player is breaking already.
+            for (var block : blocks.subList(1, blocks.size())) {
+                if (player.getMainHandItem() != lance || lance.isEmpty() || BoreLance.wornOut(lance)) {
+                    break;
+                }
+                if (bores(lance, level, block, hardness)) {
+                    player.gameMode.destroyBlock(block);
+                }
+            }
+        } finally {
+            breaking = false;
+        }
+    }
+
+    /**
+     * Whether a Bore takes that block: one the lance mines and drops at its tier, which is a block of
+     * {@link BoreLance#MINEABLE} it is not too low for, no harder than the hit block, and not unbreakable.
+     */
+    private static boolean bores(ItemStack lance, Level level, BlockPos pos, float hardness) {
+        var state = level.getBlockState(pos);
+        float own = state.getDestroySpeed(level, pos);
+        return !state.isAir() && own >= 0 && own <= hardness && lance.isCorrectToolForDrops(state);
+    }
+
+    /**
+     * Where the Bore's cells lie for a block hit on that face by a player facing that way: in from the
+     * face, and across and up it. A wall's up is the sky's; a floor's or a ceiling's is the way the player
+     * faces, so a wide Bore lies across their path.
+     */
+    public static List<BlockPos> blocks(Bore bore, BlockPos hit, Direction face, Direction facing) {
+        var up = face.getAxis().isVertical() ? facing : Direction.UP;
+        var across = face.getAxis().isVertical() ? facing.getClockWise() : face.getClockWise();
+        var in = face.getOpposite();
+        var blocks = new ArrayList<BlockPos>();
+        for (var cell : bore.cells()) {
+            blocks.add(hit.relative(across, cell.across()).relative(up, cell.up()).relative(in, cell.in()));
+        }
+        return blocks;
+    }
+
+    /**
+     * The face of the block the player is looking at, which the server isn't told when mining ends; if
+     * the look misses its shape, the face turned most toward the player.
+     */
+    private static Direction face(Player player, BlockPos pos, BlockState state) {
+        var eye = player.getEyePosition();
+        var look = player.getViewVector(1);
+        var hit = state.getShape(player.level(), pos).clip(eye, eye.add(look.scale(player.blockInteractionRange() + 1)), pos);
+        return hit != null ? hit.getDirection() : Direction.getApproximateNearest(look).getOpposite();
+    }
+}

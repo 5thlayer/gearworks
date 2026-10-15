@@ -361,6 +361,61 @@ def glow():
     return image
 
 
+# The Bore Lance: a boring head of its tier's ramp, threaded, on a dark shaft whose collar holds the
+# suits' orange gem. Its icon points to the top right as a spear's does; held, it is drawn at twice the
+# size pointing to the top left, for vanilla's spear_in_hand model. Each is outlined in the metal's
+# outline and lit from the top left.
+LANCES = {
+    "iron_bore_lance": TIERS["iron_gear"],
+    "diamond_bore_lance": TIERS["diamond_gear"],
+}
+SHAFT = ("#414047", "#57555f", "#6e6b78")
+
+
+def lance_sprite(size, tip, axis, cone, radius, ramp):
+    """A lance of that size, its tip at the pixel tip and pointing back along the unit axis to the handle.
+
+    Each pixel is placed by how far back from the tip it lies and how far off the axis: the cone
+    widens to radius over cone pixels, the collar and its gem sit just behind it, and the shaft runs
+    on to the corner. The thread is a band every other pixel back, slanted across the cone.
+    """
+    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    side = (-axis[1], axis[0])
+    filled = {}
+    for y in range(size):
+        for x in range(size):
+            dx, dy = x - tip[0], y - tip[1]
+            back = dx * axis[0] + dy * axis[1]
+            off = dx * side[0] + dy * side[1]
+            # Lit from the top left: the side facing it shades lighter.
+            lit = (-side[0] - side[1]) * off > 0
+            if 0 <= back <= cone and abs(off) <= back * radius / cone + 0.5:
+                thread = int((back + off * 0.7) / 1.6) % 2
+                shade = 2 + lit - thread if back > 1 else 3
+                filled[x, y] = ramp[max(0, min(3, shade))]
+            elif cone < back <= cone + 2 and abs(off) <= radius * 0.55:
+                filled[x, y] = CORE[3] if abs(off) < 0.75 and lit else CORE[2] if abs(off) < 0.75 else SHAFT[2]
+            elif cone + 2 < back and abs(off) <= 0.75:
+                filled[x, y] = SHAFT[2] if lit else SHAFT[1]
+    for (x, y), shade in filled.items():
+        image.putpixel((x, y), color(shade))
+    for y in range(size):
+        for x in range(size):
+            if (x, y) in filled:
+                continue
+            if any((x + dx, y + dy) in filled for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                image.putpixel((x, y), color(METAL["K"]))
+    return image
+
+
+def lance_icon(ramp):
+    return lance_sprite(16, (14, 1), (-0.7071, 0.7071), 7.5, 2.6, ramp)
+
+
+def lance_in_hand(ramp):
+    return lance_sprite(32, (1, 1), (0.7071, 0.7071), 11, 3.6, ramp)
+
+
 def worn(palette):
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     paint(image, BODY_SIDE, palette, 16, 20)
@@ -392,6 +447,9 @@ def main():
         (items / f"{name}.png.mcmeta").write_text(json.dumps(animation, indent=2) + "\n")
         recolored(iron, layers[1:]).save(humanoid / f"{name}.png")
     glow().save(ROOT / "entity/gear_glow.png")
+    for name, ramp in LANCES.items():
+        lance_icon(ramp).save(items / f"{name}.png")
+        lance_in_hand(ramp).save(items / f"{name}_in_hand.png")
 
 
 if __name__ == "__main__":

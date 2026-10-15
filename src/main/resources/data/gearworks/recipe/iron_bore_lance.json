@@ -1,0 +1,17 @@
+{
+  "type": "gearworks:crafting_bore_lance",
+  "category": "equipment",
+  "key": {
+    "C": "#c:ingots/copper",
+    "R": "#c:dusts/redstone",
+    "S": "minecraft:iron_spear"
+  },
+  "pattern": [
+    "CRC",
+    "CSC",
+    "CRC"
+  ],
+  "result": {
+    "id": "gearworks:iron_bore_lance"
+  }
+}

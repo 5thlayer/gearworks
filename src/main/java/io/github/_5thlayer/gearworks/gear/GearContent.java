@@ -3,24 +3,39 @@
 
 package io.github._5thlayer.gearworks.gear;
 
+import java.util.List;
 import java.util.Set;
 
+import com.mojang.serialization.Codec;
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.bench.GearBenchBlock;
 import io.github._5thlayer.gearworks.bench.GearBenchBlockEntity;
 import io.github._5thlayer.gearworks.bench.GearBenchMenu;
+import io.github._5thlayer.gearworks.lance.Bore;
+import io.github._5thlayer.gearworks.lance.BoreLance;
+import io.github._5thlayer.gearworks.lance.BoreLanceItem;
+import io.github._5thlayer.gearworks.lance.BoreLanceRecipe;
+import io.github._5thlayer.gearworks.lance.CycleBorePayload;
 import io.github._5thlayer.libworks.WorksTab;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -46,7 +61,8 @@ import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 /**
  * What Gearworks registers: the suit's three tiers, the upgrades, the components the suit and its upgrades
  * save, the Gear Grid's menu, the Gear Bench, and the data maps that make an item an upgrade, size
- * each tier's grid and price each upgrade's Levels.
+ * each tier's grid and price each upgrade's Levels; and the Bore Lance's tiers, the Bore each keeps,
+ * and the recipe that makes one from a spear.
  */
 public final class GearContent {
 
@@ -57,6 +73,15 @@ public final class GearContent {
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Gearworks.MOD_ID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Gearworks.MOD_ID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
+            DeferredRegister.create(Registries.RECIPE_SERIALIZER, Gearworks.MOD_ID);
+
+    /** A Bore Lance's spear numbers rise over its material's spear's by this much attack damage. */
+    private static final float LANCE_DAMAGE_MARGIN = 1.0f;
+    /** And its charged hit, by this factor. */
+    private static final float LANCE_CHARGE_MARGIN = 1.1f;
+    /** And it lasts this many times as long as its material's tools. */
+    private static final int LANCE_DURABILITY_FACTOR = 2;
 
     /** The upgrades a suit's Gear Grid holds and where. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<GridContents>> GRID = COMPONENTS.registerComponentType(
@@ -73,6 +98,11 @@ public final class GearContent {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> LEVEL = COMPONENTS.registerComponentType(
             "level", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
+    /** The Bore a Bore Lance's key last chose; a lance with none breaks its tier's widest. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Bore>> BORE = COMPONENTS.registerComponentType(
+            "bore", builder -> builder.persistent(Codec.stringResolver(Bore::serializedName, Bore::bySerializedName))
+                    .networkSynchronized(ByteBufCodecs.idMapper(id -> Bore.values()[id], Bore::ordinal)));
+
     /** Tier 1, with an iron chestplate's armor. */
     public static final DeferredItem<SuitItem> IRON_SUIT = ITEMS.registerItem("iron_gear", SuitItem::new,
             properties -> suit(properties, ArmorMaterials.IRON, "iron_gear"));
@@ -84,6 +114,22 @@ public final class GearContent {
     /** Tier 3, with a netherite chestplate's armor, and like it unharmed by fire and lava; smithed from tier 2. */
     public static final DeferredItem<SuitItem> NETHERITE_SUIT = ITEMS.registerItem("netherite_gear", SuitItem::new,
             properties -> suit(properties, ArmorMaterials.NETHERITE, "netherite_gear").fireResistant());
+
+    /** The Bore Lance's tier 1: an iron spear that mines at iron's level, in Bores of 1×1×3, with Lunge I. It breaks. */
+    public static final DeferredItem<BoreLanceItem> IRON_BORE_LANCE = ITEMS.registerItem("iron_bore_lance",
+            properties -> new BoreLanceItem(properties, Bore.ONE, 1, false),
+            properties -> lance(properties, ToolMaterial.IRON, 0.95f, 0.95f, 0.6f, 2.5f, 11.0f, 6.75f, 5.1f, 11.25f, 4.6f));
+
+    /**
+     * Tier 2, crafted from tier 1: a diamond spear that mines at diamond's level, in Bores up to 3×3×3, with
+     * Lunge II. It never breaks, and worn out neither bores nor lunges until repaired.
+     */
+    public static final DeferredItem<BoreLanceItem> DIAMOND_BORE_LANCE = ITEMS.registerItem("diamond_bore_lance",
+            properties -> new BoreLanceItem(properties, Bore.THREE, 2, true),
+            properties -> lance(properties, ToolMaterial.DIAMOND, 1.05f, 1.075f, 0.5f, 3.0f, 10.0f, 6.5f, 5.1f, 10.0f, 4.6f));
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoreLanceRecipe>> BORE_LANCE_RECIPE =
+            RECIPE_SERIALIZERS.register("crafting_bore_lance", () -> BoreLanceRecipe.SERIALIZER);
 
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
     public static final DeferredItem<Item> SOLAR_UPGRADE = ITEMS.registerSimpleItem("solar_upgrade");
@@ -117,6 +163,7 @@ public final class GearContent {
         MENUS.register(modBus);
         BLOCKS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
+        RECIPE_SERIALIZERS.register(modBus);
         modBus.addListener(GearContent::registerDataMaps);
         modBus.addListener(GearContent::registerCapabilities);
         modBus.addListener(GearContent::fillCreativeTabs);
@@ -141,6 +188,28 @@ public final class GearContent {
                         .build());
     }
 
+    /**
+     * Its material's spear, its numbers passed as vanilla's, raised by the margins, lasting longer, and
+     * mining {@link BoreLance#MINEABLE} at its material's speed and up to its level.
+     */
+    private static Item.Properties lance(Item.Properties properties, ToolMaterial material, float attackDuration, float damageMultiplier,
+            float delay, float dismountTime, float dismountThreshold, float knockbackTime, float knockbackThreshold, float damageTime,
+            float damageThreshold) {
+        var blocks = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+        return properties.spear(material, attackDuration, damageMultiplier * LANCE_CHARGE_MARGIN, delay, dismountTime, dismountThreshold,
+                        knockbackTime, knockbackThreshold, damageTime, damageThreshold)
+                .durability(material.durability() * LANCE_DURABILITY_FACTOR)
+                .component(DataComponents.TOOL, new Tool(List.of(
+                        Tool.Rule.deniesDrops(blocks.getOrThrow(material.incorrectBlocksForDrops())),
+                        Tool.Rule.minesAndDrops(blocks.getOrThrow(BoreLance.MINEABLE), material.speed())), 1.0f, 1, true))
+                .attributes(ItemAttributeModifiers.builder()
+                        .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+                                material.attackDamageBonus() + LANCE_DAMAGE_MARGIN, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                        .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+                                1.0f / attackDuration - 4.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                        .build());
+    }
+
     private static void registerDataMaps(RegisterDataMapTypesEvent event) {
         event.register(GearUpgrade.DATA_MAP);
         event.register(GridSize.DATA_MAP);
@@ -160,7 +229,9 @@ public final class GearContent {
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        event.registrar("1").playToServer(OpenGridPayload.TYPE, OpenGridPayload.STREAM_CODEC, OpenGridPayload::handle);
+        var registrar = event.registrar("1");
+        registrar.playToServer(OpenGridPayload.TYPE, OpenGridPayload.STREAM_CODEC, OpenGridPayload::handle);
+        registrar.playToServer(CycleBorePayload.TYPE, CycleBorePayload.STREAM_CODEC, CycleBorePayload::handle);
     }
 
     /** Gearworks' items, in the Works tab every -works Module shares, and in no vanilla tab. */
@@ -170,6 +241,8 @@ public final class GearContent {
             event.accept(IRON_SUIT);
             event.accept(DIAMOND_SUIT);
             event.accept(NETHERITE_SUIT);
+            event.accept(IRON_BORE_LANCE);
+            event.accept(DIAMOND_BORE_LANCE);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(SPEED_UPGRADE);

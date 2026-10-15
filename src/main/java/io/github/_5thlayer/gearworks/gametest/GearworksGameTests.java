@@ -64,6 +64,7 @@ public final class GearworksGameTests {
         SolarTests.register(tests);
         BenchTests.register(tests);
         CreativeTabTests.register(tests);
+        LanceTests.register(tests);
     }
 
     private static Identifier id(String path) {

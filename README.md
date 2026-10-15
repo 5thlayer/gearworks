@@ -19,11 +19,12 @@ I also wanted the layout to matter, as in Factorio's modular armor, where every 
 - **A grid to lay out.** Gear Upgrades cover rectangles of the grid: battery, solar, speed, jump, shield and night vision, and Flight at the top. The grid opens anywhere.
 - **Levels with no cap.** At the **Gear Bench** an upgrade's Level rises, each costing more than the last; speed, jump and shield approach a Ceiling, and Flight's FE draw falls toward a Floor. Two upgrades of one Stat together still stay under its Ceiling.
 - **Powered by FE.** The suit stores power only in its battery upgrades, and any mod's charger fills it.
+- **A lance that bores.** The **Bore Lance** is a spear with Lunge built in and a mining tool in one, in the Suit's three tiers. It breaks a whole **Bore** of rock at once, up to 3×3 and three deep, and a key steps through the Bores; sneak to break one block.
 - **Plays alone in vanilla.** Gearworks needs no other mod; in the -works suite it is where your factory's power goes to work on you.
 
 ## For pack authors
 
-Every amount, rate, cost and curve will be datapack data, and top Levels cost materials through `c:` tags with vanilla defaults (netherite, nether stars).
+Every amount, rate, cost and curve will be datapack data, and top Levels cost materials through `c:` tags with vanilla defaults (netherite, nether stars). The blocks a Bore Lance mines and bores are the block tag `gearworks:mineable/bore_lance`, a pickaxe's by default.
 
 ## For mod authors
 
