@@ -41,6 +41,7 @@ final class LungeBoringTests {
         tests.test("lunge_boring_always_opens_the_players_way", 1, LungeBoringTests::opensTheWay);
         tests.test("the_dash_stops_at_the_first_block_the_lance_cannot_break", 1, LungeBoringTests::stops);
         tests.test("lunge_boring_leaves_blocks_off_the_players_way_it_cannot_break", 1, LungeBoringTests::leaves);
+        tests.test("lunge_boring_breaks_harder_blocks_a_mined_bore_would_skip", 1, LungeBoringTests::harder);
         tests.test("a_lance_that_wears_out_mid_dash_stops_it", 1, LungeBoringTests::wearsOut);
         tests.test("a_jab_that_does_not_lunge_bores_nothing", 1, LungeBoringTests::noLunge);
     }
@@ -136,6 +137,22 @@ final class LungeBoringTests {
         var rest = new ArrayList<>(bore(3, 5));
         rest.remove(dirt);
         assertBroken(helper, rest);
+        helper.succeed();
+    }
+
+    private static void harder(GameTestHelper helper) {
+        wall(helper);
+        // Mining stone, a Bore skips these: a lunge has no hit block to measure them against.
+        var deepslate = HEAD.above().west();
+        var obsidian = HEAD.below().south();
+        helper.setBlock(deepslate, Blocks.DEEPSLATE);
+        helper.setBlock(obsidian, Blocks.OBSIDIAN);
+        var lance = new ItemStack(GearContent.DIAMOND_BORE_LANCE.get());
+        var player = lancer(helper, lance);
+
+        jab(lance, player);
+
+        assertBroken(helper, bore(3, 5));
         helper.succeed();
     }
 
