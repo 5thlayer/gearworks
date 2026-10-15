@@ -44,8 +44,8 @@ costs more than the last by a constant factor.
 _Avoid_: tier (a tier is the suit's), rank
 
 **Stat**:
-One effect Gearworks gives the Suit, such as battery, solar, speed, jump, shield, night vision or flight.
-Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
+One effect Gearworks gives the Suit, such as battery, solar, speed, jump, shield, night vision, flight
+or boost. Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
 _Avoid_: ability, perk, attribute (vanilla's attributes are one way a Stat may act)
 
 **Ceiling**:
@@ -54,18 +54,25 @@ total: two upgrades of one Stat together stay under it.
 _Avoid_: cap, max
 
 **Floor**:
-The FE draw that a Stat's upgrade approaches but never goes under as its Level lowers the draw, as
-night vision's, Flight's and Boost's do, so the Stat never becomes free.
+The value a Stat's upgrade approaches but never goes under as its Level lowers it: an FE draw, as
+night vision's, Flight's and Boost's are, so the Stat never becomes free, or a Cooldown, so a Boost
+never comes back at once.
 
 **Boost**:
 The Stat that throws the flying player forward along their gaze for a moment, as a firework throws a
-gliding one, at a key's press. Each costs FE and starts a Cooldown; Levels make it cheaper toward its
-Floor, quicker to come back, and stronger toward its Ceiling. A suit holds one.
-_Avoid_: dash, thrust, afterburner, boost module, boosted jump (Jump's)
+gliding one, at a key's press. Each costs FE, pushes for its Thrust and starts a Cooldown; Levels make
+it cheaper toward its Floor, quicker to come back toward the Cooldown's Floor, and stronger toward its
+Ceiling. A suit holds one.
+_Avoid_: dash, afterburner, boost module, boosted jump (Jump's)
+
+**Thrust**:
+The moment of a Boost that pushes the player, a fixed time however high its Level, which landing or
+flight ending cuts short.
+_Avoid_: burn, impulse
 
 **Cooldown**:
-The time after a Boost before the next one can fire. Levels shorten it toward a least that it never
-goes under.
+The time after a Boost before the next one can fire, starting with its Thrust and never shorter than
+it. Levels shorten it toward its Floor.
 _Avoid_: recharge, delay
 
 **Gear Bench**:
