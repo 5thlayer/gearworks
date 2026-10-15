@@ -55,7 +55,18 @@ _Avoid_: cap, max
 
 **Floor**:
 The FE draw that a Stat's upgrade approaches but never goes under as its Level lowers the draw, as
-night vision's and Flight's do, so the Stat never becomes free.
+night vision's, Flight's and Boost's do, so the Stat never becomes free.
+
+**Boost**:
+The Stat that throws the flying player forward along their gaze for a moment, as a firework throws a
+gliding one, at a key's press. Each costs FE and starts a Cooldown; Levels make it cheaper toward its
+Floor, quicker to come back, and stronger toward its Ceiling. A suit holds one.
+_Avoid_: dash, thrust, afterburner, boost module, boosted jump (Jump's)
+
+**Cooldown**:
+The time after a Boost before the next one can fire. Levels shorten it toward a least that it never
+goes under.
+_Avoid_: recharge, delay
 
 **Gear Bench**:
 The placed block where the player raises the Level of one Gear Upgrade inside a suit. Automation stocks
