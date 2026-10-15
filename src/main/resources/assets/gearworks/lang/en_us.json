@@ -1,7 +1,7 @@
 {
-  "item.gearworks.iron_gear": "Iron Gear",
-  "item.gearworks.diamond_gear": "Diamond Gear",
-  "item.gearworks.netherite_gear": "Netherite Gear",
+  "item.gearworks.iron_gear": "Iron Suit",
+  "item.gearworks.diamond_gear": "Diamond Suit",
+  "item.gearworks.netherite_gear": "Netherite Suit",
   "item.gearworks.battery_upgrade": "Battery Upgrade",
   "item.gearworks.solar_upgrade": "Solar Upgrade",
   "item.gearworks.speed_upgrade": "Speed Upgrade",
