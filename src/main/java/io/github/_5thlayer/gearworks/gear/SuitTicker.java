@@ -14,8 +14,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
@@ -25,9 +27,9 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * The worn suit's Stats, each server tick: solar charges it in daylight under open sky; night vision
  * runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
  * drawing it while the player walks; jump raises jump strength while it has the FE for a jump,
- * which each boosted jump spends; and flight lets the player fly while it has the FE to draw each tick
- * in the air, and lets them down slowly when it runs dry there. Last, it charges a netherite Bore Lance
- * in either hand.
+ * which each boosted jump spends; and flight lets the player fly, at a speed its Level raises, while it
+ * has the FE to draw each tick in the air, and lets them down slowly when it runs dry there. Last, it
+ * charges a netherite Bore Lance in either hand.
  */
 public final class SuitTicker {
 
@@ -39,6 +41,9 @@ public final class SuitTicker {
 
     /** The creative flight modifier the suit's flight upgrade gives. */
     public static final Identifier FLIGHT = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_flight");
+
+    // Vanilla's creative flying speed, which the suit's flight is a fraction of.
+    private static final float CREATIVE_FLYING_SPEED = new Abilities().getFlyingSpeed();
 
     // A player standing still still reports a little movement from the client's rounding.
     private static final double WALKING = 1.0E-5;
@@ -131,6 +136,8 @@ public final class SuitTicker {
     /**
      * Lets the player fly while the suit has the FE for it, drawing it each tick they fly unless their
      * game mode lets them fly anyway, and takes flight away once it has not; gives back the FE left.
+     * The suit sets how fast they fly only while it alone lets them, and leaves creative's speed to a
+     * game mode or another mod that gives flight too.
      */
     private static int fly(Player player, Suit.Totals totals, int energy) {
         if (!totals.canDraw(Stat.FLIGHT, energy)) {
@@ -141,6 +148,11 @@ public final class SuitTicker {
         if (flight != null && !flight.hasModifier(FLIGHT)) {
             flight.addTransientModifier(new AttributeModifier(FLIGHT, 1, AttributeModifier.Operation.ADD_VALUE));
         }
+        if (flight != null) {
+            flyingSpeed(player, suitAlone(player, flight)
+                    ? CREATIVE_FLYING_SPEED * (float) totals.underCeiling(Stat.FLIGHT)
+                    : CREATIVE_FLYING_SPEED);
+        }
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
             energy -= totals.draw(Stat.FLIGHT);
         }
@@ -149,7 +161,7 @@ public final class SuitTicker {
 
     /**
      * Takes away the flight the suit gave, and none a game mode or another mod gave; a player it leaves
-     * in the air stops flying and comes down slowly, at no cost.
+     * in the air stops flying and comes down slowly, at no cost. Creative's flying speed comes back.
      */
     private static void takeFlight(Player player) {
         var flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
@@ -157,6 +169,7 @@ public final class SuitTicker {
             return;
         }
         flight.removeModifier(FLIGHT);
+        flyingSpeed(player, CREATIVE_FLYING_SPEED);
         if (player.mayFly() || player.onGround()) {
             return;
         }
@@ -165,6 +178,19 @@ public final class SuitTicker {
             player.onUpdateAbilities();
         }
         slowFall(player);
+    }
+
+    /** Whether the suit's flight is all that lets the player fly: neither their game mode nor another mod does. */
+    private static boolean suitAlone(Player player, AttributeInstance flight) {
+        return !player.isCreative() && !player.isSpectator() && flight.getValue() <= 1;
+    }
+
+    /** Sets how fast the player flies, telling their client only when it changes. */
+    private static void flyingSpeed(Player player, float speed) {
+        if (player.getAbilities().getFlyingSpeed() != speed) {
+            player.getAbilities().setFlyingSpeed(speed);
+            player.onUpdateAbilities();
+        }
     }
 
     /** Keeps up the slow falling the suit gave until the player lands or swims, then takes it away. */

@@ -17,16 +17,19 @@ import io.github._5thlayer.gearworks.gear.Stat;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Flight, the capstone: it fits only a tier-3 grid, flies while the suit has the FE it draws each tick
  * in the air, and a suit that runs dry mid-air lets the player down slowly, at no cost and unharmed.
- * Its Levels lower the draw and never change how fast the player flies.
+ * Its Levels lower the draw and raise how fast the player flies, from about half of creative's speed
+ * (ADR 0006), which the suit sets only while it alone lets the player fly.
  */
 final class FlightTests {
 
@@ -40,7 +43,9 @@ final class FlightTests {
         tests.test("flight_fits_a_tier_3_grid_and_no_smaller_one", 1, FlightTests::fitsTierThreeOnly);
         tests.test("a_flying_player_stays_aloft_while_the_suit_draws_fe", 40, FlightTests::staysAloft);
         tests.test("a_suit_that_runs_dry_mid_air_lets_the_player_down_slowly_unharmed", 200, FlightTests::runsDry);
-        tests.test("a_raised_flight_upgrade_draws_less_and_flies_no_faster", 1, FlightTests::raisedDrawsLess);
+        tests.test("a_raised_flight_upgrade_draws_less_and_flies_faster", 1, FlightTests::raisedDrawsLess);
+        tests.test("taking_the_suit_off_puts_creative_flying_speed_back", 1, FlightTests::speedComesBack);
+        tests.test("a_creative_player_in_the_suit_flies_at_creative_speed", 1, FlightTests::creativeKeepsSpeed);
         tests.test("a_suit_without_fe_gives_no_flight", 1, FlightTests::noFlightWhenEmpty);
     }
 
@@ -98,17 +103,49 @@ final class FlightTests {
         float speed = new Abilities().getFlyingSpeed();
         int floor = GearworksConfig.floor(Stat.FLIGHT);
         int[] draws = new int[2];
+        float[] speeds = new float[2];
         var suits = List.of(fresh, raised);
         for (int i = 0; i < 2; i++) {
             charge(suits.get(i), 100_000);
             var player = aloft(helper, suits.get(i));
             player.tick();
             draws[i] = 100_000 - Suit.energy(suits.get(i));
-            helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), speed, Component.literal("flying speed"));
+            speeds[i] = player.getAbilities().getFlyingSpeed();
         }
 
         helper.assertTrue(draws[1] < draws[0], Component.literal("Level 10 drew " + draws[1] + " FE, Level 0 " + draws[0]));
         helper.assertTrue(draws[1] >= floor, Component.literal("Level 10 drew " + draws[1] + " FE, under the Floor " + floor));
+        helper.assertTrue(speeds[0] < speed, Component.literal("Level 0 flies at " + speeds[0] + ", creative's speed " + speed));
+        helper.assertTrue(speeds[1] > speeds[0], Component.literal("Level 10 flies at " + speeds[1] + ", Level 0 at " + speeds[0]));
+        float ceiling = speed * (float) GearworksConfig.ceiling(Stat.FLIGHT);
+        helper.assertTrue(speeds[1] < ceiling, Component.literal("Level 10 flies at " + speeds[1] + ", over the Ceiling " + ceiling));
+        helper.succeed();
+    }
+
+    private static void speedComesBack(GameTestHelper helper) {
+        var suit = flyer(0);
+        charge(suit, 100_000);
+        var player = aloft(helper, suit);
+        helper.assertTrue(player.getAbilities().getFlyingSpeed() != new Abilities().getFlyingSpeed(),
+                Component.literal("the suit left creative's flying speed"));
+
+        player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        player.tick();
+
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), new Abilities().getFlyingSpeed(), Component.literal("flying speed without the suit"));
+        helper.succeed();
+    }
+
+    private static void creativeKeepsSpeed(GameTestHelper helper) {
+        var suit = flyer(0);
+        charge(suit, 100_000);
+        var player = helper.makeMockPlayer(GameType.CREATIVE);
+        GameType.CREATIVE.updatePlayerAbilities(player.getAbilities());
+        player.setItemSlot(EquipmentSlot.CHEST, suit);
+
+        player.tick();
+
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), new Abilities().getFlyingSpeed(), Component.literal("a creative player's flying speed"));
         helper.succeed();
     }
 

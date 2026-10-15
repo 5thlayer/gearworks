@@ -16,6 +16,7 @@ public final class GearworksConfig {
     private static final ModConfigSpec.DoubleValue SPEED_CEILING;
     private static final ModConfigSpec.DoubleValue JUMP_CEILING;
     private static final ModConfigSpec.DoubleValue SHIELD_CEILING;
+    private static final ModConfigSpec.DoubleValue FLIGHT_CEILING;
     private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
     private static final ModConfigSpec.IntValue FLIGHT_FLOOR;
     private static final ModConfigSpec.IntValue LUNGE_BORING_COST;
@@ -40,6 +41,10 @@ public final class GearworksConfig {
                 .comment("The fraction of each hit the suit's shield upgrades together approach and never reach:",
                         "1.0 would absorb every hit whole.")
                 .defineInRange("shieldCeiling", 0.8, 0.0, 1.0);
+        FLIGHT_CEILING = builder
+                .comment("The flying speed the suit's flight upgrade approaches as it levels and never reaches, as a fraction",
+                        "of vanilla's creative flying speed: 1.0 is creative speed, and sprinting still doubles it.")
+                .defineInRange("flightCeiling", 2.0, 0.0, 10.0);
         NIGHT_VISION_FLOOR = builder
                 .comment("The FE per tick a night vision upgrade's draw approaches as it levels, and is never pushed under.")
                 .defineInRange("nightVisionFloor", 1, 0, 1_000_000);
@@ -84,6 +89,7 @@ public final class GearworksConfig {
             case SPEED -> SPEED_CEILING;
             case JUMP -> JUMP_CEILING;
             case SHIELD -> SHIELD_CEILING;
+            case FLIGHT -> FLIGHT_CEILING;
             default -> throw new IllegalArgumentException(stat + " has no Ceiling");
         };
         return value(ceiling);

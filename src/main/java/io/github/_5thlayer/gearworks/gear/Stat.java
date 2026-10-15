@@ -31,9 +31,10 @@ public enum Stat implements StringRepresentable {
      */
     NIGHT_VISION("night_vision", Draw.FALLS, PerSuit.ONE),
     /**
-     * Creative-style flight while it draws FE: on or off, so a suit holds one, whose amount is not read.
-     * The draw is FE per tick in the air, and each Level lowers it toward the {@code flightFloor}; no
-     * Level makes the player fly faster. A suit that runs dry mid-air lets the player down slowly.
+     * Creative-style flight while it draws FE, so a suit holds one: the amount is the flying speed as a
+     * fraction of vanilla's creative speed, under the {@code flightCeiling} (ADR 0006). The draw is FE
+     * per tick in the air, and each Level lowers it toward the {@code flightFloor}. A suit that runs dry
+     * mid-air lets the player down slowly.
      */
     FLIGHT("flight", Draw.FALLS, PerSuit.ONE);
 
