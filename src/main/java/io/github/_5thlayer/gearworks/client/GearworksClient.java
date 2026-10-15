@@ -44,8 +44,8 @@ public final class GearworksClient {
         modBus.addListener(EntityRenderersEvent.AddLayers.class, SuitGlowLayer::onAddLayers);
         NeoForge.EVENT_BUS.addListener(GridKey::onClientTick);
         NeoForge.EVENT_BUS.addListener(BoreKey::onClientTick);
-        NeoForge.EVENT_BUS.addListener(LanceMining::onClick);
-        NeoForge.EVENT_BUS.addListener(LanceMining::onClientTick);
+        NeoForge.EVENT_BUS.addListener(LanceAttack::onClick);
+        NeoForge.EVENT_BUS.addListener(LanceAttack::onClientTick);
         NeoForge.EVENT_BUS.addListener(GearTooltips::onTooltip);
     }
 
