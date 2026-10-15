@@ -3,9 +3,12 @@
 
 package io.github._5thlayer.gearworks.lance;
 
+import java.util.Optional;
+
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
@@ -13,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The Bore Lance as a stack: the Bore its key last chose, which it keeps, and whether it is worn out.
@@ -54,12 +58,29 @@ public final class BoreLance {
     }
 
     /**
-     * Whether the lance breaks that block in a Bore or a lunge: one of {@link #MINEABLE} it is not too low
-     * a tier for, and not unbreakable.
+     * Whether the lance mines that block as a Bore's: one of {@link #MINEABLE} the lance is not too low a
+     * tier for, and not unbreakable.
      */
     public static boolean breaks(ItemStack lance, Level level, BlockPos pos) {
         var state = level.getBlockState(pos);
         return !state.isAir() && state.getDestroySpeed(level, pos) >= 0 && lance.isCorrectToolForDrops(state);
+    }
+
+    /**
+     * Whether the block needs a higher tier than the lance's to mine: one its tool denies drops, as
+     * obsidian is to iron. What else the block is, rock or not, doesn't matter.
+     */
+    public static boolean beyondTier(ItemStack lance, BlockState state) {
+        var tool = lance.get(DataComponents.TOOL);
+        if (tool == null) {
+            return false;
+        }
+        for (var rule : tool.rules()) {
+            if (rule.correctForDrops().equals(Optional.of(false)) && state.is(rule.blocks())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static BoreLanceItem tier(ItemStack lance) {

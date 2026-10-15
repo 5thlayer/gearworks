@@ -20,13 +20,17 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
  * Lunge Boring: while Lunge carries a player with a Bore Lance forward, the lance breaks its Bore
- * through the rock ahead of them, laid on the face ahead of their head and three deep, each tick from
+ * through what lies ahead of them, laid on the face ahead of their head and three deep, each tick from
  * as far as they have come, up to a block per level of Lunge, about as far as a lunge on the ground
- * carries them. The tunnel runs straight on from where the lunge began, the way the player faced. The player's way, the two blocks they fill, is broken whatever the Bore. The
- * dash stops at the first block in their way the lance can't break, which they then run into, and the
- * lance breaks nothing past it; a block of the Bore off their way that it can't break, it leaves. Each
- * block is broken as the player breaking it and costs {@link GearworksConfig#lungeBoringCost()}
- * durability, so a lance that wears out or breaks partway stops the dash there.
+ * carries them. The tunnel runs straight on from where the lunge began, the way the player faced, and
+ * the player's way, the two blocks they fill, is broken whatever the Bore.
+ *
+ * <p>A lunge breaks whatever its tier mines, rock or not, and passes through what nothing needs to break,
+ * as air, water or grass. The dash stops at the first block of the Bore that is beyond the lance's tier,
+ * unbreakable, or protected from the player, and the lance breaks nothing past it: an iron lance stops
+ * at obsidian, and in vanilla nothing stops a diamond one but bedrock and its like. Each block is broken
+ * as the player breaking it and costs {@link GearworksConfig#lungeBoringCost()} durability, so a lance
+ * that wears out or breaks partway stops the dash there.
  *
  * <p>The server bores the whole Bore ahead the tick the lunge fires, so the blocks a lunge carries the
  * player into are gone on the client before it moves them there.
@@ -85,15 +89,15 @@ public final class LungeBoring {
         var level = player.level();
         breaking = true;
         try {
-            for (var target : ahead(BoreLance.bore(lance), dash.reached(player), dash.direction)) {
+            for (var pos : ahead(BoreLance.bore(lance), dash.reached(player), dash.direction)) {
                 if (!BoreLance.lasts(lance, player)) {
                     return false;
                 }
-                var pos = target.pos();
-                if (BoreLance.breaks(lance, level, pos) && player.gameMode.destroyBlock(pos)) {
+                var state = level.getBlockState(pos);
+                if (state.getCollisionShape(level, pos).isEmpty()) {
                     continue;
                 }
-                if (target.inTheWay() && !level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()) {
+                if (BoreLance.beyondTier(lance, state) || state.getDestroySpeed(level, pos) < 0 || !player.gameMode.destroyBlock(pos)) {
                     return false;
                 }
             }
@@ -107,27 +111,21 @@ public final class LungeBoring {
      * What a dash that way breaks ahead of a player standing on those feet: layer by layer, the player's way
      * first, then the rest of the Bore, laid on the face ahead of their head.
      */
-    private static List<Target> ahead(Bore bore, BlockPos feet, Direction direction) {
+    private static List<BlockPos> ahead(Bore bore, BlockPos feet, Direction direction) {
         var head = feet.above();
         var cells = BoreBreaker.blocks(bore, head.relative(direction), direction.getOpposite(), direction);
         int perLayer = cells.size() / Bore.DEPTH;
-        var targets = new ArrayList<Target>();
+        var blocks = new ArrayList<BlockPos>();
         for (int in = 0; in < Bore.DEPTH; in++) {
             var way = List.of(feet.relative(direction, in + 1), head.relative(direction, in + 1));
-            for (var pos : way) {
-                targets.add(new Target(pos, true));
-            }
+            blocks.addAll(way);
             for (var pos : cells.subList(in * perLayer, (in + 1) * perLayer)) {
                 if (!way.contains(pos)) {
-                    targets.add(new Target(pos, false));
+                    blocks.add(pos);
                 }
             }
         }
-        return targets;
-    }
-
-    /** A block a dash breaks, and whether it is in the player's way, where one it can't break stops the dash. */
-    private record Target(BlockPos pos, boolean inTheWay) {
+        return blocks;
     }
 
     /**

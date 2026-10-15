@@ -78,6 +78,6 @@ which is no Bore.
 _Avoid_: AoE, area, mode, pattern
 
 **Lunge Boring**:
-A Bore Lance breaking its Bore through the rock in its path while Lunge carries the player forward. It
-costs far more than mining the same rock.
+A Bore Lance breaking its Bore through whatever its tier mines in its path while Lunge carries the
+player forward, until a block beyond its tier stops it. It costs far more than mining the same blocks.
 _Avoid_: dash mining, tunnelling

@@ -40,7 +40,9 @@ final class LungeBoringTests {
         tests.test("lunge_boring_breaks_the_bore_ahead_while_lunge_carries_the_player", 1, LungeBoringTests::boresAhead);
         tests.test("lunge_boring_always_opens_the_players_way", 1, LungeBoringTests::opensTheWay);
         tests.test("the_dash_stops_at_the_first_block_the_lance_cannot_break", 1, LungeBoringTests::stops);
-        tests.test("lunge_boring_leaves_blocks_off_the_players_way_it_cannot_break", 1, LungeBoringTests::leaves);
+        tests.test("lunge_boring_breaks_whatever_its_tier_mines_rock_or_not", 1, LungeBoringTests::notRock);
+        tests.test("lunge_boring_passes_through_water_and_leaves_it", 1, LungeBoringTests::water);
+        tests.test("only_an_unbreakable_block_stops_the_diamond_lances_dash", 1, LungeBoringTests::bedrock);
         tests.test("lunge_boring_breaks_harder_blocks_a_mined_bore_would_skip", 1, LungeBoringTests::harder);
         tests.test("a_lance_that_wears_out_mid_dash_stops_it", 1, LungeBoringTests::wearsOut);
         tests.test("a_jab_that_does_not_lunge_bores_nothing", 1, LungeBoringTests::noLunge);
@@ -124,19 +126,52 @@ final class LungeBoringTests {
         helper.succeed();
     }
 
-    private static void leaves(GameTestHelper helper) {
+    private static void notRock(GameTestHelper helper) {
         wall(helper);
-        var dirt = HEAD.above().west();
+        // Neither is the lance's to mine, yet its tier mines both, in its way and off it.
+        var dirt = HEAD.below();
+        var log = HEAD.above().west().south();
         helper.setBlock(dirt, Blocks.DIRT);
+        helper.setBlock(log, Blocks.OAK_LOG);
         var lance = new ItemStack(GearContent.DIAMOND_BORE_LANCE.get());
         var player = lancer(helper, lance);
 
         jab(lance, player);
 
-        helper.assertBlockPresent(Blocks.DIRT, dirt);
+        assertBroken(helper, bore(3, 5));
+        helper.succeed();
+    }
+
+    private static void water(GameTestHelper helper) {
+        wall(helper);
+        var water = HEAD.above().east();
+        helper.setBlock(water, Blocks.WATER);
+        var lance = new ItemStack(GearContent.DIAMOND_BORE_LANCE.get());
+        var player = lancer(helper, lance);
+
+        jab(lance, player);
+
+        helper.assertBlockPresent(Blocks.WATER, water);
         var rest = new ArrayList<>(bore(3, 5));
-        rest.remove(dirt);
+        rest.remove(water);
         assertBroken(helper, rest);
+        helper.succeed();
+    }
+
+    private static void bedrock(GameTestHelper helper) {
+        wall(helper);
+        // Off the player's way, in the Bore's second layer.
+        var bedrock = HEAD.above().west().south();
+        helper.setBlock(bedrock, Blocks.BEDROCK);
+        var lance = new ItemStack(GearContent.DIAMOND_BORE_LANCE.get());
+        var player = lancer(helper, lance);
+
+        jab(lance, player);
+
+        assertBroken(helper, layer(3));
+        helper.assertBlockPresent(Blocks.BEDROCK, bedrock);
+        // Nothing past it: the third layer stands whole.
+        assertStanding(helper, layer(5));
         helper.succeed();
     }
 
