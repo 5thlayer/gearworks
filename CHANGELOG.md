@@ -15,7 +15,7 @@ Each version has two sections: Players, what a player or pack developer sees, an
 ### Consumers
 
 - `GearContent.NETHERITE_BORE_LANCE`, which exposes `Capabilities.Energy.ITEM` and stores its FE in the `gearworks:energy` component the Suit uses. (#14)
-- **Breaking:** a flight upgrade's `amount` in the `gearworks:gear_upgrade` data map is now read, as its flying speed in fractions of creative's, and `amount_per_level` raises it toward the `flightCeiling`; an entry written with `amount: 1` flies at about 79% of creative's speed until it levels. (ADR 0006)
+- **Breaking:** a flight upgrade's `amount` in the `gearworks:gear_upgrade` data map is now read, as its flying speed in fractions of creative's, and `amount_per_level` raises it toward the `flightCeiling`; an entry written with `amount: 1` flies at about 79% of creative's speed, and faster as it levels only if it sets `amount_per_level`. (ADR 0006)
 - `GearContent.IRON_BORE_LANCE` and `DIAMOND_BORE_LANCE`, the Bore Lance's `gearworks:bore` component, its recipe type `gearworks:crafting_bore_lance`, and the block tag `gearworks:mineable/bore_lance`. (#12)
 - **Breaking:** the Java that means the Suit says Suit, leaving Gear for the family of the Suit and the Bore Lance (ADR 0005): `Gear` is now `Suit` (and `Gear.Totals` `Suit.Totals`), `GearItem` is `SuitItem`, `GearTicker` is `SuitTicker`, and `GearContent.IRON_GEAR`, `DIAMOND_GEAR` and `NETHERITE_GEAR` are `IRON_SUIT`, `DIAMOND_SUIT` and `NETHERITE_SUIT`. Item, data map, component and attribute modifier ids keep `gear`, and Gear Grid, Gear Upgrade and Gear Bench keep their names. (#10)
 

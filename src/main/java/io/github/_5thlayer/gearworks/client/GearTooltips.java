@@ -12,6 +12,7 @@ import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.lance.BoreLanceItem;
+import io.github._5thlayer.gearworks.level.Curves;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -101,7 +102,9 @@ final class GearTooltips {
             case SHIELD -> Component.translatable("tooltip.gearworks.upgrade.shield", format(amount * 100), upgrade.drawAt(level));
             case JUMP -> Component.translatable("tooltip.gearworks.upgrade.jump", format(amount * 100), upgrade.drawAt(level));
             case NIGHT_VISION -> Component.translatable("tooltip.gearworks.upgrade.night_vision", upgrade.drawAt(level));
-            case FLIGHT -> Component.translatable("tooltip.gearworks.upgrade.flight", format(amount * 100), upgrade.drawAt(level));
+            // One to a suit, so what it gives under the Ceiling is the suit's total too.
+            case FLIGHT -> Component.translatable("tooltip.gearworks.upgrade.flight",
+                    format(Curves.underCeiling(amount, GearworksConfig.ceiling(Stat.FLIGHT)) * 100), upgrade.drawAt(level));
         }));
     }
 
