@@ -52,7 +52,8 @@
       "width": 2,
       "height": 5,
       "stat": "flight",
-      "amount": 1,
+      "amount": 0.5,
+      "amount_per_level": 0.1,
       "draw": 200,
       "draw_per_level": 20
     }

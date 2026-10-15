@@ -83,6 +83,14 @@ class CurvesTest {
     }
 
     @Test
+    void flightStartsNearHalfOfCreativeSpeedAndPassesItAtLevelNine() {
+        // Flight's defaults: 0.5 of creative's speed, 0.1 more a Level, under a Ceiling of 2.0.
+        assertEquals(0.44, Curves.underCeiling(Curves.linear(0.5, 0.1, 0), 2.0), 0.005);
+        assertTrue(Curves.underCeiling(Curves.linear(0.5, 0.1, 8), 2.0) < 1.0, "Level 8 is already as fast as creative");
+        assertTrue(Curves.underCeiling(Curves.linear(0.5, 0.1, 9), 2.0) >= 1.0, "Level 9 is slower than creative");
+    }
+
+    @Test
     void aLargeDrawClosesInOnItsFloorWithoutPassingIt() {
         // Flight's defaults: 200 FE/t falling by about 20 a Level toward a Floor of 20.
         assertEquals(181, Curves.overFloor(200, 20, 20, 1));

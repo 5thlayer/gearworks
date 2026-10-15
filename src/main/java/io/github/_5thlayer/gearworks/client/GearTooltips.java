@@ -63,7 +63,8 @@ final class GearTooltips {
             lines.add(gray(Component.translatable("tooltip.gearworks.night_vision", totals.draw(Stat.NIGHT_VISION))));
         }
         if (totals.has(Stat.FLIGHT)) {
-            lines.add(gray(Component.translatable("tooltip.gearworks.flight", totals.draw(Stat.FLIGHT))));
+            lines.add(gray(Component.translatable("tooltip.gearworks.flight",
+                    format(totals.underCeiling(Stat.FLIGHT) * 100), totals.draw(Stat.FLIGHT))));
         }
     }
 
@@ -100,7 +101,7 @@ final class GearTooltips {
             case SHIELD -> Component.translatable("tooltip.gearworks.upgrade.shield", format(amount * 100), upgrade.drawAt(level));
             case JUMP -> Component.translatable("tooltip.gearworks.upgrade.jump", format(amount * 100), upgrade.drawAt(level));
             case NIGHT_VISION -> Component.translatable("tooltip.gearworks.upgrade.night_vision", upgrade.drawAt(level));
-            case FLIGHT -> Component.translatable("tooltip.gearworks.upgrade.flight", upgrade.drawAt(level));
+            case FLIGHT -> Component.translatable("tooltip.gearworks.upgrade.flight", format(amount * 100), upgrade.drawAt(level));
         }));
     }
 
