@@ -91,6 +91,11 @@ a Bore's block, when it still fights and mines single blocks; one holding less t
 or not, doesn't lunge. It has no Gear Grid.
 _Avoid_: spear (vanilla's), drill, powered spear
 
+**Jab**:
+A click of attack with a Bore Lance: vanilla's spear stab, carrying Lunge. Holding attack mines
+instead and never jabs.
+_Avoid_: thrust, stab, poke
+
 **Bore**:
 The block of rock a Bore Lance breaks at once, laid on the face it hit and three deep: 1×1, 3×3 or
 5×3 wide by tier. A key steps through its tier's Bore and the smaller ones; sneaking breaks one block,
