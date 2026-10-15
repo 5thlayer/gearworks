@@ -23,3 +23,6 @@ grow linearly, since more of either never breaks the game.
 - The option rejected above, one upgrade per Stat, still fits a Stat that is on or off, which has no
   Ceiling and to which a second upgrade adds nothing: a suit holds one night vision upgrade, whose
   Levels lower its draw toward a Floor instead.
+- One upgrade per Stat also fits a Stat whose second upgrade would only be confusing, and such a Stat
+  can still have a Ceiling for its one upgrade's Levels: a suit holds one boost upgrade, whose two
+  Cooldowns could not sensibly stack, and its pull bends toward the `boostCeiling` as it levels.
