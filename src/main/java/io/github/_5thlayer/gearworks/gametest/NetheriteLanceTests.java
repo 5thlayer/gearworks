@@ -74,6 +74,7 @@ final class NetheriteLanceTests {
         tests.test("lunge_boring_costs_the_netherite_lance_fe_a_block", 1, NetheriteLanceTests::lungeBoring);
         tests.test("a_worn_suit_charges_the_netherite_lance_in_either_hand", 1, NetheriteLanceTests::suitCharges);
         tests.test("a_suit_at_its_reserve_charges_no_lance", 1, NetheriteLanceTests::suitKeepsItsReserve);
+        tests.test("charging_the_netherite_lance_neither_resets_mining_nor_reequips_it", 1, NetheriteLanceTests::chargingKeepsTheHand);
     }
 
     private static void smiths(GameTestHelper helper) {
@@ -409,5 +410,20 @@ final class NetheriteLanceTests {
 
     private static Holder<Enchantment> enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
         return helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key);
+    }
+
+    private static void chargingKeepsTheHand(GameTestHelper helper) {
+        var before = charged(CHARGED);
+        var after = charged(CHARGED + 1_000);
+        var enchanted = charged(CHARGED);
+        enchanted.enchant(enchantment(helper, Enchantments.FORTUNE), 3);
+
+        helper.assertFalse(before.shouldCauseBlockBreakReset(after), Component.literal("charging the lance resets its mining"));
+        helper.assertFalse(before.getItem().shouldCauseReequipAnimation(before, after, false),
+                Component.literal("charging the lance reequips it"));
+        helper.assertTrue(before.shouldCauseBlockBreakReset(enchanted), Component.literal("enchanting the lance doesn't reset its mining"));
+        helper.assertTrue(before.getItem().shouldCauseReequipAnimation(before, after, true),
+                Component.literal("switching to another lance doesn't reequip it"));
+        helper.succeed();
     }
 }

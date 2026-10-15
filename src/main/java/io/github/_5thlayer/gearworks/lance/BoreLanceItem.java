@@ -127,6 +127,27 @@ public final class BoreLanceItem extends Item {
         return !enchantment.is(Enchantments.LUNGE) && upkeep.takes(enchantment) && super.supportsEnchantment(stack, enchantment);
     }
 
+    /**
+     * Charging changes a lance's FE every tick, and NeoForge restarts mining with an item that has no
+     * durability whenever its components change, so the FE alone never resets mining.
+     */
+    @Override
+    public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
+        return !sameButForEnergy(oldStack, newStack);
+    }
+
+    /** Nor does it lower and raise the lance again, every tick it charges. */
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || !sameButForEnergy(oldStack, newStack);
+    }
+
+    private static boolean sameButForEnergy(ItemStack a, ItemStack b) {
+        var withAsEnergy = b.copy();
+        withAsEnergy.set(GearContent.ENERGY.get(), a.get(GearContent.ENERGY.get()));
+        return ItemStack.isSameItemSameComponents(a, withAsEnergy);
+    }
+
     /** How a tier pays for what it does, and what that decides: when it is worn out, what it holds, what durability it takes. */
     public enum Upkeep {
         /** With durability, and breaks when it runs out. */
