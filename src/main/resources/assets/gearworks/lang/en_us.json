@@ -28,6 +28,7 @@
   "tooltip.gearworks.bore_lance.lunge": "Lunge %s, built in",
   "tooltip.gearworks.bore_lance.worn_out": "Worn out: repair it to bore and lunge",
   "tooltip.gearworks.bore_lance.dry": "Dry: charge it to bore and lunge",
+  "tooltip.gearworks.bore_lance.low": "Low: charge it to lunge",
   "tooltip.gearworks.upgrade.size": "Gear Upgrade: %s×%s",
   "tooltip.gearworks.upgrade.level": "Level %s",
   "tooltip.gearworks.upgrade.battery": "Battery: %s FE",

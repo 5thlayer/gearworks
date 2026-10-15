@@ -67,7 +67,10 @@ final class GearTooltips {
         }
     }
 
-    /** The Bore the lance breaks, its built-in Lunge, whether it is worn out, and on FE, its FE and whether it is dry. */
+    /**
+     * The Bore the lance breaks, its built-in Lunge, whether it is worn out, and on FE, its FE and whether it
+     * is dry, or too low to lunge.
+     */
     private static void lance(ItemStack stack, BoreLanceItem lance, List<Component> lines) {
         if (BoreLance.runsOnEnergy(stack)) {
             lines.add(gray(FeText.reading(BoreLance.energy(stack), GearworksConfig.netheriteLanceCapacity())));
@@ -80,6 +83,8 @@ final class GearTooltips {
         }
         if (BoreLance.dry(stack)) {
             lines.add(Component.translatable("tooltip.gearworks.bore_lance.dry").withStyle(ChatFormatting.RED));
+        } else if (BoreLance.runsOnEnergy(stack) && !BoreLance.affordsLunge(stack)) {
+            lines.add(Component.translatable("tooltip.gearworks.bore_lance.low").withStyle(ChatFormatting.RED));
         }
     }
 
