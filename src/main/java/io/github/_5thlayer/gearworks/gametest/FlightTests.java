@@ -14,16 +14,20 @@ import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
+import io.github._5thlayer.gearworks.gear.SuitTicker;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForgeMod;
 
 /**
  * Flight, the capstone: it fits only a tier-3 grid, flies while the suit has the FE it draws each tick
@@ -32,6 +36,12 @@ import net.minecraft.world.phys.Vec3;
  * (ADR 0006), which the suit sets only while it alone lets the player fly.
  */
 final class FlightTests {
+
+    private static final float CREATIVE_SPEED = new Abilities().getFlyingSpeed();
+
+    // Another mod's creative flight, and a flying speed of its own.
+    private static final Identifier OTHER_FLIGHT = Identifier.fromNamespaceAndPath("othermod", "flight");
+    private static final float OTHER_SPEED = 0.07F;
 
     // High enough that a plain fall from it hurts.
     private static final double HEIGHT = 8;
@@ -46,6 +56,9 @@ final class FlightTests {
         tests.test("a_raised_flight_upgrade_draws_less_and_flies_faster", 1, FlightTests::raisedDrawsLess);
         tests.test("taking_the_suit_off_puts_creative_flying_speed_back", 1, FlightTests::speedComesBack);
         tests.test("a_creative_player_in_the_suit_flies_at_creative_speed", 1, FlightTests::creativeKeepsSpeed);
+        tests.test("a_spectator_in_the_suit_flies_at_creative_speed", 1, FlightTests::spectatorKeepsSpeed);
+        tests.test("the_suit_leaves_alone_the_speed_another_mods_flight_set", 1, FlightTests::otherFlightKeepsSpeed);
+        tests.test("a_player_back_without_the_suit_gets_creative_flying_speed", 1, FlightTests::backWithoutSuit);
         tests.test("a_suit_without_fe_gives_no_flight", 1, FlightTests::noFlightWhenEmpty);
     }
 
@@ -100,7 +113,6 @@ final class FlightTests {
     private static void raisedDrawsLess(GameTestHelper helper) {
         var fresh = flyer(0);
         var raised = flyer(10);
-        float speed = new Abilities().getFlyingSpeed();
         int floor = GearworksConfig.floor(Stat.FLIGHT);
         int[] draws = new int[2];
         float[] speeds = new float[2];
@@ -115,9 +127,9 @@ final class FlightTests {
 
         helper.assertTrue(draws[1] < draws[0], Component.literal("Level 10 drew " + draws[1] + " FE, Level 0 " + draws[0]));
         helper.assertTrue(draws[1] >= floor, Component.literal("Level 10 drew " + draws[1] + " FE, under the Floor " + floor));
-        helper.assertTrue(speeds[0] < speed, Component.literal("Level 0 flies at " + speeds[0] + ", creative's speed " + speed));
+        helper.assertTrue(speeds[0] < CREATIVE_SPEED, Component.literal("Level 0 flies at " + speeds[0] + ", creative's speed " + CREATIVE_SPEED));
         helper.assertTrue(speeds[1] > speeds[0], Component.literal("Level 10 flies at " + speeds[1] + ", Level 0 at " + speeds[0]));
-        float ceiling = speed * (float) GearworksConfig.ceiling(Stat.FLIGHT);
+        float ceiling = CREATIVE_SPEED * (float) GearworksConfig.ceiling(Stat.FLIGHT);
         helper.assertTrue(speeds[1] < ceiling, Component.literal("Level 10 flies at " + speeds[1] + ", over the Ceiling " + ceiling));
         helper.succeed();
     }
@@ -126,26 +138,63 @@ final class FlightTests {
         var suit = flyer(0);
         charge(suit, 100_000);
         var player = aloft(helper, suit);
-        helper.assertTrue(player.getAbilities().getFlyingSpeed() != new Abilities().getFlyingSpeed(),
+        helper.assertTrue(player.getAbilities().getFlyingSpeed() != CREATIVE_SPEED,
                 Component.literal("the suit left creative's flying speed"));
 
         player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
         player.tick();
 
-        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), new Abilities().getFlyingSpeed(), Component.literal("flying speed without the suit"));
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), CREATIVE_SPEED, Component.literal("flying speed without the suit"));
         helper.succeed();
     }
 
     private static void creativeKeepsSpeed(GameTestHelper helper) {
+        keepsSpeedIn(helper, GameType.CREATIVE);
+    }
+
+    private static void spectatorKeepsSpeed(GameTestHelper helper) {
+        keepsSpeedIn(helper, GameType.SPECTATOR);
+    }
+
+    private static void keepsSpeedIn(GameTestHelper helper, GameType mode) {
         var suit = flyer(0);
         charge(suit, 100_000);
-        var player = helper.makeMockPlayer(GameType.CREATIVE);
-        GameType.CREATIVE.updatePlayerAbilities(player.getAbilities());
+        var player = helper.makeMockPlayer(mode);
+        mode.updatePlayerAbilities(player.getAbilities());
         player.setItemSlot(EquipmentSlot.CHEST, suit);
 
         player.tick();
 
-        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), new Abilities().getFlyingSpeed(), Component.literal("a creative player's flying speed"));
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), CREATIVE_SPEED, Component.literal(mode.getName() + " flying speed"));
+        helper.succeed();
+    }
+
+    private static void otherFlightKeepsSpeed(GameTestHelper helper) {
+        var suit = flyer(0);
+        charge(suit, 100_000);
+        var player = wearer(helper, suit);
+        player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT)
+                .addTransientModifier(new AttributeModifier(OTHER_FLIGHT, 1, AttributeModifier.Operation.ADD_VALUE));
+        player.getAbilities().setFlyingSpeed(OTHER_SPEED);
+
+        player.tick();
+        player.tick();
+
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), OTHER_SPEED, Component.literal("the other mod's flying speed"));
+        helper.succeed();
+    }
+
+    private static void backWithoutSuit(GameTestHelper helper) {
+        var suit = flyer(0);
+        charge(suit, 100_000);
+        var player = aloft(helper, suit);
+        // As a player the suit slowed comes back from a save: the suit gone, its transient flight too.
+        player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT).removeModifier(SuitTicker.FLIGHT);
+
+        player.tick();
+
+        helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), CREATIVE_SPEED, Component.literal("flying speed back without the suit"));
         helper.succeed();
     }
 

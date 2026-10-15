@@ -44,7 +44,7 @@ public final class GearworksConfig {
         FLIGHT_CEILING = builder
                 .comment("The flying speed the suit's flight upgrade approaches as it levels and never reaches, as a fraction",
                         "of vanilla's creative flying speed: 1.0 is creative speed, and sprinting still doubles it.")
-                .defineInRange("flightCeiling", 2.0, 0.0, 10.0);
+                .defineInRange("flightCeiling", 2.0, 0.1, 10.0);
         NIGHT_VISION_FLOOR = builder
                 .comment("The FE per tick a night vision upgrade's draw approaches as it levels, and is never pushed under.")
                 .defineInRange("nightVisionFloor", 1, 0, 1_000_000);

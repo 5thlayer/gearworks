@@ -42,6 +42,13 @@ public final class SuitTicker {
     /** The creative flight modifier the suit's flight upgrade gives. */
     public static final Identifier FLIGHT = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_flight");
 
+    /**
+     * The mark the suit leaves on creative flight while it sets how fast the player flies. It adds no
+     * flight and saves with the player, so the suit gives creative's speed back once, even to a player
+     * who comes back without it.
+     */
+    public static final Identifier FLYING_SPEED = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_flying_speed");
+
     // Vanilla's creative flying speed, which the suit's flight is a fraction of.
     private static final float CREATIVE_FLYING_SPEED = new Abilities().getFlyingSpeed();
 
@@ -136,8 +143,8 @@ public final class SuitTicker {
     /**
      * Lets the player fly while the suit has the FE for it, drawing it each tick they fly unless their
      * game mode lets them fly anyway, and takes flight away once it has not; gives back the FE left.
-     * The suit sets how fast they fly only while it alone lets them, and leaves creative's speed to a
-     * game mode or another mod that gives flight too.
+     * The suit sets how fast they fly only while it alone lets them, and leaves the speed to a game
+     * mode or another mod that gives flight too.
      */
     private static int fly(Player player, Suit.Totals totals, int energy) {
         if (!totals.canDraw(Stat.FLIGHT, energy)) {
@@ -148,10 +155,10 @@ public final class SuitTicker {
         if (flight != null && !flight.hasModifier(FLIGHT)) {
             flight.addTransientModifier(new AttributeModifier(FLIGHT, 1, AttributeModifier.Operation.ADD_VALUE));
         }
-        if (flight != null) {
-            flyingSpeed(player, suitAlone(player, flight)
-                    ? CREATIVE_FLYING_SPEED * (float) totals.underCeiling(Stat.FLIGHT)
-                    : CREATIVE_FLYING_SPEED);
+        if (flight != null && onlySuitLetsFly(player, flight)) {
+            setFlyingSpeed(player, flight, CREATIVE_FLYING_SPEED * (float) totals.underCeiling(Stat.FLIGHT));
+        } else if (flight != null) {
+            giveBackFlyingSpeed(player, flight);
         }
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
             energy -= totals.draw(Stat.FLIGHT);
@@ -165,11 +172,14 @@ public final class SuitTicker {
      */
     private static void takeFlight(Player player) {
         var flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
-        if (flight == null || !flight.hasModifier(FLIGHT)) {
+        if (flight == null) {
+            return;
+        }
+        giveBackFlyingSpeed(player, flight);
+        if (!flight.hasModifier(FLIGHT)) {
             return;
         }
         flight.removeModifier(FLIGHT);
-        flyingSpeed(player, CREATIVE_FLYING_SPEED);
         if (player.mayFly() || player.onGround()) {
             return;
         }
@@ -180,17 +190,36 @@ public final class SuitTicker {
         slowFall(player);
     }
 
-    /** Whether the suit's flight is all that lets the player fly: neither their game mode nor another mod does. */
-    private static boolean suitAlone(Player player, AttributeInstance flight) {
-        return !player.isCreative() && !player.isSpectator() && flight.getValue() <= 1;
+    /**
+     * Whether the suit's flight is all that lets the player fly: neither their game mode nor another mod
+     * does, through the creative flight attribute or the flag NeoForge's {@code mayFly} reads too. The
+     * attribute is on or off, so its value cannot tell the suit's flight from another's; its modifiers do.
+     */
+    @SuppressWarnings("deprecation")
+    private static boolean onlySuitLetsFly(Player player, AttributeInstance flight) {
+        return !player.getAbilities().mayfly && flight.getBaseValue() <= 0
+                && flight.getModifiers().stream().allMatch(modifier -> modifier.id().equals(FLIGHT) || modifier.amount() <= 0);
     }
 
-    /** Sets how fast the player flies, telling their client only when it changes. */
-    private static void flyingSpeed(Player player, float speed) {
+    /** Sets how fast the player flies, marking that the suit set it and telling their client when it changes. */
+    private static void setFlyingSpeed(Player player, AttributeInstance flight, float speed) {
+        if (!flight.hasModifier(FLYING_SPEED)) {
+            flight.addPermanentModifier(new AttributeModifier(FLYING_SPEED, 0, AttributeModifier.Operation.ADD_VALUE));
+        }
         if (player.getAbilities().getFlyingSpeed() != speed) {
             player.getAbilities().setFlyingSpeed(speed);
             player.onUpdateAbilities();
         }
+    }
+
+    /** Puts creative's flying speed back if the suit set the player's, and leaves any other alone. */
+    private static void giveBackFlyingSpeed(Player player, AttributeInstance flight) {
+        if (!flight.hasModifier(FLYING_SPEED)) {
+            return;
+        }
+        flight.removeModifier(FLYING_SPEED);
+        player.getAbilities().setFlyingSpeed(CREATIVE_FLYING_SPEED);
+        player.onUpdateAbilities();
     }
 
     /** Keeps up the slow falling the suit gave until the player lands or swims, then takes it away. */

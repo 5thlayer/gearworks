@@ -8,7 +8,7 @@ Flight flew at vanilla's creative speed whatever its Level, which made a fresh s
 Levels only lowered its draw toward a Floor. A Flight Upgrade now reads its `amount` as its speed, a
 fraction of vanilla's creative flying speed, and its Levels raise it toward a `flightCeiling` while
 still lowering the draw. The Library's own upgrade starts near half of vanilla's speed and passes it
-around Level 10. This amends ADR 0003's Consequences: Flight is on or off, one to a suit, yet has a
+at Level 9. This amends ADR 0003's Consequences: Flight is on or off, one to a suit, yet has a
 Ceiling as well as a Floor, because its speed is what grows.
 
 ## Considered Options
@@ -26,6 +26,7 @@ Ceiling as well as a Floor, because its speed is what grows.
 - A Consumer's flight upgrade has its `amount` read for the first time, so an entry written before
   this flies at that fraction of vanilla's speed (a breaking change, ADR 0001).
 - The suit sets the flying speed only while it is the reason the player flies: not in creative or
-  spectator, nor while another mod grants flight, and it puts vanilla's speed back when it takes
-  flight away.
+  spectator, nor while another mod grants flight. It leaves a mark that saves with the player while it
+  does, and puts vanilla's speed back once when it stops, so it never overwrites a speed it did not
+  set and a player who logs in without the suit is not left slow.
 - A suit still holds one Flight Upgrade; Levels, not a second upgrade, raise its speed.
