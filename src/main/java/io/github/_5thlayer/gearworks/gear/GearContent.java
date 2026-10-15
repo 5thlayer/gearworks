@@ -15,6 +15,7 @@ import io.github._5thlayer.gearworks.lance.Bore;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.lance.BoreLanceItem;
 import io.github._5thlayer.gearworks.lance.BoreLanceRecipe;
+import io.github._5thlayer.gearworks.lance.BoreLanceSmithingRecipe;
 import io.github._5thlayer.gearworks.lance.CycleBorePayload;
 import io.github._5thlayer.gearworks.lance.LungeBoring;
 import io.github._5thlayer.libworks.WorksTab;
@@ -140,6 +141,9 @@ public final class GearContent {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoreLanceRecipe>> BORE_LANCE_RECIPE =
             RECIPE_SERIALIZERS.register("crafting_bore_lance", () -> BoreLanceRecipe.SERIALIZER);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoreLanceSmithingRecipe>> BORE_LANCE_SMITHING_RECIPE =
+            RECIPE_SERIALIZERS.register("smithing_bore_lance", () -> BoreLanceSmithingRecipe.SERIALIZER);
 
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
     public static final DeferredItem<Item> SOLAR_UPGRADE = ITEMS.registerSimpleItem("solar_upgrade");

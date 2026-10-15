@@ -60,7 +60,7 @@ final class NetheriteLanceTests {
     }
 
     static void register(GearworksGameTests.Registrar tests) {
-        tests.test("smithing_the_netherite_lance_from_the_diamond_lance_keeps_its_enchantments", 1, NetheriteLanceTests::smiths);
+        tests.test("smithing_the_netherite_lance_keeps_its_enchantments_but_unbreaking_mending_and_wear", 1, NetheriteLanceTests::smiths);
         tests.test("the_netherite_lance_mines_at_netherites_level", 1, NetheriteLanceTests::minesToItsLevel);
         tests.test("the_netherite_lance_hits_harder_than_a_netherite_spear", 1, NetheriteLanceTests::hitsHarder);
         tests.test("the_netherite_lance_is_fire_resistant_and_has_no_durability", 1, NetheriteLanceTests::noDurability);
@@ -79,7 +79,10 @@ final class NetheriteLanceTests {
     private static void smiths(GameTestHelper helper) {
         var diamond = new ItemStack(GearContent.DIAMOND_BORE_LANCE.get());
         diamond.enchant(enchantment(helper, Enchantments.FORTUNE), 3);
+        diamond.enchant(enchantment(helper, Enchantments.UNBREAKING), 3);
+        diamond.enchant(enchantment(helper, Enchantments.MENDING), 1);
         diamond.set(GearContent.BORE.get(), Bore.ONE);
+        diamond.setDamageValue(100);
         var input = new SmithingRecipeInput(new ItemStack(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), diamond, new ItemStack(Items.NETHERITE_INGOT));
         var level = helper.getLevel();
         var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMITHING, input, level);
@@ -91,6 +94,11 @@ final class NetheriteLanceTests {
         helper.assertValueEqual(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.FORTUNE), netherite), 3,
                 Component.literal("the netherite lance's Fortune"));
         helper.assertValueEqual(BoreLance.bore(netherite), Bore.ONE, Component.literal("the netherite lance's Bore"));
+        helper.assertValueEqual(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.UNBREAKING), netherite), 0,
+                Component.literal("the netherite lance's Unbreaking"));
+        helper.assertValueEqual(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.MENDING), netherite), 0,
+                Component.literal("the netherite lance's Mending"));
+        helper.assertFalse(netherite.has(DataComponents.DAMAGE), Component.literal("the netherite lance keeps the diamond lance's wear"));
         helper.succeed();
     }
 

@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:smithing_transform",
+  "type": "gearworks:smithing_bore_lance",
   "addition": "#c:ingots/netherite",
   "base": "gearworks:diamond_bore_lance",
   "result": {
