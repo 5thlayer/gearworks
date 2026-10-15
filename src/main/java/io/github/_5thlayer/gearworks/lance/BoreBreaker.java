@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * A Bore Lance mining a block breaks its Bore with it: the blocks around and behind the hit one, on
  * the face that was hit, each as the player breaking it, so each passes the same protection, drops
  * where it stood under the lance's Fortune or Silk Touch, and costs the lance its durability, or on FE
- * {@link GearworksConfig#lanceBoreEnergy()}, the hit block's included. A Bore breaks only what the lance
+ * {@link GearworksConfig#netheriteLanceBoreEnergy()}, the hit block's included. A Bore breaks only what the lance
  * mines at its tier and nothing harder than the hit block, and none at all while sneaking, from a block
  * the lance doesn't mine, or from a worn-out or dry lance, which mine the hit block alone and free.
  */
@@ -37,7 +37,7 @@ public final class BoreBreaker {
      */
     static void mined(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
         if (breaking) {
-            BoreLance.spend(lance, GearworksConfig.lanceBoreEnergy());
+            BoreLance.spend(lance, GearworksConfig.netheriteLanceBoreEnergy());
         } else {
             bore(lance, player, pos, hit);
         }
@@ -49,7 +49,7 @@ public final class BoreBreaker {
      * hit block undropped.
      */
     private static void bore(ItemStack lance, ServerPlayer player, BlockPos pos, BlockState hit) {
-        int price = GearworksConfig.lanceBoreEnergy();
+        int price = GearworksConfig.netheriteLanceBoreEnergy();
         if (player.isShiftKeyDown() || !lance.isCorrectToolForDrops(hit) || !BoreLance.lasts(lance, player, price)) {
             return;
         }

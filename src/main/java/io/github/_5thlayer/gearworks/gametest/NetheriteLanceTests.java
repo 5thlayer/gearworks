@@ -15,6 +15,7 @@ import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.lance.Bore;
 import io.github._5thlayer.gearworks.lance.BoreLance;
+import io.github._5thlayer.gearworks.level.LanceCharge;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -43,9 +44,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 /**
  * The netherite Bore Lance: smithed from the diamond tier, mining at netherite's level in Bores up to
  * 5×3×3, with Lunge III and no food gate, fire resistant and with no durability. It runs on FE, which
- * any charger or a worn Suit fills: a lunge costs {@link GearworksConfig#lanceLungeEnergy()} a level, a
- * Bore's block {@link GearworksConfig#lanceBoreEnergy()} and a block of Lunge Boring
- * {@link GearworksConfig#lanceLungeBoringEnergy()}. Dry, it is a spear that mines single blocks.
+ * any charger or a worn Suit fills: a lunge costs {@link GearworksConfig#netheriteLanceLungeEnergy()} a level, a
+ * Bore's block {@link GearworksConfig#netheriteLanceBoreEnergy()} and a block of Lunge Boring
+ * {@link GearworksConfig#netheriteLanceLungeBoringEnergy()}. Dry, it is a spear that mines single blocks.
  */
 final class NetheriteLanceTests {
 
@@ -153,14 +154,14 @@ final class NetheriteLanceTests {
         mine(helper, player, CENTRE);
 
         assertBroken(helper, cubeBlocks());
-        helper.assertValueEqual(BoreLance.energy(lance), CHARGED - 45 * GearworksConfig.lanceBoreEnergy(),
+        helper.assertValueEqual(BoreLance.energy(lance), CHARGED - 45 * GearworksConfig.netheriteLanceBoreEnergy(),
                 Component.literal("the lance's FE after a Bore of 45 blocks"));
         helper.succeed();
     }
 
     private static void runsDryPartway(GameTestHelper helper) {
         cube(helper);
-        var lance = charged(10 * GearworksConfig.lanceBoreEnergy());
+        var lance = charged(10 * GearworksConfig.netheriteLanceBoreEnergy());
         var player = miner(helper, lance);
 
         mine(helper, player, CENTRE);
@@ -210,7 +211,7 @@ final class NetheriteLanceTests {
         double diamond = lunge(helper, new ItemStack(GearContent.DIAMOND_BORE_LANCE.get()), 20);
 
         helper.assertTrue(netherite > diamond * 1.2, Component.literal("Lunge III carried the player " + netherite + ", no further than Lunge II's " + diamond));
-        helper.assertValueEqual(BoreLance.energy(lance), CHARGED - 3 * GearworksConfig.lanceLungeEnergy(),
+        helper.assertValueEqual(BoreLance.energy(lance), CHARGED - 3 * GearworksConfig.netheriteLanceLungeEnergy(),
                 Component.literal("the lance's FE after a lunge"));
         helper.succeed();
     }
@@ -231,11 +232,11 @@ final class NetheriteLanceTests {
     private static void dryNoLunge(GameTestHelper helper) {
         var lunge = enchantment(helper, Enchantments.LUNGE);
         // A lance one FE short of a lunge's cost is dry for Lunge.
-        var lance = charged(3 * GearworksConfig.lanceLungeEnergy() - 1);
+        var lance = charged(3 * GearworksConfig.netheriteLanceLungeEnergy() - 1);
         helper.assertValueEqual(lance.getEnchantmentLevel(lunge), 0, Component.literal("a dry netherite lance's Lunge"));
 
         helper.assertValueEqual(lunge(helper, lance, 20), 0.0, Component.literal("a dry netherite lance's lunge"));
-        helper.assertValueEqual(BoreLance.energy(lance), 3 * GearworksConfig.lanceLungeEnergy() - 1, Component.literal("a dry lance's FE after a jab"));
+        helper.assertValueEqual(BoreLance.energy(lance), 3 * GearworksConfig.netheriteLanceLungeEnergy() - 1, Component.literal("a dry lance's FE after a jab"));
         helper.succeed();
     }
 
@@ -260,12 +261,12 @@ final class NetheriteLanceTests {
         }
         assertBroken(helper, bore);
         helper.assertValueEqual(BoreLance.energy(lance),
-                CHARGED - 3 * GearworksConfig.lanceLungeEnergy() - 45 * GearworksConfig.lanceLungeBoringEnergy(),
+                CHARGED - 3 * GearworksConfig.netheriteLanceLungeEnergy() - 45 * GearworksConfig.netheriteLanceLungeBoringEnergy(),
                 Component.literal("the lance's FE after a lunge and 45 blocks"));
 
         // With FE for the lunge and two blocks, it bores the player's way two blocks and stops.
         wall(helper);
-        var short_ = charged(3 * GearworksConfig.lanceLungeEnergy() + 2 * GearworksConfig.lanceLungeBoringEnergy());
+        var short_ = charged(3 * GearworksConfig.netheriteLanceLungeEnergy() + 2 * GearworksConfig.netheriteLanceLungeBoringEnergy());
         var lancer = LanceTests.holding(helper, short_);
         lancer.setPos(feet.x, feet.y, feet.z);
         lancer.lookAt(EntityAnchorArgument.Anchor.EYES, lancer.getEyePosition().add(0, 0, 10));
@@ -285,7 +286,7 @@ final class NetheriteLanceTests {
         charge(suit, capacity);
         var player = wearer(helper, suit);
         var lance = charged(0);
-        int rate = GearworksConfig.lanceChargeRate();
+        int rate = GearworksConfig.netheriteLanceChargeRate();
 
         player.setItemSlot(EquipmentSlot.MAINHAND, lance);
         player.tick();
@@ -307,7 +308,7 @@ final class NetheriteLanceTests {
 
     private static void suitKeepsItsReserve(GameTestHelper helper) {
         var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
-        int reserve = (int) Math.ceil(Suit.capacity(suit) * GearworksConfig.lanceChargeReserve());
+        int reserve = LanceCharge.kept(Suit.capacity(suit), GearworksConfig.netheriteLanceChargeReserve());
         charge(suit, reserve + 300);
         var player = wearer(helper, suit);
         var lance = charged(0);

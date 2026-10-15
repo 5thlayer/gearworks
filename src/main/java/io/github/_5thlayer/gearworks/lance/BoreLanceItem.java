@@ -28,8 +28,9 @@ import org.jspecify.annotations.Nullable;
  * A tier of the Bore Lance: a spear with Lunge built in at the tier's level, which no grindstone takes
  * off and no book raises, and a mining tool whose widest Bore is the tier's. How it pays is its
  * {@link Upkeep}: a tier that never breaks stops at one durability left, as an elytra does, and is then
- * worn out; a tier that runs on FE has no durability, and dry lacks the FE for its Lunge or a Bore.
- * Either mines single blocks without, and neither lunges nor bores until repaired or charged.
+ * worn out; a tier that runs on FE has no durability, and is dry once it lacks the FE for a Bore's
+ * block, lunging only while it holds a lunge's. Worn out or dry, it mines single blocks, and neither
+ * lunges nor bores until repaired or charged.
  */
 public final class BoreLanceItem extends Item {
 
@@ -61,21 +62,22 @@ public final class BoreLanceItem extends Item {
 
     /** Whether the stack is a tier that never breaks, at the one durability it stops at. */
     boolean wornOut(ItemInstance stack) {
-        int max = stack.getOrDefault(DataComponents.MAX_DAMAGE, 0);
-        return upkeep == Upkeep.WEARS_OUT && max > 0 && stack.getOrDefault(DataComponents.DAMAGE, 0) >= max - 1;
+        return upkeep.wornOut(stack);
+    }
+
+    /** Whether the stack can pay that FE for what it does next: on durability, whenever it isn't worn out. */
+    boolean holds(ItemInstance stack, int fe) {
+        return upkeep.holds(stack, fe);
     }
 
     /** The level of Lunge the stack fires: its tier's, unless it is worn out or lacks the FE for the lunge. */
-    private int lungeOf(ItemInstance stack) {
-        if (upkeep == Upkeep.ENERGY) {
-            return stack.getOrDefault(GearContent.ENERGY.get(), 0) >= lungeEnergy() ? lunge : 0;
-        }
-        return wornOut(stack) ? 0 : lunge;
+    int lungeOf(ItemInstance stack) {
+        return holds(stack, lungeEnergy()) ? lunge : 0;
     }
 
     /** The FE a lunge costs the tier: its price a level, at the tier's level. */
     int lungeEnergy() {
-        return (int) Math.min(Integer.MAX_VALUE, (long) lunge * GearworksConfig.lanceLungeEnergy());
+        return (int) Math.min(Integer.MAX_VALUE, (long) lunge * GearworksConfig.netheriteLanceLungeEnergy());
     }
 
     /**
@@ -86,7 +88,7 @@ public final class BoreLanceItem extends Item {
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
         if (LungeBoring.breaking()) {
             stack.hurtAndBreak(GearworksConfig.lungeBoringCost(), owner, EquipmentSlot.MAINHAND);
-            BoreLance.spend(stack, GearworksConfig.lanceLungeBoringEnergy());
+            BoreLance.spend(stack, GearworksConfig.netheriteLanceLungeBoringEnergy());
             return true;
         }
         boolean mined = super.mineBlock(stack, level, state, pos, owner);
@@ -98,10 +100,7 @@ public final class BoreLanceItem extends Item {
 
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
-        if (upkeep != Upkeep.WEARS_OUT) {
-            return amount;
-        }
-        return Math.max(0, Math.min(amount, stack.getMaxDamage() - 1 - stack.getDamageValue()));
+        return upkeep.damage(stack, amount);
     }
 
     @Override
@@ -125,19 +124,57 @@ public final class BoreLanceItem extends Item {
      */
     @Override
     public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        if (upkeep == Upkeep.ENERGY && (enchantment.is(Enchantments.UNBREAKING) || enchantment.is(Enchantments.MENDING))) {
-            return false;
-        }
-        return !enchantment.is(Enchantments.LUNGE) && super.supportsEnchantment(stack, enchantment);
+        return !enchantment.is(Enchantments.LUNGE) && upkeep.takes(enchantment) && super.supportsEnchantment(stack, enchantment);
     }
 
-    /** How a tier pays for what it does. */
+    /** How a tier pays for what it does, and what that decides: when it is worn out, what it holds, what durability it takes. */
     public enum Upkeep {
         /** With durability, and breaks when it runs out. */
         BREAKS,
         /** With durability, and stops at its last, worn out, until repaired. */
-        WEARS_OUT,
+        WEARS_OUT {
+            @Override
+            boolean wornOut(ItemInstance stack) {
+                int max = stack.getOrDefault(DataComponents.MAX_DAMAGE, 0);
+                return max > 0 && stack.getOrDefault(DataComponents.DAMAGE, 0) >= max - 1;
+            }
+
+            @Override
+            int damage(ItemStack stack, int amount) {
+                return Math.max(0, Math.min(amount, stack.getMaxDamage() - 1 - stack.getDamageValue()));
+            }
+        },
         /** With FE and no durability. */
-        ENERGY
+        ENERGY {
+            @Override
+            boolean holds(ItemInstance stack, int fe) {
+                return stack.getOrDefault(GearContent.ENERGY.get(), 0) >= fe;
+            }
+
+            @Override
+            boolean takes(Holder<Enchantment> enchantment) {
+                return !enchantment.is(Enchantments.UNBREAKING) && !enchantment.is(Enchantments.MENDING);
+            }
+        };
+
+        /** Whether the stack is stopped at its last durability: only a tier that wears out ever is. */
+        boolean wornOut(ItemInstance stack) {
+            return false;
+        }
+
+        /** Whether the stack can pay that FE for what it does next: on durability, whenever it isn't worn out. */
+        boolean holds(ItemInstance stack, int fe) {
+            return !wornOut(stack);
+        }
+
+        /** The durability the stack takes of that amount: all of it, unless that would wear it past its last. */
+        int damage(ItemStack stack, int amount) {
+            return amount;
+        }
+
+        /** Whether the enchantment has anything to act on: a tier on FE has no durability for Unbreaking or Mending. */
+        boolean takes(Holder<Enchantment> enchantment) {
+            return true;
+        }
     }
 }

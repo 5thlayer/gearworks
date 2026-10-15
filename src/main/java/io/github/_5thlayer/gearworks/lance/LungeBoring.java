@@ -30,8 +30,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * unbreakable, or protected from the player, and the lance breaks nothing past it: an iron lance stops
  * at obsidian, and in vanilla nothing stops a diamond one but bedrock and its like. Each block is broken
  * as the player breaking it and costs {@link GearworksConfig#lungeBoringCost()} durability, or on FE
- * {@link GearworksConfig#lanceLungeBoringEnergy()}, so a lance that wears out, breaks or runs dry partway
- * stops the dash there. A lunge on FE pays {@link GearworksConfig#lanceLungeEnergy()} a level of Lunge as
+ * {@link GearworksConfig#netheriteLanceLungeBoringEnergy()}, so a lance that wears out, breaks or runs dry partway
+ * stops the dash there. A lunge on FE pays {@link GearworksConfig#netheriteLanceLungeEnergy()} a level of Lunge as
  * it fires, and needs no food.
  *
  * <p>The server bores the whole Bore ahead the tick the lunge fires, so the blocks a lunge carries the
@@ -42,7 +42,11 @@ public final class LungeBoring {
     /** The longest a lunge carries the player: the grace vanilla gives an impulse. */
     public static final int DASH_TICKS = 10;
 
-    /** The food vanilla's Lunge needs a player to have more than. */
+    /**
+     * The food vanilla's Lunge needs a player to have more than, mirroring the condition in its
+     * {@code data/minecraft/enchantment/lunge.json}; a datapack that raises it there brings the gate back for a
+     * lance on FE between this and its own number.
+     */
     private static final int LUNGE_FOOD = 6;
 
     private static final Map<Player, Dash> DASHES = new WeakHashMap<>();
@@ -117,7 +121,7 @@ public final class LungeBoring {
         breaking = true;
         try {
             for (var pos : ahead(BoreLance.bore(lance), dash.reached(player), dash.direction)) {
-                if (!BoreLance.lasts(lance, player, GearworksConfig.lanceLungeBoringEnergy())) {
+                if (!BoreLance.lasts(lance, player, GearworksConfig.netheriteLanceLungeBoringEnergy())) {
                     return false;
                 }
                 var state = level.getBlockState(pos);

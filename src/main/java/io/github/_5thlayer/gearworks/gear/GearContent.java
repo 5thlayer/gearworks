@@ -243,7 +243,7 @@ public final class GearContent {
                 (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), Suit.capacity(stack)),
                 IRON_SUIT, DIAMOND_SUIT, NETHERITE_SUIT);
         event.registerItem(Capabilities.Energy.ITEM,
-                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), GearworksConfig.lanceCapacity()),
+                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), GearworksConfig.netheriteLanceCapacity()),
                 NETHERITE_BORE_LANCE);
         event.registerBlockEntity(Capabilities.Item.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.stockFace());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.energyFace());

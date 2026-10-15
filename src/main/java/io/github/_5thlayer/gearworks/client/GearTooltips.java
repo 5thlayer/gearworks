@@ -70,7 +70,7 @@ final class GearTooltips {
     /** The Bore the lance breaks, its built-in Lunge, whether it is worn out, and on FE, its FE and whether it is dry. */
     private static void lance(ItemStack stack, BoreLanceItem lance, List<Component> lines) {
         if (BoreLance.runsOnEnergy(stack)) {
-            lines.add(gray(FeText.reading(BoreLance.energy(stack), GearworksConfig.lanceCapacity())));
+            lines.add(gray(FeText.reading(BoreLance.energy(stack), GearworksConfig.netheriteLanceCapacity())));
         }
         lines.add(gray(Component.translatable("tooltip.gearworks.bore_lance.bore", BoreLance.bore(stack).size())));
         lines.add(gray(Component.translatable("tooltip.gearworks.bore_lance.lunge",

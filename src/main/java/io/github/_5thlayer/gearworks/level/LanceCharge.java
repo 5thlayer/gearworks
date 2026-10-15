@@ -19,9 +19,13 @@ public final class LanceCharge {
      * capacity: a Suit at or under its reserve moves nothing, and none goes under it.
      */
     public static int transfer(int suitEnergy, int suitCapacity, int lanceEnergy, int lanceCapacity, int rate, double reserve) {
-        long kept = (long) Math.ceil(suitCapacity * reserve);
-        long spare = suitEnergy - kept;
+        long spare = (long) suitEnergy - kept(suitCapacity, reserve);
         long room = (long) lanceCapacity - lanceEnergy;
         return (int) Math.max(0, Math.min(rate, Math.min(spare, room)));
+    }
+
+    /** The FE a Suit whose batteries hold {@code suitCapacity} keeps for itself: {@code reserve} of it, rounded up. */
+    public static int kept(int suitCapacity, double reserve) {
+        return (int) Math.ceil(suitCapacity * reserve);
     }
 }

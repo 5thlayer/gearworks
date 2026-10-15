@@ -8,16 +8,21 @@ import java.util.Optional;
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
+import io.github._5thlayer.gearworks.level.LanceCharge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * The Bore Lance as a stack: the Bore its key last chose, which it keeps, whether it is worn out, and on
@@ -64,17 +69,37 @@ public final class BoreLance {
         return runsOnEnergy(lance) ? lance.getOrDefault(GearContent.ENERGY.get(), 0) : 0;
     }
 
-    /** Puts FE into a lance that runs on it, up to what it holds, and gives back how much went in. */
+    /**
+     * Puts FE into a lance that runs on it, through its FE capability as any charger does, so up to what it
+     * holds, and gives back how much went in.
+     */
     public static int fill(ItemStack lance, int fe) {
-        if (!runsOnEnergy(lance)) {
+        var handler = runsOnEnergy(lance) && fe > 0 ? ItemAccess.forStack(lance).getCapability(Capabilities.Energy.ITEM) : null;
+        if (handler == null) {
             return 0;
         }
-        int energy = energy(lance);
-        int added = Math.max(0, Math.min(fe, GearworksConfig.lanceCapacity() - energy));
-        if (added > 0) {
-            lance.set(GearContent.ENERGY.get(), energy + added);
+        try (var transaction = Transaction.openRoot()) {
+            int added = handler.insert(fe, transaction);
+            transaction.commit();
+            return added;
         }
-        return added;
+    }
+
+    /**
+     * Charges a lance on FE in either of the player's hands from a worn Suit holding that FE of what its
+     * batteries hold, while it holds over its reserve, as {@link LanceCharge} moves it; gives back the FE the
+     * Suit has left.
+     */
+    public static int charge(Player player, int suitEnergy, int suitCapacity) {
+        for (var hand : InteractionHand.values()) {
+            var lance = player.getItemInHand(hand);
+            if (runsOnEnergy(lance)) {
+                int moved = LanceCharge.transfer(suitEnergy, suitCapacity, energy(lance), GearworksConfig.netheriteLanceCapacity(),
+                        GearworksConfig.netheriteLanceChargeRate(), GearworksConfig.netheriteLanceChargeReserve());
+                suitEnergy -= fill(lance, moved);
+            }
+        }
+        return suitEnergy;
     }
 
     /** Takes that FE from a lance that runs on it, down to none; one on durability pays nothing here. */
@@ -84,9 +109,12 @@ public final class BoreLance {
         }
     }
 
-    /** Whether the lance runs on FE and lacks a Bore's block of it: it mines single blocks and neither bores nor lunges. */
+    /**
+     * Whether the lance runs on FE and lacks a Bore's block of it: it mines single blocks and bores nothing.
+     * A lance that isn't dry still lunges only while it {@linkplain #affordsLunge affords a lunge}.
+     */
     public static boolean dry(ItemStack lance) {
-        return runsOnEnergy(lance) && energy(lance) < Math.max(1, GearworksConfig.lanceBoreEnergy());
+        return runsOnEnergy(lance) && !tier(lance).holds(lance, Math.max(1, GearworksConfig.netheriteLanceBoreEnergy()));
     }
 
     /**
@@ -97,7 +125,7 @@ public final class BoreLance {
         if (player.getMainHandItem() != lance || lance.isEmpty()) {
             return false;
         }
-        return runsOnEnergy(lance) ? energy(lance) >= fe : !wornOut(lance);
+        return tier(lance).holds(lance, fe);
     }
 
     /** Pays for a lunge that fired: on FE, its price a level. */
@@ -105,9 +133,9 @@ public final class BoreLance {
         spend(lance, tier(lance).lungeEnergy());
     }
 
-    /** Whether the lance runs on FE and holds its lunge's price: such a lunge has no food gate. */
-    static boolean affordsLunge(ItemStack lance) {
-        return runsOnEnergy(lance) && energy(lance) >= tier(lance).lungeEnergy();
+    /** Whether the lance runs on FE and holds its lunge's price: only then it lunges, and with no food gate. */
+    public static boolean affordsLunge(ItemStack lance) {
+        return runsOnEnergy(lance) && tier(lance).lungeOf(lance) > 0;
     }
 
     /**

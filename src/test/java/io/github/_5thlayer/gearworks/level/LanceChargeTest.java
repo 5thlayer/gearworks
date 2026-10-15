@@ -42,6 +42,12 @@ class LanceChargeTest {
     }
 
     @Test
+    void keepsItsReserveRoundedUp() {
+        assertEquals(25_000, LanceCharge.kept(100_000, RESERVE));
+        assertEquals(1, LanceCharge.kept(3, RESERVE));
+    }
+
+    @Test
     void aSuitWithNoBatteryChargesNothing() {
         assertEquals(0, LanceCharge.transfer(0, 0, 0, 1_000_000, RATE, RESERVE));
     }
