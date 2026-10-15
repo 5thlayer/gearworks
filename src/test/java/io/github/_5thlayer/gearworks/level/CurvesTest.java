@@ -110,4 +110,11 @@ class CurvesTest {
     void aDrawAlreadyAtItsFloorStaysThere() {
         assertEquals(1, Curves.overFloor(1, 1, 2, 5));
     }
+
+    @Test
+    void aBoostsCooldownShortensTowardItsFloorAndNeverPassesIt() {
+        assertEquals(100, Curves.overFloor(100, 10, 25, 0));
+        assertEquals(45, Curves.overFloor(100, 10, 25, 10));
+        assertEquals(25, Curves.overFloor(100, 10, 25, 1_000));
+    }
 }

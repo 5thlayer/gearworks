@@ -29,6 +29,11 @@ import org.jspecify.annotations.Nullable;
 public record GearUpgrade(int width, int height, Stat stat, double amount, double amountPerLevel, int draw, int drawPerLevel,
                           int cooldown, int cooldownPerLevel) {
 
+    /** An upgrade that never waits between uses, as every Stat but Boost. */
+    public GearUpgrade(int width, int height, Stat stat, double amount, double amountPerLevel, int draw, int drawPerLevel) {
+        this(width, height, stat, amount, amountPerLevel, draw, drawPerLevel, 0, 0);
+    }
+
     public static final Codec<GearUpgrade> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.POSITIVE_INT.fieldOf("width").forGetter(GearUpgrade::width),
             ExtraCodecs.POSITIVE_INT.fieldOf("height").forGetter(GearUpgrade::height),
@@ -73,10 +78,10 @@ public record GearUpgrade(int width, int height, Stat stat, double amount, doubl
     }
 
     /**
-     * The ticks the upgrade waits between uses at that Level, falling toward the
-     * {@code boostCooldownFloor}, which it never goes under.
+     * The ticks the upgrade waits between uses at that Level, falling toward its Stat's Cooldown Floor,
+     * which it never goes under; 0 for an upgrade that never waits.
      */
     public int cooldownAt(int level) {
-        return Curves.overFloor(cooldown, cooldownPerLevel, GearworksConfig.boostCooldownFloor(), level);
+        return cooldown == 0 ? 0 : Curves.overFloor(cooldown, cooldownPerLevel, GearworksConfig.cooldownFloor(stat), level);
     }
 }
