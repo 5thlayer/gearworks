@@ -56,6 +56,17 @@
       "amount_per_level": 0.1,
       "draw": 200,
       "draw_per_level": 20
+    },
+    "gearworks:boost_upgrade": {
+      "width": 1,
+      "height": 3,
+      "stat": "boost",
+      "amount": 1.2,
+      "amount_per_level": 0.1,
+      "draw": 1000,
+      "draw_per_level": 100,
+      "cooldown": 100,
+      "cooldown_per_level": 10
     }
   }
 }

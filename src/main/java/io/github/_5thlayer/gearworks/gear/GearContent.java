@@ -18,6 +18,7 @@ import io.github._5thlayer.gearworks.lance.BoreLanceRecipe;
 import io.github._5thlayer.gearworks.lance.BoreLanceSmithingRecipe;
 import io.github._5thlayer.gearworks.lance.CycleBorePayload;
 import io.github._5thlayer.gearworks.lance.LungeBoring;
+import io.github._5thlayer.gearworks.level.Boosting;
 import io.github._5thlayer.libworks.WorksTab;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -47,6 +48,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -57,6 +59,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 
@@ -77,6 +80,8 @@ public final class GearContent {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Gearworks.MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
             DeferredRegister.create(Registries.RECIPE_SERIALIZER, Gearworks.MOD_ID);
+    private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
+            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Gearworks.MOD_ID);
 
     /** A Bore Lance's spear numbers rise over its material's spear's by this much attack damage. */
     private static final float LANCE_DAMAGE_MARGIN = 1.0f;
@@ -152,6 +157,11 @@ public final class GearContent {
     public static final DeferredItem<Item> JUMP_UPGRADE = ITEMS.registerSimpleItem("jump_upgrade");
     public static final DeferredItem<Item> NIGHT_VISION_UPGRADE = ITEMS.registerSimpleItem("night_vision_upgrade");
     public static final DeferredItem<Item> FLIGHT_UPGRADE = ITEMS.registerSimpleItem("flight_upgrade");
+    public static final DeferredItem<Item> BOOST_UPGRADE = ITEMS.registerSimpleItem("boost_upgrade");
+
+    /** A player's Boost and its Cooldown: on the player, so a second suit fires no sooner, and never saved. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boosting>> BOOSTING =
+            ATTACHMENT_TYPES.register("boosting", () -> AttachmentType.builder(Boosting::new).build());
 
     public static final DeferredHolder<MenuType<?>, MenuType<GearGridMenu>> GRID_MENU =
             MENUS.register("gear_grid", () -> IMenuTypeExtension.create(GearGridMenu::new));
@@ -178,12 +188,14 @@ public final class GearContent {
         BLOCKS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         RECIPE_SERIALIZERS.register(modBus);
+        ATTACHMENT_TYPES.register(modBus);
         modBus.addListener(GearContent::registerDataMaps);
         modBus.addListener(GearContent::registerCapabilities);
         modBus.addListener(GearContent::fillCreativeTabs);
         modBus.addListener(GearContent::registerPayloads);
         NeoForge.EVENT_BUS.addListener(SuitTicker::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(SuitTicker::onJump);
+        NeoForge.EVENT_BUS.addListener(SuitBoost::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(SuitShield::onDamage);
         NeoForge.EVENT_BUS.addListener(LungeBoring::onPlayerTick);
     }
@@ -257,6 +269,8 @@ public final class GearContent {
         var registrar = event.registrar("1");
         registrar.playToServer(OpenGridPayload.TYPE, OpenGridPayload.STREAM_CODEC, OpenGridPayload::handle);
         registrar.playToServer(CycleBorePayload.TYPE, CycleBorePayload.STREAM_CODEC, CycleBorePayload::handle);
+        registrar.playToServer(BoostPayload.TYPE, BoostPayload.STREAM_CODEC, BoostPayload::handle);
+        registrar.playToClient(BoostedPayload.TYPE, BoostedPayload.STREAM_CODEC, BoostedPayload::handle);
     }
 
     /** Gearworks' items, in the Works tab every -works Module shares, and in no vanilla tab. */
@@ -276,6 +290,7 @@ public final class GearContent {
             event.accept(JUMP_UPGRADE);
             event.accept(NIGHT_VISION_UPGRADE);
             event.accept(FLIGHT_UPGRADE);
+            event.accept(BOOST_UPGRADE);
         }
     }
 }

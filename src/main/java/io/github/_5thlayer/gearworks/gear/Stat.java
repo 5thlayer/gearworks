@@ -36,7 +36,15 @@ public enum Stat implements StringRepresentable {
      * per tick in the air, and each Level lowers it toward the {@code flightFloor}. A suit that runs dry
      * mid-air lets the player down slowly.
      */
-    FLIGHT("flight", Draw.FALLS, PerSuit.ONE);
+    FLIGHT("flight", Draw.FALLS, PerSuit.ONE),
+    /**
+     * Throws the flying player along their gaze, as a firework does a glider, at a key's press: the
+     * amount is the speed in blocks a tick the thrust pulls them toward, which the suit's total bends
+     * toward the {@code boostCeiling}. The draw is the FE each Boost spends, and each Level lowers it
+     * toward the {@code boostFloor}; each Level also shortens its Cooldown toward the
+     * {@code boostCooldownFloor}. A suit holds one.
+     */
+    BOOST("boost", Draw.FALLS, PerSuit.ONE);
 
     public static final Codec<Stat> CODEC = StringRepresentable.fromEnum(Stat::values);
 

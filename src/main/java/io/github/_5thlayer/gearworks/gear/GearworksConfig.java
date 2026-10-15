@@ -26,6 +26,10 @@ public final class GearworksConfig {
     private static final ModConfigSpec.IntValue NETHERITE_LANCE_LUNGE_BORING_ENERGY;
     private static final ModConfigSpec.IntValue NETHERITE_LANCE_CHARGE_RATE;
     private static final ModConfigSpec.DoubleValue NETHERITE_LANCE_CHARGE_RESERVE;
+    private static final ModConfigSpec.DoubleValue BOOST_CEILING;
+    private static final ModConfigSpec.IntValue BOOST_FLOOR;
+    private static final ModConfigSpec.IntValue BOOST_COOLDOWN_FLOOR;
+    private static final ModConfigSpec.IntValue BOOST_TICKS;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -74,6 +78,21 @@ public final class GearworksConfig {
                 .comment("The fraction of what its batteries hold that a Suit keeps for itself: it charges a lance",
                         "only while it holds more, and never goes under it doing so.")
                 .defineInRange("netheriteLanceChargeReserve", 0.25, 0.0, 1.0);
+        BOOST_CEILING = builder
+                .comment("The speed in blocks a tick a Boost's thrust approaches and never reaches as its upgrade levels.",
+                        "A vanilla rocket pulls a glider toward 1.5.")
+                .defineInRange("boostCeiling", 2.5, 0.0, 10.0);
+        BOOST_FLOOR = builder
+                .comment("The FE a boost upgrade spends on each Boost approaches as it levels, and is never pushed under.",
+                        "Over 0, so a Boost is never free.")
+                .defineInRange("boostFloor", 200, 1, 1_000_000);
+        BOOST_COOLDOWN_FLOOR = builder
+                .comment("The ticks a boost upgrade's Cooldown approaches as it levels, and is never pushed under.",
+                        "A Cooldown is never shorter than the thrust, whatever this says, so two Boosts never overlap.")
+                .defineInRange("boostCooldownFloor", 25, 1, 1_000_000);
+        BOOST_TICKS = builder
+                .comment("The ticks each Boost thrusts for, whatever the Level. A vanilla rocket of flight duration 1 thrusts for 20 to 31.")
+                .defineInRange("boostTicks", 25, 1, 200);
         SPEC = builder.build();
     }
 
@@ -90,6 +109,7 @@ public final class GearworksConfig {
             case JUMP -> JUMP_CEILING;
             case SHIELD -> SHIELD_CEILING;
             case FLIGHT -> FLIGHT_CEILING;
+            case BOOST -> BOOST_CEILING;
             default -> throw new IllegalArgumentException(stat + " has no Ceiling");
         };
         return value(ceiling);
@@ -103,6 +123,7 @@ public final class GearworksConfig {
         var floor = switch (stat) {
             case NIGHT_VISION -> NIGHT_VISION_FLOOR;
             case FLIGHT -> FLIGHT_FLOOR;
+            case BOOST -> BOOST_FLOOR;
             default -> throw new IllegalArgumentException(stat + " has no Floor");
         };
         return value(floor);
@@ -151,5 +172,15 @@ public final class GearworksConfig {
     /** The server's value, or its default before the server's config has loaded, as on a client's tooltip. */
     private static double value(ModConfigSpec.DoubleValue value) {
         return SPEC.isLoaded() ? value.get() : value.getDefault();
+    }
+
+    /** The least a boost upgrade's Cooldown falls toward, or its default before the server's config has loaded. */
+    public static int boostCooldownFloor() {
+        return SPEC.isLoaded() ? BOOST_COOLDOWN_FLOOR.get() : BOOST_COOLDOWN_FLOOR.getDefault();
+    }
+
+    /** The ticks each Boost thrusts for, or its default before the server's config has loaded. */
+    public static int boostTicks() {
+        return SPEC.isLoaded() ? BOOST_TICKS.get() : BOOST_TICKS.getDefault();
     }
 }

@@ -5,6 +5,7 @@ package io.github._5thlayer.gearworks.client;
 
 import static io.github._5thlayer.gearworks.client.EnergyHudLayout.BAR_HEIGHT;
 import static io.github._5thlayer.gearworks.client.EnergyHudLayout.BAR_WIDTH;
+import static io.github._5thlayer.gearworks.client.EnergyHudLayout.COOLDOWN_HEIGHT;
 import static io.github._5thlayer.gearworks.client.EnergyHudLayout.FILL_WIDTH;
 import static io.github._5thlayer.gearworks.client.EnergyHudLayout.GAP;
 import static io.github._5thlayer.gearworks.client.EnergyHudLayout.MARGIN;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * The energy reading hugs its corner: aligned to the corner's side, with the text at the screen's
- * edge and the bar inside it.
+ * edge, the bar inside it, and a Boost's Cooldown past the bar.
  */
 class EnergyHudLayoutTest {
 
@@ -71,5 +72,27 @@ class EnergyHudLayoutTest {
     void theFillStaysInsideTheBar() {
         assertEquals(FILL_WIDTH, EnergyHudLayout.filled(Integer.MAX_VALUE, Integer.MAX_VALUE));
         assertEquals(FILL_WIDTH, EnergyHudLayout.filled(500, 400));
+    }
+
+    @Test
+    void theCooldownSitsUnderTheBarInATopCorner() {
+        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, WIDTH, HEIGHT, TEXT, LINE);
+
+        assertEquals(layout.barY() + BAR_HEIGHT + GAP, layout.cooldownY(Corner.TOP_LEFT));
+    }
+
+    @Test
+    void theCooldownSitsOverTheBarInABottomCorner() {
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, WIDTH, HEIGHT, TEXT, LINE);
+
+        assertEquals(layout.barY() - GAP - COOLDOWN_HEIGHT, layout.cooldownY(Corner.BOTTOM_RIGHT));
+    }
+
+    @Test
+    void theCooldownEmptiesAsItRunsAndShowsUntilItEnds() {
+        assertEquals(FILL_WIDTH, EnergyHudLayout.cooldownFilled(1));
+        assertEquals(FILL_WIDTH / 2, EnergyHudLayout.cooldownFilled(0.5));
+        assertEquals(1, EnergyHudLayout.cooldownFilled(0.001));
+        assertEquals(0, EnergyHudLayout.cooldownFilled(0));
     }
 }
