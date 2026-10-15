@@ -5,7 +5,7 @@ package io.github._5thlayer.gearworks.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github._5thlayer.gearworks.Gearworks;
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
@@ -39,7 +39,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * fullbright pass over the chest armor model, posed as vanilla's armor layer poses the suit, that
  * blends {@code entity/gear_glow.png}, a brighter gem and a faint halo, over it.
  */
-final class GearGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
+final class SuitGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
 
     /**
      * Vanilla's eyes, fullbright and blended, but nudged toward the camera as armor is: without the
@@ -55,7 +55,7 @@ final class GearGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S
     private final Model<? super S> chest;
     private final Model<? super S> babyChest;
 
-    private GearGlowLayer(RenderLayerParent<S, M> parent, Model<? super S> chest, Model<? super S> babyChest) {
+    private SuitGlowLayer(RenderLayerParent<S, M> parent, Model<? super S> chest, Model<? super S> babyChest) {
         super(parent);
         this.chest = chest;
         this.babyChest = babyChest;
@@ -70,7 +70,7 @@ final class GearGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S
         }
         ArmorStandRenderer stand = event.getRenderer(EntityType.ARMOR_STAND);
         if (stand != null) {
-            stand.addLayer(new GearGlowLayer<ArmorStandRenderState, ArmorStandArmorModel>(stand,
+            stand.addLayer(new SuitGlowLayer<ArmorStandRenderState, ArmorStandArmorModel>(stand,
                     ArmorModelSet.bake(ModelLayers.ARMOR_STAND_ARMOR, models, ArmorStandArmorModel::new).chest(),
                     ArmorModelSet.bake(ModelLayers.ARMOR_STAND_SMALL_ARMOR, models, ArmorStandArmorModel::new).chest()));
         }
@@ -84,13 +84,13 @@ final class GearGlowLayer<S extends HumanoidRenderState, M extends EntityModel<S
 
     private static void addTo(AvatarRenderer<?> renderer, PlayerModel chest) {
         if (renderer != null) {
-            renderer.addLayer(new GearGlowLayer<AvatarRenderState, PlayerModel>(renderer, chest, chest));
+            renderer.addLayer(new SuitGlowLayer<AvatarRenderState, PlayerModel>(renderer, chest, chest));
         }
     }
 
     @Override
     public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, S state, float yRot, float xRot) {
-        if (!Gear.is(state.chestEquipment)) {
+        if (!Suit.is(state.chestEquipment)) {
             return;
         }
         collector.order(1).submitModel(state.isBaby ? babyChest : chest, state, poseStack, GLOW, LightCoordsUtil.FULL_BRIGHT,

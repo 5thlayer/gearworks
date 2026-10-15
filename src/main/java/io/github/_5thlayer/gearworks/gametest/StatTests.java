@@ -3,15 +3,15 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.addAtLevel;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.charge;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.tierWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.addAtLevel;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.charge;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.tierWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
 import java.util.List;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
@@ -59,8 +59,8 @@ final class StatTests {
         float takenBare = healthLost(helper, bare);
 
         helper.assertTrue(taken < takenBare, Component.literal("the shield took nothing: " + taken + " lost against " + takenBare));
-        helper.assertTrue(Gear.energy(shielded) < 10_000, Component.literal("the shield spent no FE"));
-        helper.assertValueEqual(Gear.energy(bare), 10_000, Component.literal("FE in a suit with no shield"));
+        helper.assertTrue(Suit.energy(shielded) < 10_000, Component.literal("the shield spent no FE"));
+        helper.assertValueEqual(Suit.energy(bare), 10_000, Component.literal("FE in a suit with no shield"));
         helper.succeed();
     }
 
@@ -69,7 +69,7 @@ final class StatTests {
         var bare = suitWith(GearContent.BATTERY_UPGRADE.get());
 
         helper.assertValueEqual(healthLost(helper, shielded), healthLost(helper, bare), Component.literal("health lost"));
-        helper.assertValueEqual(Gear.energy(shielded), 0, Component.literal("FE in the empty suit"));
+        helper.assertValueEqual(Suit.energy(shielded), 0, Component.literal("FE in the empty suit"));
         helper.succeed();
     }
 
@@ -78,14 +78,14 @@ final class StatTests {
         charge(jumper, 10_000);
         var bare = suitWith(GearContent.BATTERY_UPGRADE.get());
         charge(bare, 10_000);
-        int draw = GearFixtures.upgrade(GearContent.JUMP_UPGRADE.get()).draw();
+        int draw = SuitFixtures.upgrade(GearContent.JUMP_UPGRADE.get()).draw();
         helper.assertTrue(draw > 0, Component.literal("the jump upgrade draws no FE"));
 
         double rise = jumpSpeed(helper, jumper);
         double riseBare = jumpSpeed(helper, bare);
 
         helper.assertTrue(rise > riseBare, Component.literal("the jump did not rise: " + rise + " against " + riseBare));
-        helper.assertValueEqual(Gear.energy(jumper), 10_000 - draw, Component.literal("FE after one jump"));
+        helper.assertValueEqual(Suit.energy(jumper), 10_000 - draw, Component.literal("FE after one jump"));
         helper.succeed();
     }
 
@@ -94,18 +94,18 @@ final class StatTests {
         var bare = suitWith(GearContent.BATTERY_UPGRADE.get());
 
         helper.assertValueEqual(jumpSpeed(helper, jumper), jumpSpeed(helper, bare), Component.literal("the jump's upward speed"));
-        helper.assertValueEqual(Gear.energy(jumper), 0, Component.literal("FE in the empty suit"));
+        helper.assertValueEqual(Suit.energy(jumper), 0, Component.literal("FE in the empty suit"));
         helper.succeed();
     }
 
     private static void shieldCeiling(GameTestHelper helper) {
-        var one = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var one = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         addAtLevel(one, GearContent.SHIELD_UPGRADE.get(), 10);
-        var several = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var several = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         for (int i = 0; i < 3; i++) {
             addAtLevel(several, GearContent.SHIELD_UPGRADE.get(), 10);
         }
-        var bare = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var bare = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         for (var suit : List.of(one, several, bare)) {
             charge(suit, 100_000);
         }
@@ -126,10 +126,10 @@ final class StatTests {
         charge(two, 10_000);
         var bare = suitWith(GearContent.BATTERY_UPGRADE.get());
         charge(bare, 10_000);
-        int draw = GearFixtures.upgrade(GearContent.SHIELD_UPGRADE.get()).draw();
+        int draw = SuitFixtures.upgrade(GearContent.SHIELD_UPGRADE.get()).draw();
 
         float absorbed = healthLost(helper, bare) - healthLost(helper, two);
-        double perPoint = (10_000 - Gear.energy(two)) / absorbed;
+        double perPoint = (10_000 - Suit.energy(two)) / absorbed;
 
         helper.assertTrue(absorbed > 0, Component.literal("the shields absorbed nothing"));
         // Spending rounds up to a whole FE, which spread over the points absorbed is under one each.
@@ -139,13 +139,13 @@ final class StatTests {
     }
 
     private static void jumpCeiling(GameTestHelper helper) {
-        var one = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var one = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         addAtLevel(one, GearContent.JUMP_UPGRADE.get(), 10);
-        var several = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var several = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         for (int i = 0; i < 4; i++) {
             addAtLevel(several, GearContent.JUMP_UPGRADE.get(), 10);
         }
-        var bare = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var bare = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         for (var suit : List.of(one, several, bare)) {
             charge(suit, 100_000);
         }
@@ -164,26 +164,26 @@ final class StatTests {
     private static void nightVisionWithEnergy(GameTestHelper helper) {
         var suit = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get());
         charge(suit, 1000);
-        int draw = GearFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw();
+        int draw = SuitFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw();
         helper.assertTrue(draw > 0, Component.literal("the night vision upgrade draws no FE"));
         var player = wearer(helper, suit);
 
         player.tick();
 
         helper.assertTrue(player.hasEffect(MobEffects.NIGHT_VISION), Component.literal("no night vision while the suit has FE"));
-        helper.assertValueEqual(Gear.energy(suit), 1000 - draw, Component.literal("FE after a tick"));
+        helper.assertValueEqual(Suit.energy(suit), 1000 - draw, Component.literal("FE after a tick"));
         helper.succeed();
     }
 
     private static void nightVisionRunsOut(GameTestHelper helper) {
         var suit = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get());
-        charge(suit, 3 * GearFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw());
+        charge(suit, 3 * SuitFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw());
         var player = wearer(helper, suit);
         player.tick();
         helper.assertTrue(player.hasEffect(MobEffects.NIGHT_VISION), Component.literal("no night vision while the suit has FE"));
         helper.onEachTick(player::tick);
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(Gear.energy(suit), 0, Component.literal("FE left"));
+            helper.assertValueEqual(Suit.energy(suit), 0, Component.literal("FE left"));
             helper.assertFalse(player.hasEffect(MobEffects.NIGHT_VISION), Component.literal("night vision in an empty suit"));
         });
     }
@@ -207,8 +207,8 @@ final class StatTests {
             wearer(helper, suit).tick();
         }
 
-        int drawFresh = 1000 - Gear.energy(fresh);
-        int drawRaised = 1000 - Gear.energy(raised);
+        int drawFresh = 1000 - Suit.energy(fresh);
+        int drawRaised = 1000 - Suit.energy(raised);
 
         helper.assertTrue(drawRaised > 0, Component.literal("the raised upgrade drew no FE"));
         helper.assertTrue(drawRaised < drawFresh, Component.literal("Level 10 drew " + drawRaised + " FE, Level 0 " + drawFresh));
@@ -219,11 +219,11 @@ final class StatTests {
         // Placed past the grid's own refusal, as a suit laid out before one-per-suit holds them.
         var two = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get(), GearContent.NIGHT_VISION_UPGRADE.get());
         charge(two, 1000);
-        int draw = GearFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw();
+        int draw = SuitFixtures.upgrade(GearContent.NIGHT_VISION_UPGRADE.get()).draw();
 
         wearer(helper, two).tick();
 
-        helper.assertValueEqual(Gear.energy(two), 1000 - draw, Component.literal("FE after a tick"));
+        helper.assertValueEqual(Suit.energy(two), 1000 - draw, Component.literal("FE after a tick"));
         helper.succeed();
     }
 

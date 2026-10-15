@@ -3,7 +3,7 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
 import net.minecraft.core.component.DataComponentPatch;
@@ -21,26 +21,26 @@ import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
-/** The suits and players the Gear tests set up. */
-final class GearFixtures {
+/** The suits and players the Suit tests set up. */
+final class SuitFixtures {
 
-    private GearFixtures() {
+    private SuitFixtures() {
     }
 
     /** A tier-1 suit holding those upgrades, each in the first rectangle it fits. */
     static ItemStack suitWith(ItemLike... upgrades) {
-        return tierWith(GearContent.IRON_GEAR.get(), upgrades);
+        return tierWith(GearContent.IRON_SUIT.get(), upgrades);
     }
 
     /** A suit of that tier holding those upgrades, each in the first rectangle it fits. */
     static ItemStack tierWith(Item tier, ItemLike... upgrades) {
         var suit = new ItemStack(tier);
-        var grid = Gear.grid(suit);
+        var grid = Suit.grid(suit);
         for (var upgrade : upgrades) {
             var entry = upgrade(upgrade);
             grid = grid.placeFirstFit(entry.width(), entry.height(), new ItemStackTemplate(upgrade.asItem())).orElseThrow();
         }
-        Gear.setGrid(suit, grid);
+        Suit.setGrid(suit, grid);
         return suit;
     }
 
@@ -48,7 +48,7 @@ final class GearFixtures {
     static void addAtLevel(ItemStack suit, ItemLike upgrade, int level) {
         var entry = upgrade(upgrade);
         var levelled = new ItemStackTemplate(upgrade.asItem(), DataComponentPatch.builder().set(GearContent.LEVEL.get(), level).build());
-        Gear.setGrid(suit, Gear.grid(suit).placeFirstFit(entry.width(), entry.height(), levelled).orElseThrow());
+        Suit.setGrid(suit, Suit.grid(suit).placeFirstFit(entry.width(), entry.height(), levelled).orElseThrow());
     }
 
     /** The suit's energy capability, as another mod's charger finds it. */

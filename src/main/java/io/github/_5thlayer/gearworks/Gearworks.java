@@ -12,7 +12,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 
 /**
- * The Library's entry point: the Gear and its upgrades, the server config, and the game tests, which
+ * The Library's entry point: the Suit and its upgrades, the server config, and the game tests, which
  * exist only when game tests are enabled.
  */
 @Mod(Gearworks.MOD_ID)

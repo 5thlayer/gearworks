@@ -3,10 +3,10 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -50,7 +50,7 @@ final class SolarTests {
                             Component.literal("no sky at the player's eyes yet"));
                 })
                 .thenExecute(() -> ticking[0] = true)
-                .thenWaitUntil(() -> helper.assertTrue(Gear.energy(suit) > 0, Component.literal("no FE from the sun")))
+                .thenWaitUntil(() -> helper.assertTrue(Suit.energy(suit) > 0, Component.literal("no FE from the sun")))
                 .thenSucceed();
     }
 }

@@ -4,6 +4,10 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ## Unreleased
 
+### Consumers
+
+- **Breaking:** the Java that means the Suit says Suit, leaving Gear for the family of the Suit and the Bore Lance (ADR 0005): `Gear` is now `Suit` (and `Gear.Totals` `Suit.Totals`), `GearItem` is `SuitItem`, `GearTicker` is `SuitTicker`, and `GearContent.IRON_GEAR`, `DIAMOND_GEAR` and `NETHERITE_GEAR` are `IRON_SUIT`, `DIAMOND_SUIT` and `NETHERITE_SUIT`. Item, data map, component and attribute modifier ids keep `gear`, and Gear Grid, Gear Upgrade and Gear Bench keep their names. (#10)
+
 ## 0.1.0
 
 ### Players

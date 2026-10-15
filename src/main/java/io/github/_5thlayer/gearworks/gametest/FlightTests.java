@@ -3,14 +3,14 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.addAtLevel;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.charge;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.tierWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.addAtLevel;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.charge;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.tierWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
 import java.util.List;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
 import io.github._5thlayer.gearworks.gear.Stat;
@@ -45,14 +45,14 @@ final class FlightTests {
     }
 
     private static void fitsTierThreeOnly(GameTestHelper helper) {
-        var flight = GearFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get());
+        var flight = SuitFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get());
         var item = new ItemStackTemplate(GearContent.FLIGHT_UPGRADE.get());
-        for (var tier : List.of(GearContent.IRON_GEAR.get(), GearContent.DIAMOND_GEAR.get())) {
-            helper.assertTrue(Gear.grid(new ItemStack(tier)).placeFirstFit(flight.width(), flight.height(), item).isEmpty(),
+        for (var tier : List.of(GearContent.IRON_SUIT.get(), GearContent.DIAMOND_SUIT.get())) {
+            helper.assertTrue(Suit.grid(new ItemStack(tier)).placeFirstFit(flight.width(), flight.height(), item).isEmpty(),
                     Component.literal("flight fits " + tier));
         }
-        helper.assertTrue(Gear.grid(new ItemStack(GearContent.NETHERITE_GEAR.get())).placeFirstFit(flight.width(), flight.height(), item).isPresent(),
-                Component.literal("flight does not fit netherite gear"));
+        helper.assertTrue(Suit.grid(new ItemStack(GearContent.NETHERITE_SUIT.get())).placeFirstFit(flight.width(), flight.height(), item).isPresent(),
+                Component.literal("flight does not fit the netherite suit"));
         helper.succeed();
     }
 
@@ -61,19 +61,19 @@ final class FlightTests {
         charge(suit, 100_000);
         var player = aloft(helper, suit);
         double height = player.getY();
-        int draw = GearFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get()).draw();
+        int draw = SuitFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get()).draw();
         helper.onEachTick(player::tick);
         helper.runAfterDelay(20, () -> {
             helper.assertTrue(player.getAbilities().flying, Component.literal("the player stopped flying"));
             helper.assertTrue(Math.abs(player.getY() - height) < 0.01, Component.literal("the player sank from " + height + " to " + player.getY()));
-            helper.assertTrue(Gear.energy(suit) <= 100_000 - 20 * draw, Component.literal("flight drew only " + (100_000 - Gear.energy(suit)) + " FE in 20 ticks"));
+            helper.assertTrue(Suit.energy(suit) <= 100_000 - 20 * draw, Component.literal("flight drew only " + (100_000 - Suit.energy(suit)) + " FE in 20 ticks"));
             helper.succeed();
         });
     }
 
     private static void runsDry(GameTestHelper helper) {
         var suit = flyer(0);
-        charge(suit, 3 * GearFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get()).draw());
+        charge(suit, 3 * SuitFixtures.upgrade(GearContent.FLIGHT_UPGRADE.get()).draw());
         var player = aloft(helper, suit);
         float health = player.getHealth();
         helper.onEachTick(() -> {
@@ -85,7 +85,7 @@ final class FlightTests {
         });
         helper.succeedWhen(() -> {
             helper.assertTrue(player.onGround(), Component.literal("the player is still in the air"));
-            helper.assertValueEqual(Gear.energy(suit), 0, Component.literal("FE left"));
+            helper.assertValueEqual(Suit.energy(suit), 0, Component.literal("FE left"));
             helper.assertFalse(player.getAbilities().flying, Component.literal("the player still flies in an empty suit"));
             helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), Component.literal("slow falling outlasted the landing"));
             helper.assertValueEqual(player.getHealth(), health, Component.literal("health after landing"));
@@ -103,7 +103,7 @@ final class FlightTests {
             charge(suits.get(i), 100_000);
             var player = aloft(helper, suits.get(i));
             player.tick();
-            draws[i] = 100_000 - Gear.energy(suits.get(i));
+            draws[i] = 100_000 - Suit.energy(suits.get(i));
             helper.assertValueEqual(player.getAbilities().getFlyingSpeed(), speed, Component.literal("flying speed"));
         }
 
@@ -121,9 +121,9 @@ final class FlightTests {
         helper.succeed();
     }
 
-    /** Netherite gear holding a battery and a flight upgrade at that Level. */
+    /** A netherite suit holding a battery and a flight upgrade at that Level. */
     private static ItemStack flyer(int level) {
-        var suit = tierWith(GearContent.NETHERITE_GEAR.get(), GearContent.BATTERY_UPGRADE.get());
+        var suit = tierWith(GearContent.NETHERITE_SUIT.get(), GearContent.BATTERY_UPGRADE.get());
         addAtLevel(suit, GearContent.FLIGHT_UPGRADE.get(), level);
         return suit;
     }

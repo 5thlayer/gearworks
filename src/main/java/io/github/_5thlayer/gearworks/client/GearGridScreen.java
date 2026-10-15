@@ -5,7 +5,7 @@ package io.github._5thlayer.gearworks.client;
 
 import java.util.Optional;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearGridMenu;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
 import io.github._5thlayer.gearworks.grid.Placement;
@@ -47,7 +47,7 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         for (var slot : menu.slots) {
             GridPainter.sunk(graphics, leftPos + slot.x, topPos + slot.y, 16, 16);
         }
-        GridPainter.grid(graphics, Gear.grid(menu.suit()), cellX(0), cellY(0), CELL);
+        GridPainter.grid(graphics, Suit.grid(menu.suit()), cellX(0), cellY(0), CELL);
         preview(graphics, mouseX, mouseY);
     }
 
@@ -61,8 +61,8 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
         }
         int x = cell.get()[0];
         int y = cell.get()[1];
-        var grid = Gear.grid(menu.suit());
-        boolean fits = grid.fits(x, y, upgrade.width(), upgrade.height()) && Gear.admits(grid, upgrade);
+        var grid = Suit.grid(menu.suit());
+        boolean fits = grid.fits(x, y, upgrade.width(), upgrade.height()) && Suit.admits(grid, upgrade);
         int right = Math.min(x + upgrade.width(), menu.gridWidth());
         int bottom = Math.min(y + upgrade.height(), menu.gridHeight());
         graphics.fill(cellX(x), cellY(y), cellX(right) - 2, cellY(bottom) - 2, fits ? FITS : REFUSED);
@@ -102,7 +102,7 @@ public final class GearGridScreen extends AbstractContainerScreen<GearGridMenu> 
     }
 
     private Optional<Placement<ItemStackTemplate>> placementAt(double mouseX, double mouseY) {
-        return cellAt(mouseX, mouseY).flatMap(cell -> Gear.grid(menu.suit()).at(cell[0], cell[1]));
+        return cellAt(mouseX, mouseY).flatMap(cell -> Suit.grid(menu.suit()).at(cell[0], cell[1]));
     }
 
     private Optional<int[]> cellAt(double mouseX, double mouseY) {

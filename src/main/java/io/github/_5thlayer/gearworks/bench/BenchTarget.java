@@ -5,7 +5,7 @@ package io.github._5thlayer.gearworks.bench;
 
 import java.util.Optional;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
 import io.github._5thlayer.gearworks.gear.LevelCost;
@@ -28,10 +28,10 @@ public record BenchTarget(Placement<ItemStackTemplate> placement, int level, @Nu
 
     /** The upgrade covering that cell of the suit's grid, if the bench holds a suit and one covers it. */
     public static Optional<BenchTarget> of(ItemStack suit, int x, int y) {
-        if (!Gear.is(suit) || x < 0 || y < 0) {
+        if (!Suit.is(suit) || x < 0 || y < 0) {
             return Optional.empty();
         }
-        return Gear.grid(suit).at(x, y).map(placement -> {
+        return Suit.grid(suit).at(x, y).map(placement -> {
             var item = placement.item();
             int level = GearUpgrade.level(item);
             var cost = LevelCost.of(item.typeHolder());

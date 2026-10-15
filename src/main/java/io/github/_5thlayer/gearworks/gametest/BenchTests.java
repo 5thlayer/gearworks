@@ -3,12 +3,12 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
 import io.github._5thlayer.gearworks.bench.GearBenchBlockEntity;
 import io.github._5thlayer.gearworks.bench.GearBenchMenu;
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearGridMenu;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
@@ -84,7 +84,7 @@ final class BenchTests {
                     helper.assertValueEqual(bench(helper).energy(), 0L, Component.literal("FE left after the second Level"));
                     helper.assertTrue(helper.getBlockEntity(HOPPER, HopperBlockEntity.class).isEmpty(),
                             Component.literal("the hopper still holds iron"));
-                    helper.assertValueEqual(Gear.capacity(bench(helper).suit()), 1234 + 2 * 1000, Component.literal("capacity at Level 2"));
+                    helper.assertValueEqual(Suit.capacity(bench(helper).suit()), 1234 + 2 * 1000, Component.literal("capacity at Level 2"));
                 })
                 .thenSucceed();
     }
@@ -141,8 +141,8 @@ final class BenchTests {
         helper.assertTrue(second.clickMenuButton(wearer, GearGridMenu.cellButton(2, 2)), Component.literal("nothing placed"));
 
         var other = wearer.getItemBySlot(EquipmentSlot.CHEST);
-        helper.assertValueEqual(GearUpgrade.level(Gear.grid(other).at(2, 2).orElseThrow().item()), 1, Component.literal("Level in the other suit"));
-        helper.assertValueEqual(Gear.capacity(other), 1234 + 1000, Component.literal("the other suit's capacity"));
+        helper.assertValueEqual(GearUpgrade.level(Suit.grid(other).at(2, 2).orElseThrow().item()), 1, Component.literal("Level in the other suit"));
+        helper.assertValueEqual(Suit.capacity(other), 1234 + 1000, Component.literal("the other suit's capacity"));
         helper.succeed();
     }
 
@@ -193,7 +193,7 @@ final class BenchTests {
     }
 
     private static int level(GameTestHelper helper) {
-        return GearUpgrade.level(Gear.grid(bench(helper).suit()).at(0, 0).orElseThrow().item());
+        return GearUpgrade.level(Suit.grid(bench(helper).suit()).at(0, 0).orElseThrow().item());
     }
 
     /** Fills the bench through its item capability, as another mod's pipe does, and gives back how many it took. */

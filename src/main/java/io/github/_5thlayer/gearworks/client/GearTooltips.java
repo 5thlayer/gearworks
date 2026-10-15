@@ -6,7 +6,7 @@ package io.github._5thlayer.gearworks.client;
 import java.util.List;
 import java.util.Locale;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearUpgrade;
 import io.github._5thlayer.gearworks.gear.Stat;
 import net.minecraft.ChatFormatting;
@@ -31,7 +31,7 @@ final class GearTooltips {
             return;
         }
         var lines = event.getToolTip();
-        if (Gear.is(stack)) {
+        if (Suit.is(stack)) {
             suit(stack, lines);
         }
         var upgrade = GearUpgrade.of(stack.typeHolder());
@@ -41,7 +41,7 @@ final class GearTooltips {
     }
 
     private static void suit(ItemStack suit, List<Component> lines) {
-        var totals = Gear.totals(suit);
+        var totals = Suit.totals(suit);
         lines.add(gray(FeText.reading(suit)));
         if (totals.amount(Stat.SOLAR) > 0) {
             lines.add(gray(Component.translatable("tooltip.gearworks.solar", format(totals.amount(Stat.SOLAR)))));

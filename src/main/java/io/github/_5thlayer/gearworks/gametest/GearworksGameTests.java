@@ -56,7 +56,7 @@ public final class GearworksGameTests {
         var environment = event.registerEnvironment(id("default"), new TestEnvironmentDefinition.AllOf(List.of()));
         var tests = new Registrar(event, environment);
         LoadTests.register(tests);
-        GearTests.register(tests);
+        SuitTests.register(tests);
         TierTests.register(tests);
         StatTests.register(tests);
         FlightTests.register(tests);

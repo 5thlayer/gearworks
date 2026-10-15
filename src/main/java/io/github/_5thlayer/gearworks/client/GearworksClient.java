@@ -39,7 +39,7 @@ public final class GearworksClient {
         modBus.addListener(GearworksClient::registerRenderers);
         modBus.addListener(EnergyHud::onRegisterLayers);
         // Named, since a generic class's method reference leaves the event type for javac to infer.
-        modBus.addListener(EntityRenderersEvent.AddLayers.class, GearGlowLayer::onAddLayers);
+        modBus.addListener(EntityRenderersEvent.AddLayers.class, SuitGlowLayer::onAddLayers);
         NeoForge.EVENT_BUS.addListener(GridKey::onClientTick);
         NeoForge.EVENT_BUS.addListener(GearTooltips::onTooltip);
     }

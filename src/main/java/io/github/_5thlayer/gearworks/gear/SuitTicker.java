@@ -27,7 +27,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * which each boosted jump spends; and flight lets the player fly while it has the FE to draw each tick
  * in the air, and lets them down slowly when it runs dry there.
  */
-public final class GearTicker {
+public final class SuitTicker {
 
     /** The walking speed modifier the suit's speed upgrades give. */
     public static final Identifier SPEED = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_speed");
@@ -49,7 +49,7 @@ public final class GearTicker {
     private static final int SLOW_FALL_TICKS = 40;
     private static final int SLOW_FALL_REFRESH = 20;
 
-    private GearTicker() {
+    private SuitTicker() {
     }
 
     static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -66,16 +66,16 @@ public final class GearTicker {
         }
         var jump = player.getAttribute(Attributes.JUMP_STRENGTH);
         var suit = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (jump == null || !jump.hasModifier(JUMP) || !Gear.is(suit)) {
+        if (jump == null || !jump.hasModifier(JUMP) || !Suit.is(suit)) {
             return;
         }
-        int energy = Gear.energy(suit);
-        Gear.setEnergy(suit, Math.max(0, energy - Gear.totals(suit).draw(Stat.JUMP)));
+        int energy = Suit.energy(suit);
+        Suit.setEnergy(suit, Math.max(0, energy - Suit.totals(suit).draw(Stat.JUMP)));
     }
 
     private static void tick(Player player) {
         var suit = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!Gear.is(suit)) {
+        if (!Suit.is(suit)) {
             modify(player, Attributes.MOVEMENT_SPEED, SPEED, 0);
             modify(player, Attributes.JUMP_STRENGTH, JUMP, 0);
             takeNightVision(player);
@@ -83,13 +83,13 @@ public final class GearTicker {
             letDown(player);
             return;
         }
-        var totals = Gear.totals(suit);
-        int energy = Gear.energy(suit);
+        var totals = Suit.totals(suit);
+        int energy = Suit.energy(suit);
         int before = energy;
         double solar = totals.amount(Stat.SOLAR);
         if (solar > 0) {
             var level = player.level();
-            energy = Solar.charge(energy, Gear.capacity(suit), solar,
+            energy = Solar.charge(energy, Suit.capacity(suit), solar,
                     level.isBrightOutside(), level.canSeeSky(BlockPos.containing(player.getEyePosition())));
         }
         if (totals.canDraw(Stat.NIGHT_VISION, energy)) {
@@ -108,7 +108,7 @@ public final class GearTicker {
         boolean springy = totals.canDraw(Stat.JUMP, energy);
         modify(player, Attributes.JUMP_STRENGTH, JUMP, springy ? totals.underCeiling(Stat.JUMP) : 0);
         if (energy != before) {
-            Gear.setEnergy(suit, energy);
+            Suit.setEnergy(suit, energy);
         }
     }
 
@@ -129,7 +129,7 @@ public final class GearTicker {
      * Lets the player fly while the suit has the FE for it, drawing it each tick they fly unless their
      * game mode lets them fly anyway, and takes flight away once it has not; gives back the FE left.
      */
-    private static int fly(Player player, Gear.Totals totals, int energy) {
+    private static int fly(Player player, Suit.Totals totals, int energy) {
         if (!totals.canDraw(Stat.FLIGHT, energy)) {
             takeFlight(player);
             return energy;

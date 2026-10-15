@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import io.github._5thlayer.gearworks.bench.BenchTarget;
 import io.github._5thlayer.gearworks.bench.GearBenchMenu;
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearGridMenu;
 import io.github._5thlayer.gearworks.gear.LevelCost;
 import io.github._5thlayer.gearworks.grid.GearGrid;
@@ -81,7 +81,7 @@ public final class GearBenchScreen extends AbstractContainerScreen<GearBenchMenu
     }
 
     private GearGrid<ItemStackTemplate> grid() {
-        return Gear.grid(menu.suit());
+        return Suit.grid(menu.suit());
     }
 
     @Override

@@ -3,7 +3,7 @@
 
 package io.github._5thlayer.gearworks.client;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,7 +20,7 @@ final class FeText {
 
     /** The suit's stored FE against what its batteries hold. */
     static MutableComponent reading(ItemStack suit) {
-        return Component.translatable("tooltip.gearworks.energy", fe(Gear.energy(suit)), fe(Gear.capacity(suit)));
+        return Component.translatable("tooltip.gearworks.energy", fe(Suit.energy(suit)), fe(Suit.capacity(suit)));
     }
 
     private static String fe(int fe) {

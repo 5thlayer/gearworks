@@ -3,14 +3,14 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.charge;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.upgrade;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.charge;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.upgrade;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
 import java.util.List;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearGridMenu;
 import io.github._5thlayer.gearworks.grid.Placement;
@@ -55,7 +55,7 @@ final class GridTests {
         helper.assertTrue(menu.clickMenuButton(player, cell(1, 1)), Component.literal("the click placed nothing"));
 
         var speed = upgrade(GearContent.SPEED_UPGRADE.get());
-        helper.assertValueEqual(Gear.grid(menu.suit()).placements(),
+        helper.assertValueEqual(Suit.grid(menu.suit()).placements(),
                 List.of(new Placement<>(1, 1, speed.width(), speed.height(), new ItemStackTemplate(GearContent.SPEED_UPGRADE.get()))),
                 Component.literal("the layout"));
         helper.assertValueEqual(menu.getCarried().getCount(), 1, Component.literal("upgrades left in hand"));
@@ -70,7 +70,7 @@ final class GridTests {
 
         // The clicked cell is free, but a speed upgrade's two by two from there would cover (1, 1).
         helper.assertFalse(menu.clickMenuButton(player, cell(0, 0)), Component.literal("an overlapping upgrade was placed"));
-        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades placed"));
+        helper.assertValueEqual(Suit.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades placed"));
         helper.assertValueEqual(menu.getCarried().getCount(), 1, Component.literal("upgrades left in hand"));
         helper.succeed();
     }
@@ -84,7 +84,7 @@ final class GridTests {
         int y = menu.gridHeight() - battery.height() + 1;
 
         helper.assertFalse(menu.clickMenuButton(player, cell(x, y)), Component.literal("an upgrade was placed over the edge"));
-        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the grid is not empty"));
+        helper.assertTrue(Suit.grid(menu.suit()).placements().isEmpty(), Component.literal("the grid is not empty"));
         helper.succeed();
     }
 
@@ -94,11 +94,11 @@ final class GridTests {
 
         helper.assertTrue(menu.clickMenuButton(player, cell(0, 0)), Component.literal("the click picked nothing up"));
         helper.assertTrue(menu.getCarried().is(GearContent.SOLAR_UPGRADE.get()), Component.literal("the upgrade is not in hand"));
-        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
+        helper.assertTrue(Suit.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
 
         helper.assertTrue(menu.clickMenuButton(player, cell(5, 2)), Component.literal("the click placed nothing"));
         helper.assertTrue(menu.getCarried().isEmpty(), Component.literal("the upgrade is still in hand"));
-        helper.assertTrue(Gear.grid(menu.suit()).at(5, 2).isPresent(), Component.literal("the upgrade is not where it was placed"));
+        helper.assertTrue(Suit.grid(menu.suit()).at(5, 2).isPresent(), Component.literal("the upgrade is not where it was placed"));
         helper.succeed();
     }
 
@@ -111,7 +111,7 @@ final class GridTests {
         menu.clickMenuButton(player, GearGridMenu.cellButton(0, 0));
         menu.clickMenuButton(player, GearGridMenu.cellButton(2, 0));
 
-        helper.assertValueEqual(Gear.energy(menu.suit()), 1000, Component.literal("FE held after the move"));
+        helper.assertValueEqual(Suit.energy(menu.suit()), 1000, Component.literal("FE held after the move"));
         helper.succeed();
     }
 
@@ -125,7 +125,7 @@ final class GridTests {
         menu.clickMenuButton(player, GearGridMenu.cellButton(0, 0));
         menu.removed(player);
 
-        helper.assertValueEqual(Gear.energy(suit), perBattery, Component.literal("FE held by one battery"));
+        helper.assertValueEqual(Suit.energy(suit), perBattery, Component.literal("FE held by one battery"));
         helper.succeed();
     }
 
@@ -136,7 +136,7 @@ final class GridTests {
         menu.setCarried(new ItemStack(Items.REDSTONE_BLOCK));
 
         helper.assertTrue(menu.clickMenuButton(player, cell(8, 2)), Component.literal("the redstone block did not fit"));
-        helper.assertValueEqual(Gear.capacity(menu.suit()), 1234, Component.literal("capacity"));
+        helper.assertValueEqual(Suit.capacity(menu.suit()), 1234, Component.literal("capacity"));
         helper.succeed();
     }
 
@@ -148,9 +148,9 @@ final class GridTests {
         var saved = ItemStack.CODEC.encodeStart(ops, suit).getOrThrow();
         var loaded = ItemStack.CODEC.parse(ops, saved).getOrThrow();
 
-        helper.assertValueEqual(Gear.grid(loaded).placements(), Gear.grid(suit).placements(), Component.literal("the layout"));
-        helper.assertValueEqual(Gear.grid(loaded).placements().size(), 3, Component.literal("upgrades placed"));
-        helper.assertValueEqual(Gear.energy(loaded), 500, Component.literal("FE held"));
+        helper.assertValueEqual(Suit.grid(loaded).placements(), Suit.grid(suit).placements(), Component.literal("the layout"));
+        helper.assertValueEqual(Suit.grid(loaded).placements().size(), 3, Component.literal("upgrades placed"));
+        helper.assertValueEqual(Suit.energy(loaded), 500, Component.literal("FE held"));
         helper.succeed();
     }
 
@@ -160,7 +160,7 @@ final class GridTests {
 
         helper.assertTrue(menu.clickMenuButton(player, GearGridMenu.shiftCellButton(0, 0)), Component.literal("the shift-click took nothing"));
 
-        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
+        helper.assertTrue(Suit.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
         helper.assertTrue(menu.getCarried().isEmpty(), Component.literal("the upgrade went to the hand"));
         helper.assertValueEqual(player.getInventory().countItem(GearContent.SOLAR_UPGRADE.get()), 1, Component.literal("solar upgrades in the inventory"));
         helper.succeed();
@@ -176,7 +176,7 @@ final class GridTests {
 
         helper.assertFalse(menu.clickMenuButton(player, GearGridMenu.shiftCellButton(0, 0)), Component.literal("the shift-click took the upgrade"));
 
-        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.assertValueEqual(Suit.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
         helper.succeed();
     }
 
@@ -187,7 +187,7 @@ final class GridTests {
 
         helper.assertTrue(menu.clickMenuButton(player, cell(0, 0)), Component.literal("the click did nothing"));
 
-        helper.assertTrue(Gear.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
+        helper.assertTrue(Suit.grid(menu.suit()).placements().isEmpty(), Component.literal("the upgrade is still in the grid"));
         helper.assertValueEqual(menu.getCarried().getCount(), 4, Component.literal("upgrades in hand"));
         helper.succeed();
     }
@@ -201,7 +201,7 @@ final class GridTests {
 
         helper.assertFalse(menu.clickMenuButton(player, cell(0, 0)), Component.literal("the click did something"));
 
-        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.assertValueEqual(Suit.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
         helper.assertValueEqual(menu.getCarried().getCount(), 3, Component.literal("upgrades in hand"));
         helper.succeed();
     }
@@ -217,7 +217,7 @@ final class GridTests {
         // Menu slot 1, past the locked suit, stands over inventory slot 9.
         menu.quickMoveStack(player, 1);
 
-        helper.assertValueEqual(Gear.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
+        helper.assertValueEqual(Suit.grid(menu.suit()).placements().size(), 1, Component.literal("upgrades in the grid"));
         helper.assertValueEqual(player.getInventory().getItem(9).getCount(), 1, Component.literal("night vision upgrades left in the inventory"));
         helper.succeed();
     }

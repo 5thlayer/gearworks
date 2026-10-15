@@ -15,9 +15,9 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
  * it absorbs, so an empty suit absorbs nothing. What ignores invulnerability, such as the void or
  * {@code /kill}, ignores the shield too.
  */
-final class GearShield {
+final class SuitShield {
 
-    private GearShield() {
+    private SuitShield() {
     }
 
     static void onDamage(LivingDamageEvent.Pre event) {
@@ -26,18 +26,18 @@ final class GearShield {
             return;
         }
         var suit = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!Gear.is(suit)) {
+        if (!Suit.is(suit)) {
             return;
         }
-        var totals = Gear.totals(suit);
+        var totals = Suit.totals(suit);
         if (!totals.has(Stat.SHIELD)) {
             return;
         }
         var hit = Shielding.absorb(event.getNewDamage(), totals.underCeiling(Stat.SHIELD),
-                Gear.energy(suit), totals.draw(Stat.SHIELD));
+                Suit.energy(suit), totals.draw(Stat.SHIELD));
         if (hit.absorbed() > 0) {
             event.setNewDamage(event.getNewDamage() - hit.absorbed());
-            Gear.setEnergy(suit, Gear.energy(suit) - hit.spent());
+            Suit.setEnergy(suit, Suit.energy(suit) - hit.spent());
         }
     }
 }

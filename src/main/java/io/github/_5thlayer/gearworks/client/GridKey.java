@@ -4,7 +4,7 @@
 package io.github._5thlayer.gearworks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.OpenGridPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -32,7 +32,7 @@ final class GridKey {
     static void onClientTick(ClientTickEvent.Post event) {
         var player = Minecraft.getInstance().player;
         while (OPEN.consumeClick()) {
-            if (player != null && Gear.is(player.getItemBySlot(EquipmentSlot.CHEST))) {
+            if (player != null && Suit.is(player.getItemBySlot(EquipmentSlot.CHEST))) {
                 ClientPacketDistributor.sendToServer(OpenGridPayload.INSTANCE);
             }
         }

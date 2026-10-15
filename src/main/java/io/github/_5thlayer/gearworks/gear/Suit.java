@@ -13,16 +13,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 /**
- * Gear as a stack: its Gear Grid, the FE it holds, and the totals of the Stats its upgrades give. A
- * suit has no FE of its own: what it can hold is the sum of its batteries.
+ * The Suit as a stack: its Gear Grid, the FE it holds, and the totals of the Stats its upgrades give.
+ * A suit has no FE of its own: what it can hold is the sum of its batteries.
  */
-public final class Gear {
+public final class Suit {
 
-    private Gear() {
+    private Suit() {
     }
 
     public static boolean is(ItemStack stack) {
-        return stack.getItem() instanceof GearItem;
+        return stack.getItem() instanceof SuitItem;
     }
 
     /** The suit's Gear Grid, sized for its tier and holding the upgrades its saved layout places. */

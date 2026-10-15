@@ -4,7 +4,7 @@
 package io.github._5thlayer.gearworks.client;
 
 import io.github._5thlayer.gearworks.Gearworks;
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -41,7 +41,7 @@ final class EnergyHud {
             return;
         }
         var suit = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!Gear.is(suit) || Gear.capacity(suit) <= 0) {
+        if (!Suit.is(suit) || Suit.capacity(suit) <= 0) {
             return;
         }
         var font = minecraft.font;
@@ -53,7 +53,7 @@ final class EnergyHud {
         int y = layout.barY();
         graphics.fill(x, y, x + EnergyHudLayout.BAR_WIDTH, y + EnergyHudLayout.BAR_HEIGHT, FRAME);
         graphics.fill(x + 1, y + 1, x + EnergyHudLayout.BAR_WIDTH - 1, y + EnergyHudLayout.BAR_HEIGHT - 1, EMPTY);
-        int filled = EnergyHudLayout.filled(Gear.energy(suit), Gear.capacity(suit));
+        int filled = EnergyHudLayout.filled(Suit.energy(suit), Suit.capacity(suit));
         graphics.fill(x + 1, y + 1, x + 1 + filled, y + EnergyHudLayout.BAR_HEIGHT - 1, FULL);
         graphics.text(font, text, layout.textX(), layout.textY(), TEXT, true);
     }

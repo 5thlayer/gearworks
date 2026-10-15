@@ -3,15 +3,15 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.charge;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.energy;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.suitWith;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.upgrade;
-import static io.github._5thlayer.gearworks.gametest.GearFixtures.wearer;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.charge;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.energy;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.upgrade;
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.wearer;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
-import io.github._5thlayer.gearworks.gear.GearTicker;
+import io.github._5thlayer.gearworks.gear.SuitTicker;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -28,25 +28,25 @@ import net.minecraft.world.phys.Vec3;
  * Wearing the suit, filling it through NeoForge's energy capability, and its speed, which runs only
  * while the suit has the FE to draw.
  */
-final class GearTests {
+final class SuitTests {
 
-    private GearTests() {
+    private SuitTests() {
     }
 
     static void register(GearworksGameTests.Registrar tests) {
-        tests.test("the_suit_gives_an_iron_chestplates_armor", 20, GearTests::ironArmor);
-        tests.test("the_suit_is_worn_in_the_chest_slot_only", 1, GearTests::chestOnly);
-        tests.test("using_the_suit_in_hand_puts_it_on", 1, GearTests::equipsOnUse);
-        tests.test("a_charger_fills_the_suit_through_the_energy_capability", 1, GearTests::charges);
-        tests.test("a_suit_without_a_battery_takes_no_fe", 1, GearTests::noBattery);
-        tests.test("speed_applies_while_the_suit_has_fe", 20, GearTests::speedWithEnergy);
-        tests.test("speed_never_applies_to_an_empty_suit", 20, GearTests::noSpeedWhenEmpty);
-        tests.test("speed_draws_fe_while_walking_and_stops_when_the_suit_is_empty", 40, GearTests::speedDrains);
-        tests.test("taking_the_suit_off_takes_its_speed_away", 20, GearTests::speedLeavesWithTheSuit);
+        tests.test("the_suit_gives_an_iron_chestplates_armor", 20, SuitTests::ironArmor);
+        tests.test("the_suit_is_worn_in_the_chest_slot_only", 1, SuitTests::chestOnly);
+        tests.test("using_the_suit_in_hand_puts_it_on", 1, SuitTests::equipsOnUse);
+        tests.test("a_charger_fills_the_suit_through_the_energy_capability", 1, SuitTests::charges);
+        tests.test("a_suit_without_a_battery_takes_no_fe", 1, SuitTests::noBattery);
+        tests.test("speed_applies_while_the_suit_has_fe", 20, SuitTests::speedWithEnergy);
+        tests.test("speed_never_applies_to_an_empty_suit", 20, SuitTests::noSpeedWhenEmpty);
+        tests.test("speed_draws_fe_while_walking_and_stops_when_the_suit_is_empty", 40, SuitTests::speedDrains);
+        tests.test("taking_the_suit_off_takes_its_speed_away", 20, SuitTests::speedLeavesWithTheSuit);
     }
 
     private static void ironArmor(GameTestHelper helper) {
-        var suited = wearer(helper, new ItemStack(GearContent.IRON_GEAR.get()));
+        var suited = wearer(helper, new ItemStack(GearContent.IRON_SUIT.get()));
         var plated = helper.makeMockPlayer(GameType.SURVIVAL);
         plated.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.IRON_CHESTPLATE));
         helper.onEachTick(() -> {
@@ -60,7 +60,7 @@ final class GearTests {
     }
 
     private static void chestOnly(GameTestHelper helper) {
-        var equippable = new ItemStack(GearContent.IRON_GEAR.get()).get(DataComponents.EQUIPPABLE);
+        var equippable = new ItemStack(GearContent.IRON_SUIT.get()).get(DataComponents.EQUIPPABLE);
         helper.assertTrue(equippable != null, Component.literal("the suit is not wearable"));
         helper.assertValueEqual(equippable.slot(), EquipmentSlot.CHEST, Component.literal("the suit's slot"));
         helper.succeed();
@@ -68,11 +68,11 @@ final class GearTests {
 
     private static void equipsOnUse(GameTestHelper helper) {
         var player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GearContent.IRON_GEAR.get()));
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(GearContent.IRON_SUIT.get()));
 
         player.getMainHandItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        helper.assertTrue(Gear.is(player.getItemBySlot(EquipmentSlot.CHEST)), Component.literal("the suit is not worn"));
+        helper.assertTrue(Suit.is(player.getItemBySlot(EquipmentSlot.CHEST)), Component.literal("the suit is not worn"));
         helper.assertTrue(player.getMainHandItem().isEmpty(), Component.literal("the suit is still in hand"));
         helper.succeed();
     }
@@ -83,7 +83,7 @@ final class GearTests {
         helper.assertValueEqual(energy(suit).getCapacityAsLong(), (long) capacity, Component.literal("capacity"));
 
         helper.assertValueEqual(charge(suit, 1000), 1000, Component.literal("FE taken"));
-        helper.assertValueEqual(Gear.energy(suit), 1000, Component.literal("FE held"));
+        helper.assertValueEqual(Suit.energy(suit), 1000, Component.literal("FE held"));
 
         helper.assertValueEqual(charge(suit, capacity), capacity - 1000, Component.literal("FE taken when nearly full"));
         helper.assertValueEqual(energy(suit).getAmountAsLong(), (long) capacity, Component.literal("FE held when full"));
@@ -106,7 +106,7 @@ final class GearTests {
             helper.assertTrue(hasSpeed(player), Component.literal("no speed while the suit has FE"));
             helper.assertTrue(player.getAttributeValue(Attributes.MOVEMENT_SPEED) > base, Component.literal("walking speed did not rise"));
             // Standing still draws nothing.
-            helper.assertValueEqual(Gear.energy(suit), 1000, Component.literal("FE held while standing"));
+            helper.assertValueEqual(Suit.energy(suit), 1000, Component.literal("FE held while standing"));
         });
     }
 
@@ -130,7 +130,7 @@ final class GearTests {
             player.tick();
         });
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(Gear.energy(suit), 0, Component.literal("FE left after walking"));
+            helper.assertValueEqual(Suit.energy(suit), 0, Component.literal("FE left after walking"));
             helper.assertFalse(hasSpeed(player), Component.literal("speed on an empty suit"));
         });
     }
@@ -147,6 +147,6 @@ final class GearTests {
     }
 
     private static boolean hasSpeed(Player player) {
-        return player.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(GearTicker.SPEED);
+        return player.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(SuitTicker.SPEED);
     }
 }

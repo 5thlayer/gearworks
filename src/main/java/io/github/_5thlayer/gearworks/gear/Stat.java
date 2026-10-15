@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 
 /**
- * The effects Gearworks gives Gear. Gearworks owns every Stat; a Gear Upgrade's data map entry only
+ * The effects Gearworks gives the Suit. Gearworks owns every Stat; a Gear Upgrade's data map entry only
  * names one and its amount, which each Stat reads in its own unit.
  */
 public enum Stat implements StringRepresentable {

@@ -6,7 +6,7 @@ package io.github._5thlayer.gearworks.bench;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.github._5thlayer.gearworks.gear.Gear;
+import io.github._5thlayer.gearworks.gear.Suit;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.grid.Placement;
 import io.github._5thlayer.gearworks.level.CostCurve.Cost;
@@ -130,7 +130,7 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
     /** Sets the bench to raise the upgrade covering that cell; false if none does. */
     public boolean select(int x, int y) {
         var held = suit();
-        var placement = Gear.is(held) ? Gear.grid(held).at(x, y) : Optional.<Placement<ItemStackTemplate>>empty();
+        var placement = Suit.is(held) ? Suit.grid(held).at(x, y) : Optional.<Placement<ItemStackTemplate>>empty();
         if (placement.isEmpty()) {
             return false;
         }
@@ -156,7 +156,7 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
         }
         energy.set(energy.getAmountAsLong() - cost.energy());
         var raised = suit();
-        Gear.setGrid(raised, Gear.grid(raised).replace(target.get().placement(), target.get().raised()));
+        Suit.setGrid(raised, Suit.grid(raised).replace(target.get().placement(), target.get().raised()));
         raising = true;
         try {
             suit.set(0, ItemResource.of(raised), raised.getCount());
@@ -270,7 +270,7 @@ public final class GearBenchBlockEntity extends BlockEntity implements MenuProvi
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            return Gear.is(resource.toStack());
+            return Suit.is(resource.toStack());
         }
 
         @Override

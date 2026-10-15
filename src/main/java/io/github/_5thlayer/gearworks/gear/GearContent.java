@@ -74,15 +74,15 @@ public final class GearContent {
             "level", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
     /** Tier 1, with an iron chestplate's armor. */
-    public static final DeferredItem<GearItem> IRON_GEAR = ITEMS.registerItem("iron_gear", GearItem::new,
+    public static final DeferredItem<SuitItem> IRON_SUIT = ITEMS.registerItem("iron_gear", SuitItem::new,
             properties -> suit(properties, ArmorMaterials.IRON, "iron_gear"));
 
     /** Tier 2, with a diamond chestplate's armor, crafted from tier 1. */
-    public static final DeferredItem<GearItem> DIAMOND_GEAR = ITEMS.registerItem("diamond_gear", GearItem::new,
+    public static final DeferredItem<SuitItem> DIAMOND_SUIT = ITEMS.registerItem("diamond_gear", SuitItem::new,
             properties -> suit(properties, ArmorMaterials.DIAMOND, "diamond_gear"));
 
     /** Tier 3, with a netherite chestplate's armor, and like it unharmed by fire and lava; smithed from tier 2. */
-    public static final DeferredItem<GearItem> NETHERITE_GEAR = ITEMS.registerItem("netherite_gear", GearItem::new,
+    public static final DeferredItem<SuitItem> NETHERITE_SUIT = ITEMS.registerItem("netherite_gear", SuitItem::new,
             properties -> suit(properties, ArmorMaterials.NETHERITE, "netherite_gear").fireResistant());
 
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
@@ -121,9 +121,9 @@ public final class GearContent {
         modBus.addListener(GearContent::registerCapabilities);
         modBus.addListener(GearContent::fillCreativeTabs);
         modBus.addListener(GearContent::registerPayloads);
-        NeoForge.EVENT_BUS.addListener(GearTicker::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(GearTicker::onJump);
-        NeoForge.EVENT_BUS.addListener(GearShield::onDamage);
+        NeoForge.EVENT_BUS.addListener(SuitTicker::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(SuitTicker::onJump);
+        NeoForge.EVENT_BUS.addListener(SuitShield::onDamage);
     }
 
     /**
@@ -153,8 +153,8 @@ public final class GearContent {
      */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.Energy.ITEM,
-                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), Gear.capacity(stack)),
-                IRON_GEAR, DIAMOND_GEAR, NETHERITE_GEAR);
+                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), Suit.capacity(stack)),
+                IRON_SUIT, DIAMOND_SUIT, NETHERITE_SUIT);
         event.registerBlockEntity(Capabilities.Item.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.stockFace());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.energyFace());
     }
@@ -167,9 +167,9 @@ public final class GearContent {
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == WorksTab.KEY) {
             event.accept(GEAR_BENCH_ITEM);
-            event.accept(IRON_GEAR);
-            event.accept(DIAMOND_GEAR);
-            event.accept(NETHERITE_GEAR);
+            event.accept(IRON_SUIT);
+            event.accept(DIAMOND_SUIT);
+            event.accept(NETHERITE_SUIT);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(SPEED_UPGRADE);

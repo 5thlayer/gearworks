@@ -83,10 +83,10 @@ public final class GearGridMenu extends AbstractContainerMenu {
     /** Opens the Gear Grid of the suit the player wears, if they wear one. */
     public static void open(ServerPlayer player) {
         var suit = player.getInventory().getItem(CHEST);
-        if (!Gear.is(suit)) {
+        if (!Suit.is(suit)) {
             return;
         }
-        Gear.takeOverflow(player, suit);
+        Suit.takeOverflow(player, suit);
         player.openMenu(new SimpleMenuProvider((id, inventory, who) -> new GearGridMenu(id, inventory), suit.getHoverName()));
     }
 
@@ -123,14 +123,14 @@ public final class GearGridMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         var suit = suit();
-        if (id < 0 || !Gear.is(suit)) {
+        if (id < 0 || !Suit.is(suit)) {
             return false;
         }
         boolean shift = id >= SHIFT;
         int cell = shift ? id - SHIFT : id;
         int x = cell % CELL_STRIDE;
         int y = cell / CELL_STRIDE;
-        var grid = Gear.grid(suit);
+        var grid = Suit.grid(suit);
         var at = grid.at(x, y);
         var carried = getCarried();
         if (shift) {
@@ -147,14 +147,14 @@ public final class GearGridMenu extends AbstractContainerMenu {
             return stackIntoHand(suit, grid, at.get(), carried);
         }
         var upgrade = GearUpgrade.of(carried.typeHolder());
-        if (upgrade == null || !Gear.admits(grid, upgrade)) {
+        if (upgrade == null || !Suit.admits(grid, upgrade)) {
             return false;
         }
         var placed = grid.place(x, y, upgrade.width(), upgrade.height(), ItemStackTemplate.fromNonEmptyStack(carried.copyWithCount(1)));
         if (placed.isEmpty()) {
             return false;
         }
-        Gear.setGrid(suit, placed.get());
+        Suit.setGrid(suit, placed.get());
         carried.shrink(1);
         return true;
     }
@@ -183,7 +183,7 @@ public final class GearGridMenu extends AbstractContainerMenu {
 
     /** Takes the upgrade out of the suit's grid, and gives it as a stack. */
     private static ItemStack take(ItemStack suit, GearGrid<ItemStackTemplate> grid, Placement<ItemStackTemplate> placement) {
-        Gear.setGrid(suit, grid.remove(placement));
+        Suit.setGrid(suit, grid.remove(placement));
         return placement.item().create();
     }
 
@@ -194,16 +194,16 @@ public final class GearGridMenu extends AbstractContainerMenu {
         var stack = slot.getItem();
         var suit = suit();
         var upgrade = stack.isEmpty() ? null : GearUpgrade.of(stack.typeHolder());
-        if (upgrade == null || !Gear.is(suit) || !slot.mayPickup(player)) {
+        if (upgrade == null || !Suit.is(suit) || !slot.mayPickup(player)) {
             return ItemStack.EMPTY;
         }
-        var grid = Gear.grid(suit);
-        if (!Gear.admits(grid, upgrade)) {
+        var grid = Suit.grid(suit);
+        if (!Suit.admits(grid, upgrade)) {
             return ItemStack.EMPTY;
         }
         var placed = grid.placeFirstFit(upgrade.width(), upgrade.height(), ItemStackTemplate.fromNonEmptyStack(stack.copyWithCount(1)));
         if (placed.isPresent()) {
-            Gear.setGrid(suit, placed.get());
+            Suit.setGrid(suit, placed.get());
             stack.shrink(1);
             slot.setChanged();
         }
@@ -215,14 +215,14 @@ public final class GearGridMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         var suit = suit();
-        if (!player.level().isClientSide() && Gear.is(suit)) {
-            Gear.keepWhatBatteriesHold(suit);
+        if (!player.level().isClientSide() && Suit.is(suit)) {
+            Suit.keepWhatBatteriesHold(suit);
         }
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return Gear.is(suit());
+        return Suit.is(suit());
     }
 
     /** The suit's own slot: shown, and neither taken from nor put into while its grid is open. */
