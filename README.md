@@ -44,7 +44,7 @@ The Gear Bench is built from [Malcolm Riley](https://github.com/malcolmriley/unu
 
 ## Developing
 
-A 5thlayer Library, released on its own to Modrinth and CurseForge. See `GLOSSARY.md` for the domain glossary. `sh ./gradlew build` runs the JUnit tests on a plain JVM, and `sh ./gradlew runGameTestServer` the game tests headless. Releases go through the libworks plugin's `release` task (`docs/agents/releases.md`). The Modrinth slug is `gearworks-adamico`, since `gearworks` was taken there; CurseForge's is `gearworks`.
+A 5thlayer Module, released on its own to Modrinth and CurseForge. See `GLOSSARY.md` for the domain glossary. `sh ./gradlew build` runs the JUnit tests on a plain JVM, and `sh ./gradlew runGameTestServer` the game tests headless. Releases go through the libworks plugin's `release` task (`docs/agents/releases.md`). The Modrinth slug is `gearworks-adamico`, since `gearworks` was taken there; CurseForge's is `gearworks`.
 
 ## License
 

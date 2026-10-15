@@ -1,12 +1,12 @@
 # Gearworks
 
-A 5thlayer Library: a mod its Consumers, other Libraries or a pack, read from the local maven repository by version. See `GLOSSARY.md` for the domain glossary.
+A 5thlayer Module: a mod its Consumers, other Modules or a pack, read from the local maven repository by version. See `GLOSSARY.md` for the domain glossary.
 
 ## Workflow
 
 Commit on the current branch; open a feature branch only when the user asks for one. Nothing is pushed without the user's word.
 
-Anything that changes the Library's behaviour gets a `/code-review`: the project skill in `.claude/skills/code-review`, from mattpocock/skills, never the built-in review of the same name. Doc and plumbing changes skip it: that covers `CLAUDE.md`, `GLOSSARY.md`, ADRs, `docs/`, `.claude/`, submodule bumps, and tooling or CI config.
+Anything that changes the Module's behaviour gets a `/code-review`: the project skill in `.claude/skills/code-review`, from mattpocock/skills, never the built-in review of the same name. Doc and plumbing changes skip it: that covers `CLAUDE.md`, `GLOSSARY.md`, ADRs, `docs/`, `.claude/`, submodule bumps, and tooling or CI config.
 
 ## Commits
 
@@ -14,7 +14,7 @@ Conventional commits: `<type>(<optional scope>): <summary>`, with the summary in
 
 ## Testing
 
-`sh ./gradlew build` runs the JUnit tests, on a plain JVM with no Minecraft. `sh ./gradlew runGameTestServer` runs the game tests headless, a real player on a real server, and names each one it ran; it fails if it ran none. A new game test class is registered by a line in `GearworksGameTests.registerTests`, and its tests stand on the `gametest/platform` structure that the plugin's `buildGametestStructures` task writes. Data only the Library's own runs load lives in `src/gametest/resources`, which never ships (libworks ADR 0004): `DevPacks` switches on `gametest_pack/` in the game tests and `dev_pack/` in the dev client, the datapacks that stand in for what a Consumer fills. Packs a test switches on itself, such as one per batch, go under `gametest_packs/<name>/`. CI (`.github/workflows/ci.yml`) runs both through libworks' `module-ci.yml` on every push and never publishes.
+`sh ./gradlew build` runs the JUnit tests, on a plain JVM with no Minecraft. `sh ./gradlew runGameTestServer` runs the game tests headless, a real player on a real server, and names each one it ran; it fails if it ran none. A new game test class is registered by a line in `GearworksGameTests.registerTests`, and its tests stand on the `gametest/platform` structure that the plugin's `buildGametestStructures` task writes. Data only the Module's own runs load lives in `src/gametest/resources`, which never ships (libworks ADR 0004): `DevPacks` switches on `gametest_pack/` in the game tests and `dev_pack/` in the dev client, the datapacks that stand in for what a Consumer fills. Packs a test switches on itself, such as one per batch, go under `gametest_packs/<name>/`. CI (`.github/workflows/ci.yml`) runs both through libworks' `module-ci.yml` on every push and never publishes.
 
 Vanilla's and NeoForge's own code is in `build/moddev/artifacts/minecraft-patched-*-sources.jar`, read with `unzip -p <jar> net/minecraft/.../X.java`. Check a claim about vanilla behaviour there before stating it.
 
@@ -24,7 +24,7 @@ The `skillworks:quicklaunch` skill opens the dev client into the most recent sav
 
 A change a Consumer can use or will notice adds its line under `## Unreleased` in `CHANGELOG.md` as it lands. Before bumping `mod_version`, publishing to `~/.m2`, tagging a release or uploading to Modrinth or CurseForge, read `docs/agents/releases.md`: releases go through `sh ./gradlew release`, which uploads last with the `upload` task when `gradle.properties` names a project, and a published version never changes, in `~/.m2` or on either site. ADR 0001, inherited from 5thlayer/libworks, sets the version bumps. Gearworks is never monetized on either site while it ships the CC BY-NC-SA suit icons (ADR 0004).
 
-A release that must reach a Consumer in another checkout, a Library or a pack that pins the jar, follows the `release-train` skill: one owning session per checkout, and pushes only on the user's word.
+A release that must reach a Consumer in another checkout, a Module or a pack that pins the jar, follows the `release-train` skill: one owning session per checkout, and pushes only on the user's word.
 
 ## Agent skills
 

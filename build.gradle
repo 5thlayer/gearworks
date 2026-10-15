@@ -22,7 +22,7 @@ def emi = 'curse.maven:emi-unofficial-port-1544558:8630349'
 def jade = 'maven.modrinth:jade:26.1.11+neoforge'
 
 // Mods on the dev client that the published jar does not depend on. The game tests run on a source set
-// of their own, with no code and the Library's dependencies but not these, so they prove the Library
+// of their own, with no code and the Module's dependencies but not these, so they prove the Module
 // plays alone in vanilla.
 sourceSets {
     solo

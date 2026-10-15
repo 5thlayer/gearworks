@@ -7,7 +7,7 @@ status: accepted
 Flight flew at vanilla's creative speed whatever its Level, which made a fresh suit too fast, and its
 Levels only lowered its draw toward a Floor. A Flight Upgrade now reads its `amount` as its speed, a
 fraction of vanilla's creative flying speed, and its Levels raise it toward a `flightCeiling` while
-still lowering the draw. The Library's own upgrade starts near half of vanilla's speed and passes it
+still lowering the draw. The Module's own upgrade starts near half of vanilla's speed and passes it
 at Level 9. This amends ADR 0003's Consequences: Flight is on or off, one to a suit, yet has a
 Ceiling as well as a Floor, because its speed is what grows.
 

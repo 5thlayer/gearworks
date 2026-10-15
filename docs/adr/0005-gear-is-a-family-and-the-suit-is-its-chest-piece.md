@@ -10,7 +10,7 @@ Gear without a Gear Grid. ADR 0002's decision stands: one Suit in the chest slot
 
 ## Considered Options
 
-- **The Bore Lance outside Gear.** Keeps Gear meaning the suit, but leaves the Library's two items
+- **The Bore Lance outside Gear.** Keeps Gear meaning the suit, but leaves the Module's two items
   with no word for both, and a held piece ADR 0002 left room for would need one anyway.
 - **Renaming the item ids to `suit`.** Breaks saves and every Consumer and pack that names them
   (ADR 0001), to change names no player reads.

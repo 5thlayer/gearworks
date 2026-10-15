@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Every suit, Bore Lance and upgrade is drawn in Gearworks' own art: an icon of its own, for a suit a
- * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Library ships
+ * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Module ships
  * rather than one borrowed from vanilla.
  */
 class ArtTest {

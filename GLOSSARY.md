@@ -6,15 +6,16 @@ is the -works suite's Sink that drains the player.
 
 ## Language
 
-The Library's terms, each with what it is and the words to avoid. `/domain-modeling` adds them as they are resolved.
+The Module's terms, each with what it is and the words to avoid. `/domain-modeling` adds them as they are resolved.
 
 ### Parties
 
 **Gearworks**:
-This Library.
+This Module.
+_Avoid_: Library, Binding
 
 **Consumer**:
-A mod that builds against this Library, such as another Library, or one that adds Gear Upgrades.
+A mod that builds against this Module, such as another Module, or one that adds Gear Upgrades.
 _Avoid_: client (collides with the game's client side), dependent, integration
 
 ### Gear
