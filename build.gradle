@@ -1,6 +1,6 @@
 // Every piece of the build comes from the libworks convention plugin (libworks ADR 0003).
 plugins {
-    id 'io.github.5thlayer.libworks.module' version '0.3.0'
+    id 'io.github.5thlayer.libworks.module' version '0.4.0'
 }
 
 libworks {
@@ -47,16 +47,6 @@ neoForge {
 }
 
 repositories {
-    // libworks-runtime, libworks-gametest, Wireworks and the Groundworks it requires, from the local maven
-    // only, where their releases publish them. CI builds their tags there first.
-    mavenLocal {
-        content {
-            includeModule 'io.github.5thlayer', 'wireworks'
-            includeModule 'io.github.5thlayer', 'groundworks'
-            includeModule 'io.github.5thlayer', 'libworks-runtime'
-            includeModule 'io.github.5thlayer', 'libworks-gametest'
-        }
-    }
     // The EMI port, published on CurseForge only.
     maven {
         url = 'https://cursemaven.com'

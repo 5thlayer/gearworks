@@ -20,6 +20,7 @@ Each version has two sections: Players, what a player or pack developer sees, an
 - The Boost Stat, `Stat.BOOST`, `GearContent.BOOST_UPGRADE`, `Suit.Totals.cooldown` and `GearworksConfig.cooldownFloor`. A `gearworks:gear_upgrade` entry takes optional `cooldown` and `cooldown_per_level` fields, in ticks, which only Boost reads; every entry without them reads as before. `GearUpgrade` gains `cooldown` and `cooldownPerLevel` components, and its old seven-argument constructor stays, for an upgrade that never waits.
 - `GearContent.IRON_BORE_LANCE` and `DIAMOND_BORE_LANCE`, the Bore Lance's `gearworks:bore` component, its recipe type `gearworks:crafting_bore_lance`, and the block tag `gearworks:mineable/bore_lance`. (#12)
 - **Breaking:** the Java that means the Suit says Suit, leaving Gear for the family of the Suit and the Bore Lance (ADR 0005): `Gear` is now `Suit` (and `Gear.Totals` `Suit.Totals`), `GearItem` is `SuitItem`, `GearTicker` is `SuitTicker`, and `GearContent.IRON_GEAR`, `DIAMOND_GEAR` and `NETHERITE_GEAR` are `IRON_SUIT`, `DIAMOND_SUIT` and `NETHERITE_SUIT`. Item, data map, component and attribute modifier ids keep `gear`, and Gear Grid, Gear Upgrade and Gear Bench keep their names. (#10)
+- Gearworks' game-test code and structures no longer ship in its jar (libworks ADR 0011): a Consumer's game tests and dev client no longer register Gearworks' test types, `gearworks:code` and `gearworks:day_time`, nor carry its `gametest/platform` structure. Gearworks builds on libworks-plugin 0.4.0.
 
 ## 0.1.0
 
