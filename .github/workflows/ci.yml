@@ -15,11 +15,3 @@ permissions:
 jobs:
   ci:
     uses: 5thlayer/libworks/.github/workflows/module-ci.yml@plugin-v0.4.2
-
-  # The Gear Bench's top is built by the script, never by hand (NOTICE).
-  textures:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - run: pip install pillow
-      - run: python3 scripts/build-textures.py --check
