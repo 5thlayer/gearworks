@@ -1,6 +1,6 @@
 // Every piece of the build comes from the libworks convention plugin (libworks ADR 0003).
 plugins {
-    id 'io.github.5thlayer.libworks.module' version '0.4.1'
+    id 'io.github.5thlayer.libworks.module' version '0.4.2'
 }
 
 libworks {
