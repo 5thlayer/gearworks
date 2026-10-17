@@ -4,6 +4,8 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ## Unreleased
 
+## 0.2.0
+
 ### Players
 
 - Gearworks' description in the mod list names the Bore Lance beside the Suit.
