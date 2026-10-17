@@ -2,8 +2,6 @@
 
 Gearworks adds one **Suit**, which you wear in the chest slot and build up for the whole game, and the **Bore Lance**, a spear that mines a whole **Bore** of rock at once. Inside the Suit is a **Gear Grid**: lay out upgrades for battery, solar, speed, jump, shield, night vision, flight and boost, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
 
-**Early days.** Version 0.1.0 has the Suit, its grid and every upgrade but Boost; the Bore Lance and Boost come in the next release.
-
 ## Why?
 
 I wanted a suit like Mekanism's MekaSuit: one piece of armor that grows with you from the early game to the end, powered like the rest of your base.
@@ -49,4 +47,4 @@ A 5thlayer Module, released on its own to Modrinth and CurseForge. The design is
 ## License
 
 MIT, except the suits' icons, which are CC BY-NC-SA 4.0, and the Gear Bench's textures, which are CC BY 4.0 (see Art). Source is on [GitHub](https://github.com/5thlayer/gearworks).
-Releases will be on [Modrinth](https://modrinth.com/mod/NyNdPneT) and [CurseForge](https://www.curseforge.com/projects/1739524).
+Releases are on [Modrinth](https://modrinth.com/mod/NyNdPneT) and [CurseForge](https://www.curseforge.com/projects/1739524).
