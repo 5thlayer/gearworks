@@ -1,35 +1,29 @@
 # SPDX-FileCopyrightText: 2026 5thlayer
 # SPDX-License-Identifier: MIT
 
-# Temporary cover and icon, in the suite's style (Fieldworks' and Craftworks' make-cover.py), until an
-# in-game screenshot or an artist's art replaces them. Run from the repo root with Pillow installed. The
-# item textures come straight from the Minecraft client jar NeoForm caches; MC_CLIENT_JAR points elsewhere.
-import io
+# Cover and icon, in the suite's style (Fieldworks' and Craftworks' make-cover.py): a Gear Grid running
+# past the edges, its upgrades drawn from Gearworks' own icons (scripts/draw-art.py) at their real sizes,
+# so nothing of Mojang's is in them (libworks ADR 0012). Run from the repo root with Pillow installed.
 import os
 import random
-import zipfile
 
 from PIL import Image, ImageDraw, ImageFont
 
-JAR = os.environ.get('MC_CLIENT_JAR', os.path.expanduser(
-    '~/.gradle/caches/neoformruntime/artifacts/minecraft_26.1.2_client.jar'))
+ITEMS = 'src/main/resources/assets/gearworks/textures/item/'
 BG = (24, 26, 32)
-ACCENT = (240, 200, 60)  # energy yellow: the suit runs on FE
-FADE = 110  # 0 leaves the grid at full strength, 255 hides it
-# One vanilla item for each Stat a Gear Upgrade gives.
-STATS = ['item/redstone', 'block/daylight_detector_top', 'item/sugar', 'item/rabbit_foot',
-         'item/turtle_scute', 'item/golden_carrot', 'item/elytra', 'item/netherite_chestplate']
-# The rectangles an upgrade may cover, in grid cells.
-SIZES = [(1, 1), (1, 1), (2, 1), (1, 2), (2, 2), (3, 2)]
+ACCENT = (240, 140, 40)  # the suit's orange core
+FADE = 90  # 0 leaves the grid at full strength, 255 hides it
+# Each Gear Upgrade and the rectangle it covers, columns by rows, as the data map sizes them.
+UPGRADES = [('battery', 1, 2), ('solar', 1, 1), ('speed', 2, 2), ('shield', 2, 2), ('jump', 1, 2),
+            ('night_vision', 1, 1), ('flight', 2, 5), ('boost', 1, 3)]
 
-_jar = zipfile.ZipFile(JAR)
 _cache = {}
 
 
 def tex(name, px):
     if (name, px) not in _cache:
-        raw = _jar.read(f'assets/minecraft/textures/{name}.png')
-        _cache[name, px] = Image.open(io.BytesIO(raw)).convert('RGBA').resize((px, px), Image.NEAREST)
+        icon = Image.open(f'{ITEMS}{name}_upgrade.png').convert('RGBA')
+        _cache[name, px] = icon.resize((px, px), Image.NEAREST)
     return _cache[name, px]
 
 
@@ -46,7 +40,7 @@ def slot(d, x, y, w, h, s, edge=None):
 
 
 def grid(W, H, s, seed):
-    # a Gear Grid running past the edges: upgrades covering rectangles of it, and empty cells between
+    # a Gear Grid running past the edges: upgrades covering their rectangles of it, and empty cells between
     rng = random.Random(seed)
     img = Image.new('RGBA', (W, H), BG + (255,))
     d = ImageDraw.Draw(img)
@@ -55,28 +49,30 @@ def grid(W, H, s, seed):
     cols, rows = W // pitch + 2, H // pitch + 2
     ox, oy = -(pitch // 2), -(pitch // 3)
     used = [[False] * cols for _ in range(rows)]
-    k = rng.randrange(len(STATS))
+
+    def fits(r, c, cw, ch):
+        return all(r + j < rows and c + i < cols and not used[r + j][c + i]
+                   for j in range(ch) for i in range(cw))
+
     for r in range(rows):
         for c in range(cols):
             if used[r][c]:
                 continue
-            cw, ch = rng.choice(SIZES) if rng.random() < 0.55 else (0, 0)
-            fits = cw and all(r + j < rows and c + i < cols and not used[r + j][c + i]
-                              for j in range(ch) for i in range(cw))
             x, y = ox + c * pitch, oy + r * pitch
-            if not fits:
+            tries = rng.sample(UPGRADES, len(UPGRADES)) if rng.random() < 0.6 else []
+            pick = next((u for u in tries if fits(r, c, u[1], u[2])), None)
+            if not pick:
                 used[r][c] = True
                 slot(d, x, y, s, s, s)
                 continue
+            name, cw, ch = pick
             for j in range(ch):
                 for i in range(cw):
                     used[r + j][c + i] = True
             w, h = cw * pitch - g, ch * pitch - g
             slot(d, x, y, w, h, s, ACCENT + (255,))
-            px = min(w, h) * 3 // 4
-            t = tex(STATS[k % len(STATS)], px)
-            img.alpha_composite(t, (x + (w - px) // 2, y + (h - px) // 2))
-            k += 3
+            px = max(16, min(w, h) * 3 // 4 // 16 * 16)  # whole pixels of the 16-pixel icon
+            img.alpha_composite(tex(name, px), (x + (w - px) // 2, y + (h - px) // 2))
     return img
 
 
@@ -87,8 +83,8 @@ def font(names, size):
     raise SystemExit('needs one of ' + ', '.join(names))
 
 
-def make(W, H, out, title_size, s):
-    img = grid(W, H, s, 7)
+def make(W, H, out, title_size, s, seed):
+    img = grid(W, H, s, seed)
     img = Image.alpha_composite(img, Image.new('RGBA', (W, H), BG + (FADE,)))
     cy, bh = H // 2, int(title_size * 1.6)
     band = Image.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -118,5 +114,5 @@ def make(W, H, out, title_size, s):
     img.convert('RGB').save(out)
 
 
-make(1280, 640, 'publish/gearworks-cover.png', 150, 72)
-make(512, 512, 'publish/gearworks-icon.png', 80, 56)
+make(1280, 640, 'publish/gearworks-cover.png', 150, 72, 7)
+make(512, 512, 'publish/gearworks-icon.png', 80, 56, 7)
