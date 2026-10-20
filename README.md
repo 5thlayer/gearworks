@@ -30,7 +30,7 @@ A mod adds a Gear Upgrade with an item, an entry in the `gearworks:gear_upgrade`
 
 ## Dependencies
 
-None beyond NeoForge.
+None beyond NeoForge. Gearworks nests libworks-runtime, so there is nothing more to install.
 
 ## Art
 
