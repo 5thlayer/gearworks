@@ -14,8 +14,9 @@ BG = (24, 26, 32)
 ACCENT = (240, 140, 40)  # the suit's orange core
 FADE = 90  # 0 leaves the grid at full strength, 255 hides it
 # Each Gear Upgrade and the rectangle it covers, columns by rows, as the data map sizes them.
-UPGRADES = [('battery', 1, 2), ('solar', 1, 1), ('speed', 2, 2), ('shield', 2, 2), ('jump', 1, 2),
-            ('night_vision', 1, 1), ('flight', 2, 5), ('boost', 1, 3)]
+UPGRADES = [('battery', 1, 2), ('solar', 1, 1), ('nuclear', 3, 3), ('kinetic', 1, 2), ('combustion', 2, 2),
+            ('metabolic', 1, 2), ('speed', 2, 2), ('shield', 2, 2), ('jump', 1, 2), ('night_vision', 1, 1),
+            ('reach', 1, 2), ('flight', 2, 5), ('boost', 1, 3)]
 
 _cache = {}
 
