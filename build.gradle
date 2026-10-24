@@ -12,7 +12,7 @@ libworks {
     // capability alone. Wireworks brings Groundworks, which it requires.
     upstream('wireworks') {
         optional = true
-        range = '[0.6.2,)'
+        range = '[0.6.7,)'
     }
 }
 
