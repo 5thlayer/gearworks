@@ -155,7 +155,7 @@ final class ReachTests {
         raisedPlayer.tick();
 
         helper.assertTrue(blockReach(raisedPlayer) > blockReach(freshPlayer), Component.literal("Level 5 reached no further than Level 0"));
-        helper.assertTrue(1000 - Suit.energy(raised) > 1000 - Suit.energy(fresh), Component.literal("Level 5 drew no more than Level 0"));
+        helper.assertValueEqual(Suit.energy(fresh) - Suit.energy(raised), 5 * 2, Component.literal("the FE Level 5 draws a tick over Level 0"));
         helper.succeed();
     }
 

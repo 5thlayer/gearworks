@@ -3,8 +3,6 @@
 
 package io.github._5thlayer.gearworks.gear;
 
-import java.util.List;
-
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.level.Solar;
@@ -142,12 +140,17 @@ public final class SuitTicker {
 
     /** Sets the modifier to that fraction of the attribute's base, or takes it away at 0. */
     private static void modify(Player player, Holder<Attribute> attribute, Identifier id, double fraction) {
+        modify(player, attribute, id, fraction, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+    }
+
+    /** Sets the modifier to that amount by that operation, or takes it away at 0. */
+    private static void modify(Player player, Holder<Attribute> attribute, Identifier id, double amount, AttributeModifier.Operation operation) {
         var instance = player.getAttribute(attribute);
         if (instance == null) {
             return;
         }
-        if (fraction > 0) {
-            instance.addOrUpdateTransientModifier(new AttributeModifier(id, fraction, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        if (amount > 0) {
+            instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
         } else {
             instance.removeModifier(id);
         }
@@ -155,17 +158,8 @@ public final class SuitTicker {
 
     /** Adds those blocks to both the player's block and entity reach, or takes them away at 0. */
     private static void reach(Player player, double blocks) {
-        for (var attribute : List.of(Attributes.BLOCK_INTERACTION_RANGE, Attributes.ENTITY_INTERACTION_RANGE)) {
-            var instance = player.getAttribute(attribute);
-            if (instance == null) {
-                continue;
-            }
-            if (blocks > 0) {
-                instance.addOrUpdateTransientModifier(new AttributeModifier(REACH, blocks, AttributeModifier.Operation.ADD_VALUE));
-            } else {
-                instance.removeModifier(REACH);
-            }
-        }
+        modify(player, Attributes.BLOCK_INTERACTION_RANGE, REACH, blocks, AttributeModifier.Operation.ADD_VALUE);
+        modify(player, Attributes.ENTITY_INTERACTION_RANGE, REACH, blocks, AttributeModifier.Operation.ADD_VALUE);
     }
 
     /**
