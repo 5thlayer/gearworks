@@ -3,6 +3,8 @@
 
 package io.github._5thlayer.gearworks.gear;
 
+import java.util.List;
+
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.level.Solar;
@@ -27,7 +29,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * The worn suit's Stats, each server tick: solar charges it in daylight under open sky; night vision
  * runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
  * drawing it while the player walks; jump raises jump strength while it has the FE for a jump,
- * which each boosted jump spends; and flight lets the player fly, at a speed its Level raises, while it
+ * which each boosted jump spends; reach lengthens the player's block and entity reach while it has
+ * the FE to draw each tick; and flight lets the player fly, at a speed its Level raises, while it
  * has the FE to draw each tick in the air, and lets them down slowly when it runs dry there. Last, it
  * charges a netherite Bore Lance in either hand.
  */
@@ -38,6 +41,9 @@ public final class SuitTicker {
 
     /** The jump strength modifier the suit's jump upgrades give. */
     public static final Identifier JUMP = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_jump");
+
+    /** The block and entity reach modifier the suit's reach upgrades give, one id on each attribute. */
+    public static final Identifier REACH = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_reach");
 
     /** The creative flight modifier the suit's flight upgrade gives. */
     public static final Identifier FLIGHT = Identifier.fromNamespaceAndPath(Gearworks.MOD_ID, "gear_flight");
@@ -92,6 +98,7 @@ public final class SuitTicker {
         if (!Suit.is(suit)) {
             modify(player, Attributes.MOVEMENT_SPEED, SPEED, 0);
             modify(player, Attributes.JUMP_STRENGTH, JUMP, 0);
+            reach(player, 0);
             takeNightVision(player);
             takeFlight(player);
             letDown(player);
@@ -121,6 +128,12 @@ public final class SuitTicker {
         }
         boolean springy = totals.canDraw(Stat.JUMP, energy);
         modify(player, Attributes.JUMP_STRENGTH, JUMP, springy ? totals.underCeiling(Stat.JUMP) : 0);
+        if (totals.canDraw(Stat.REACH, energy)) {
+            energy -= totals.draw(Stat.REACH);
+            reach(player, totals.underCeiling(Stat.REACH));
+        } else {
+            reach(player, 0);
+        }
         energy = BoreLance.charge(player, energy, Suit.capacity(suit));
         if (energy != before) {
             Suit.setEnergy(suit, energy);
@@ -137,6 +150,21 @@ public final class SuitTicker {
             instance.addOrUpdateTransientModifier(new AttributeModifier(id, fraction, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         } else {
             instance.removeModifier(id);
+        }
+    }
+
+    /** Adds those blocks to both the player's block and entity reach, or takes them away at 0. */
+    private static void reach(Player player, double blocks) {
+        for (var attribute : List.of(Attributes.BLOCK_INTERACTION_RANGE, Attributes.ENTITY_INTERACTION_RANGE)) {
+            var instance = player.getAttribute(attribute);
+            if (instance == null) {
+                continue;
+            }
+            if (blocks > 0) {
+                instance.addOrUpdateTransientModifier(new AttributeModifier(REACH, blocks, AttributeModifier.Operation.ADD_VALUE));
+            } else {
+                instance.removeModifier(REACH);
+            }
         }
     }
 

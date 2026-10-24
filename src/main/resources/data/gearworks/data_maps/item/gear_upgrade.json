@@ -40,6 +40,15 @@
       "draw": 50,
       "draw_per_level": 10
     },
+    "gearworks:reach_upgrade": {
+      "width": 1,
+      "height": 2,
+      "stat": "reach",
+      "amount": 1.0,
+      "amount_per_level": 0.5,
+      "draw": 10,
+      "draw_per_level": 2
+    },
     "gearworks:night_vision_upgrade": {
       "width": 1,
       "height": 1,

@@ -4,6 +4,10 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ## Unreleased
 
+### Players
+
+- **Reach** (1×2): the **Reach Upgrade** lets the player reach blocks and entities further, by the same number of blocks for both, while the suit draws 10 FE a tick for it. It adds about 0.9 blocks at Level 0; each Level adds half a block before the bend and 2 FE/t to its draw, and several reach upgrades together approach the `reachCeiling` server config (4 blocks) without reaching it. A Bore Lance reaches as far as its wearer. It is crafted from four iron ingots, four ender pearls, a piston and redstone, and its Levels cost what the speed upgrade's do, with ender pearls in the early ones. (#19)
+
 ## 0.2.0
 
 ### Players

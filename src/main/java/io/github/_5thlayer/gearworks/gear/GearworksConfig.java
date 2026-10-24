@@ -15,6 +15,7 @@ public final class GearworksConfig {
 
     private static final ModConfigSpec.DoubleValue SPEED_CEILING;
     private static final ModConfigSpec.DoubleValue JUMP_CEILING;
+    private static final ModConfigSpec.DoubleValue REACH_CEILING;
     private static final ModConfigSpec.DoubleValue SHIELD_CEILING;
     private static final ModConfigSpec.DoubleValue FLIGHT_CEILING;
     private static final ModConfigSpec.IntValue NIGHT_VISION_FLOOR;
@@ -41,6 +42,10 @@ public final class GearworksConfig {
                 .comment("The jump strength the suit's jump upgrades together approach and never reach, as a fraction",
                         "of base strength. The default, 0.5, keeps a jump under three blocks, so landing on flat ground does no harm.")
                 .defineInRange("jumpCeiling", 0.5, 0.0, 10.0);
+        REACH_CEILING = builder
+                .comment("The blocks of reach the suit's reach upgrades together approach and never reach, added to both",
+                        "the player's block reach and their entity reach. Upgrades of one Stat sum, and the Ceiling holds for the sum.")
+                .defineInRange("reachCeiling", 4.0, 0.0, 64.0);
         SHIELD_CEILING = builder
                 .comment("The fraction of each hit the suit's shield upgrades together approach and never reach:",
                         "1.0 would absorb every hit whole.")
@@ -107,6 +112,7 @@ public final class GearworksConfig {
         var ceiling = switch (stat) {
             case SPEED -> SPEED_CEILING;
             case JUMP -> JUMP_CEILING;
+            case REACH -> REACH_CEILING;
             case SHIELD -> SHIELD_CEILING;
             case FLIGHT -> FLIGHT_CEILING;
             case BOOST -> BOOST_CEILING;

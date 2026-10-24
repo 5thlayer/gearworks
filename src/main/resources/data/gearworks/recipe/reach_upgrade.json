@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "E": "#c:ender_pearls",
+    "I": "#c:ingots/iron",
+    "P": "minecraft:piston",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "IEI",
+    "EPE",
+    "IRI"
+  ],
+  "result": {
+    "id": "gearworks:reach_upgrade"
+  }
+}
