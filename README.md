@@ -1,7 +1,6 @@
 ![Gearworks](https://raw.githubusercontent.com/5thlayer/gearworks/main/publish/gearworks-cover.png)
 
-
-Gearworks adds one **Suit**, which you wear in the chest slot and build up for the whole game, and the **Bore Lance**, a spear that mines a whole **Bore** of rock at once. Inside the Suit is a **Gear Grid**: lay out upgrades for battery, solar, speed, jump, shield, night vision, flight and boost, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
+Gearworks adds one **Suit**, which you wear in the chest slot and build up for the whole game, and the **Bore Lance**, a spear that mines a whole **Bore** of rock at once. Inside the Suit is a **Gear Grid**: lay out upgrades for battery, 4 kind of generators, reach, speed, jump, shield, night vision, flight and boost, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
 
 ## Why?
 
@@ -13,13 +12,13 @@ I also wanted the layout to matter, as in Factorio's modular armor, where every 
 
 ## Features
 
-- **One suit, three tiers.** The Iron, Diamond and Netherite Suit are worn in the chest slot with the armor of their material's chestplate, and each tier's Gear Grid is larger: 9×3, 9×4 and 9×6. A tier is made from the one below and keeps its upgrades, their Levels and its FE.
-- **A grid to lay out.** Gear Upgrades cover rectangles of the grid: Battery, the Generators Solar, Nuclear, Kinetic, Combustion and Metabolic, Speed, Shield, Jump, Night Vision, Reach and Boost, and Flight, 2×5, which fits only the Netherite Suit. The grid opens from the worn Suit anywhere, with a key (J by default).
-- **Levels with no cap.** At the **Gear Bench** an upgrade's Level rises, each costing more FE and materials than the last, from copper and redstone up to netherite and nether stars; any mod's pipes and hoppers stock the bench. Speed, jump and shield approach a Ceiling, and Flight flies faster and draws less with each Level. Two upgrades of one Stat together still stay under its Ceiling.
-- **Flight and Boost.** Flight is creative-style flight while the Suit has FE, and a Suit that runs dry lets you down gently. Boost throws a flying player along their gaze, as a firework throws a glider, then cools down.
-- **Powered by FE.** The Suit stores power only in its battery upgrades, and any mod's charger fills it. Its Generators make their own: solar by day, nuclear always at a steep cost, kinetic as you walk, combustion from coal and blaze rods in your inventory, and metabolic from your saturation, never your hunger. Its FE stays on the HUD.
-- **A lance that bores.** The **Bore Lance** is a spear with Lunge built in and a mining tool in one, in iron, diamond and netherite. It breaks a whole Bore of rock at once, up to 5×3 and three deep, and a key (B by default) steps through the Bores; hold left-click while sneaking to mine one block. Its lunge bores through the rock ahead, at a far higher cost. The netherite lance runs on FE, which any charger or the worn Suit fills.
-- **Plays alone in vanilla.** Gearworks needs no other mod; in the -works suite it is where your factory's power goes to work on you.
+*   **One suit, three tiers.** The Iron, Diamond and Netherite Suit are worn in the chest slot with the armor of their material's chestplate, and each tier's Gear Grid is larger: 9×3, 9×4 and 9×6. A tier is made from the one below and keeps its upgrades, their Levels and its FE.
+*   **A grid to lay out.** Gear Upgrades cover rectangles of the grid: Battery, the Solar, Nuclear, Kinetic, Combustion and Metabolic Generators, Speed, Shield, Jump, Night Vision, Reach and Boost, and Flight, 2×5, which fits only the Netherite Suit. The grid opens from the worn Suit anywhere, with a key (J by default).
+*   **Levels with no cap.** At the **Gear Bench** an upgrade's Level rises, each costing more FE and materials than the last, from copper and redstone up to netherite and nether stars; any mod's pipes and hoppers stock the bench. Speed, jump and shield approach a Ceiling, and Flight flies faster and draws less with each Level. Two upgrades of one Stat together still stay under its Ceiling.
+*   **Flight and Boost.** Flight is creative-style flight while the Suit has FE, and a Suit that runs dry lets you down gently. Boost throws a flying player along their gaze, as a firework throws a glider, then cools down.
+*   **Powered by FE.** The Suit stores power only in its battery upgrades, and any mod's charger fills it. Its Generators make their own: solar by day, nuclear always at a steep cost, kinetic as you walk, combustion from coal and blaze rods in your inventory, and metabolic from your saturation, never your hunger. Its FE stays on the HUD.
+*   **A lance that bores.** The **Bore Lance** is a spear with Lunge built in and a mining tool in one, in iron, diamond and netherite. It breaks a whole Bore of rock at once, up to 5×3 and three deep, and a key (B by default) steps through the Bores; hold left-click while sneaking to mine one block. Its lunge bores through the rock ahead, at a far higher cost. The netherite lance runs on FE, which any charger or the worn Suit fills.
+*   **Plays alone in vanilla.** Gearworks needs no other mod; in the -works suite it is where your factory's power goes to work on you.
 
 ## For pack authors
 
@@ -47,5 +46,6 @@ A 5thlayer Module, released on its own to Modrinth and CurseForge. The design is
 
 ## License
 
-MIT, except the suits' icons, which are CC BY-NC-SA 4.0, and the Gear Bench's textures, which are CC BY 4.0 (see Art). Source is on [GitHub](https://github.com/5thlayer/gearworks).
-Releases are on [Modrinth](https://modrinth.com/mod/NyNdPneT) and [CurseForge](https://www.curseforge.com/projects/1739524).
+MIT, except the suits' icons, which are CC BY-NC-SA 4.0, and the Gear Bench's textures, which are CC BY 4.0 (see Art). Source is on [GitHub](https://github.com/5thlayer/gearworks). Releases are on [CurseForge](https://www.curseforge.com/projects/1739524).
+
+This is a hobby project: I’m not monetizing any part of FactoryWorks. I’m building it for fun, to see how far I can take it.
