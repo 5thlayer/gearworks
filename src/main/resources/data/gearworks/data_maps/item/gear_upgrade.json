@@ -14,6 +14,34 @@
       "amount": 5,
       "amount_per_level": 2
     },
+    "gearworks:nuclear_upgrade": {
+      "width": 3,
+      "height": 3,
+      "stat": "nuclear",
+      "amount": 40,
+      "amount_per_level": 10
+    },
+    "gearworks:kinetic_upgrade": {
+      "width": 1,
+      "height": 2,
+      "stat": "kinetic",
+      "amount": 10,
+      "amount_per_level": 2
+    },
+    "gearworks:combustion_upgrade": {
+      "width": 2,
+      "height": 2,
+      "stat": "combustion",
+      "amount": 2,
+      "amount_per_level": 0.5
+    },
+    "gearworks:metabolic_upgrade": {
+      "width": 1,
+      "height": 2,
+      "stat": "metabolic",
+      "amount": 20,
+      "amount_per_level": 5
+    },
     "gearworks:speed_upgrade": {
       "width": 2,
       "height": 2,

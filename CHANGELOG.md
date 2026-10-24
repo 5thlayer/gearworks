@@ -7,6 +7,18 @@ Each version has two sections: Players, what a player or pack developer sees, an
 ### Players
 
 - **Reach** (1×2): the **Reach Upgrade** lets the player reach blocks and entities further, by the same number of blocks for both, while the suit draws 10 FE a tick for it. It adds about 0.9 blocks at Level 0; each Level adds half a block before the bend and 2 FE/t to its draw, and several reach upgrades together approach the `reachCeiling` server config (4 blocks) without reaching it. A Bore Lance reaches as far as its wearer. It is crafted from four iron ingots, four ender pearls, a piston and redstone, and its Levels cost what the speed upgrade's do, with ender pearls in the early ones. (#19)
+- Four new **Generators**, Gear Upgrades that make FE for the Suit as solar does, each adding up with others of its kind, and none making FE or spending anything once the Suit is full. A Generator's fractions of an FE now add up too, so one making 2.5 FE a tick makes 5 every two (#18):
+  - **Nuclear Upgrade** (3×3): 40 FE/t, +10 a Level, day or night, under a roof or not. It is crafted from a nether star, two netherite ingots, a redstone block and five iron ingots, and its Levels cost gold and diamonds, then netherite and nether stars from Level 5, and far more FE than solar's.
+  - **Kinetic Upgrade** (1×2): 10 FE, +2 a Level, for each block walked or sprinted on foot, a jump's time in the air and wading through shallow water included; none while flying, gliding, swimming or riding. Crafted from a piston, copper and redstone.
+  - **Combustion Upgrade** (2×2): burns fuel from your inventory, the main inventory before the hotbar, giving 2 FE, +0.5 a Level, for each tick of its furnace burn time, so a coal gives 3,200 FE over 80 seconds. It burns only the item tag `gearworks:suit_fuel`, coal, charcoal, coal blocks and blaze rods by default, and never planks or tools. The Suit keeps one fire, saved on it, which waits while the Suit is off or full; more combustion upgrades burn it faster. Crafted from a blast furnace, iron and redstone.
+  - **Metabolic Upgrade** (1×2): 20 FE/t, +5 a Level, from your saturation, never your hunger, so it stops once you have none left and never starves you. A point of saturation is 1,000 FE, set by `metabolicEnergy` in the server config. Crafted from a golden carrot, copper and redstone.
+
+- Gearworks nests libworks-runtime 0.1.12, where it nested 0.1.8.
+
+### Consumers
+
+- `Stat.NUCLEAR`, `KINETIC`, `COMBUSTION` and `METABOLIC`, `GearContent.NUCLEAR_UPGRADE`, `KINETIC_UPGRADE`, `COMBUSTION_UPGRADE` and `METABOLIC_UPGRADE`, the suit's `gearworks:combustion_fire` and `gearworks:spare_fe` components, the item tag `gearworks:suit_fuel` (`SuitGenerators.SUIT_FUEL`), `Suit.Totals.count` and `GearworksConfig.metabolicEnergy`. A `gearworks:gear_upgrade` entry names any of the four Stats to make its own Generator. (#18)
+- `Stat.REACH`, `GearContent.REACH_UPGRADE` and the `reachCeiling` server config. A `gearworks:gear_upgrade` entry naming `reach` adds blocks to both of the player's reaches. (#19)
 
 ## 0.2.0
 

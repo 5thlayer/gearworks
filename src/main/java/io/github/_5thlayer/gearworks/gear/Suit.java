@@ -144,6 +144,11 @@ public final class Suit {
             return upgrades[stat.ordinal()] > 0;
         }
 
+        /** How many upgrades of that Stat the suit holds that give it something. */
+        public int count(Stat stat) {
+            return upgrades[stat.ordinal()];
+        }
+
         /** The sum of what the suit's upgrades of that Stat give, before any Ceiling. */
         public double amount(Stat stat) {
             return amounts[stat.ordinal()];

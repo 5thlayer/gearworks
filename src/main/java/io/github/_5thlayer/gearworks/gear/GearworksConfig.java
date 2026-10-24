@@ -31,6 +31,7 @@ public final class GearworksConfig {
     private static final ModConfigSpec.IntValue BOOST_FLOOR;
     private static final ModConfigSpec.IntValue BOOST_COOLDOWN_FLOOR;
     private static final ModConfigSpec.IntValue BOOST_TICKS;
+    private static final ModConfigSpec.IntValue METABOLIC_ENERGY;
 
     static {
         var builder = new ModConfigSpec.Builder();
@@ -98,6 +99,10 @@ public final class GearworksConfig {
         BOOST_TICKS = builder
                 .comment("The ticks each Boost thrusts for, whatever the Level. A vanilla rocket of flight duration 1 thrusts for 20 to 31.")
                 .defineInRange("boostTicks", 25, 1, 200);
+        METABOLIC_ENERGY = builder
+                .comment("The FE a metabolic upgrade makes from each point of the player's saturation, which it spends",
+                        "and never their hunger. A golden carrot gives 14.4 points.")
+                .defineInRange("metabolicEnergy", 1_000, 1, 1_000_000);
         SPEC = builder.build();
     }
 
@@ -195,5 +200,10 @@ public final class GearworksConfig {
     /** The ticks each Boost thrusts for, or its default before the server's config has loaded. */
     public static int boostTicks() {
         return SPEC.isLoaded() ? BOOST_TICKS.get() : BOOST_TICKS.getDefault();
+    }
+
+    /** The FE a point of saturation makes in a metabolic upgrade, or its default before the server's config has loaded. */
+    public static int metabolicEnergy() {
+        return value(METABOLIC_ENERGY);
     }
 }

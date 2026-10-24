@@ -105,6 +105,20 @@ public final class GearContent {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> LEVEL = COMPONENTS.registerComponentType(
             "level", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
+    /**
+     * The ticks of burn time left in a suit's fire, which its combustion upgrades burn. It is the suit's,
+     * so it waits, unburnt, while the suit is off or full; a suit with none lights its next fuel item.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COMBUSTION_FIRE = COMPONENTS.registerComponentType(
+            "combustion_fire", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    /**
+     * The fraction of an FE a suit's Generators made over the whole FE they gave it, which the next tick
+     * adds to its own; a suit with none, or a full one, keeps none.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Double>> SPARE_FE = COMPONENTS.registerComponentType(
+            "spare_fe", builder -> builder.persistent(Codec.doubleRange(0, 1)).networkSynchronized(ByteBufCodecs.DOUBLE));
+
     /** The Bore a Bore Lance's key last chose; a lance with none breaks its tier's widest. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Bore>> BORE = COMPONENTS.registerComponentType(
             "bore", builder -> builder.persistent(Codec.stringResolver(Bore::serializedName, Bore::bySerializedName))
@@ -152,6 +166,10 @@ public final class GearContent {
 
     public static final DeferredItem<Item> BATTERY_UPGRADE = ITEMS.registerSimpleItem("battery_upgrade");
     public static final DeferredItem<Item> SOLAR_UPGRADE = ITEMS.registerSimpleItem("solar_upgrade");
+    public static final DeferredItem<Item> NUCLEAR_UPGRADE = ITEMS.registerSimpleItem("nuclear_upgrade");
+    public static final DeferredItem<Item> KINETIC_UPGRADE = ITEMS.registerSimpleItem("kinetic_upgrade");
+    public static final DeferredItem<Item> COMBUSTION_UPGRADE = ITEMS.registerSimpleItem("combustion_upgrade");
+    public static final DeferredItem<Item> METABOLIC_UPGRADE = ITEMS.registerSimpleItem("metabolic_upgrade");
     public static final DeferredItem<Item> SPEED_UPGRADE = ITEMS.registerSimpleItem("speed_upgrade");
     public static final DeferredItem<Item> SHIELD_UPGRADE = ITEMS.registerSimpleItem("shield_upgrade");
     public static final DeferredItem<Item> JUMP_UPGRADE = ITEMS.registerSimpleItem("jump_upgrade");
@@ -286,6 +304,10 @@ public final class GearContent {
             event.accept(NETHERITE_BORE_LANCE);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
+            event.accept(NUCLEAR_UPGRADE);
+            event.accept(KINETIC_UPGRADE);
+            event.accept(COMBUSTION_UPGRADE);
+            event.accept(METABOLIC_UPGRADE);
             event.accept(SPEED_UPGRADE);
             event.accept(SHIELD_UPGRADE);
             event.accept(JUMP_UPGRADE);

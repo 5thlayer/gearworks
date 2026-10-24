@@ -5,8 +5,6 @@ package io.github._5thlayer.gearworks.gear;
 
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.lance.BoreLance;
-import io.github._5thlayer.gearworks.level.Solar;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
@@ -24,8 +22,8 @@ import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
- * The worn suit's Stats, each server tick: solar charges it in daylight under open sky; night vision
- * runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
+ * The worn suit's Stats, each server tick: its Generators charge it ({@link SuitGenerators}); night
+ * vision runs while it has the FE to draw each tick; speed raises walking speed while it has the FE to draw,
  * drawing it while the player walks; jump raises jump strength while it has the FE for a jump,
  * which each boosted jump spends; reach lengthens the player's block and entity reach while it has
  * the FE to draw each tick; and flight lets the player fly, at a speed its Level raises, while it
@@ -105,12 +103,7 @@ public final class SuitTicker {
         var totals = Suit.totals(suit);
         int energy = Suit.energy(suit);
         int before = energy;
-        double solar = totals.amount(Stat.SOLAR);
-        if (solar > 0) {
-            var level = player.level();
-            energy = Solar.charge(energy, Suit.capacity(suit), solar,
-                    level.isBrightOutside(), level.canSeeSky(BlockPos.containing(player.getEyePosition())));
-        }
+        energy = SuitGenerators.generate(player, suit, totals, energy);
         if (totals.canDraw(Stat.NIGHT_VISION, energy)) {
             energy -= totals.draw(Stat.NIGHT_VISION);
             giveNightVision(player);

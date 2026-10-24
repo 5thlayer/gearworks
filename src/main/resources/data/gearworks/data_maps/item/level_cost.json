@@ -116,6 +116,225 @@
         }
       ]
     },
+    "gearworks:nuclear_upgrade": {
+      "energy": 50000,
+      "growth": 1.4,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 4
+            },
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "from": 3,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 2
+            },
+            {
+              "tag": "c:storage_blocks/redstone",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "gearworks:kinetic_upgrade": {
+      "energy": 10000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/copper",
+              "count": 2
+            },
+            {
+              "tag": "c:dusts/redstone",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 2
+            },
+            {
+              "tag": "c:dusts/redstone",
+              "count": 8
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            },
+            {
+              "tag": "c:storage_blocks/redstone",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 15,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "gearworks:combustion_upgrade": {
+      "energy": 10000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/copper",
+              "count": 2
+            },
+            {
+              "tag": "c:ingots/iron",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 2
+            },
+            {
+              "tag": "c:rods/blaze",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            },
+            {
+              "tag": "c:rods/blaze",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "from": 15,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    "gearworks:metabolic_upgrade": {
+      "energy": 10000,
+      "growth": 1.25,
+      "stages": [
+        {
+          "from": 0,
+          "materials": [
+            {
+              "tag": "c:ingots/copper",
+              "count": 2
+            },
+            {
+              "tag": "c:dusts/redstone",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 5,
+          "materials": [
+            {
+              "tag": "c:ingots/gold",
+              "count": 2
+            },
+            {
+              "tag": "c:dusts/glowstone",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "from": 10,
+          "materials": [
+            {
+              "tag": "c:gems/diamond",
+              "count": 1
+            },
+            {
+              "tag": "c:dusts/glowstone",
+              "count": 8
+            }
+          ]
+        },
+        {
+          "from": 15,
+          "materials": [
+            {
+              "tag": "c:ingots/netherite",
+              "count": 1
+            },
+            {
+              "tag": "c:nether_stars",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
     "gearworks:speed_upgrade": {
       "energy": 10000,
       "growth": 1.25,
