@@ -27,6 +27,9 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
  */
 final class GearTooltips {
 
+    /** The Stats that make FE, each shown on the suit as the FE its upgrades make together. */
+    private static final List<Stat> GENERATORS = List.of(Stat.SOLAR, Stat.NUCLEAR, Stat.KINETIC, Stat.COMBUSTION, Stat.METABOLIC);
+
     private GearTooltips() {
     }
 
@@ -51,8 +54,10 @@ final class GearTooltips {
     private static void suit(ItemStack suit, List<Component> lines) {
         var totals = Suit.totals(suit);
         lines.add(gray(FeText.reading(suit)));
-        if (totals.amount(Stat.SOLAR) > 0) {
-            lines.add(gray(Component.translatable("tooltip.gearworks.solar", format(totals.amount(Stat.SOLAR)))));
+        for (var stat : GENERATORS) {
+            if (totals.amount(stat) > 0) {
+                lines.add(gray(Component.translatable("tooltip.gearworks." + stat.getSerializedName(), format(totals.amount(stat)))));
+            }
         }
         for (var stat : List.of(Stat.SPEED, Stat.SHIELD, Stat.JUMP)) {
             if (totals.has(stat)) {
@@ -101,7 +106,8 @@ final class GearTooltips {
         double amount = upgrade.amountAt(level);
         lines.add(gray(switch (upgrade.stat()) {
             case BATTERY -> Component.translatable("tooltip.gearworks.upgrade.battery", format(amount));
-            case SOLAR -> Component.translatable("tooltip.gearworks.upgrade.solar", format(amount));
+            case SOLAR, NUCLEAR, KINETIC, COMBUSTION, METABOLIC ->
+                    Component.translatable("tooltip.gearworks.upgrade." + upgrade.stat().getSerializedName(), format(amount));
             case SPEED -> Component.translatable("tooltip.gearworks.upgrade.speed", format(amount * 100), upgrade.drawAt(level));
             case SHIELD -> Component.translatable("tooltip.gearworks.upgrade.shield", format(amount * 100), upgrade.drawAt(level));
             case JUMP -> Component.translatable("tooltip.gearworks.upgrade.jump", format(amount * 100), upgrade.drawAt(level));

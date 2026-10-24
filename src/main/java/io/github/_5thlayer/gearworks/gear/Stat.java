@@ -13,8 +13,26 @@ import net.minecraft.util.StringRepresentable;
 public enum Stat implements StringRepresentable {
     /** Stores FE: the amount is the FE it holds. */
     BATTERY("battery"),
-    /** Adds FE in daylight under open sky: the amount is FE per tick. */
+    /** A Generator: adds FE in daylight under open sky. The amount is FE per tick. */
     SOLAR("solar"),
+    /** A Generator: adds FE every tick, day or night, under a roof or not. The amount is FE per tick. */
+    NUCLEAR("nuclear"),
+    /**
+     * A Generator: adds FE as the player moves on foot, walking or sprinting, and none while they fly,
+     * glide, swim or ride. The amount is FE per block moved.
+     */
+    KINETIC("kinetic"),
+    /**
+     * A Generator: adds FE while the suit's fire burns, a fuel item from the player's inventory. The
+     * amount is FE per tick of its burn time; each upgrade burns one tick of it each game tick, so more
+     * of them burn the fire faster.
+     */
+    COMBUSTION("combustion"),
+    /**
+     * A Generator: adds FE while the player has saturation, which it spends at the
+     * {@code metabolicEnergy} FE a point, and never their hunger. The amount is FE per tick.
+     */
+    METABOLIC("metabolic"),
     /** Raises walking speed while it draws FE: the amount is the fraction of base speed added. */
     SPEED("speed"),
     /**

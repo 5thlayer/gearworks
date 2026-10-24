@@ -74,6 +74,7 @@ public final class GearworksGameTests {
         BoostTests.register(tests);
         GridTests.register(tests);
         SolarTests.register(tests);
+        GeneratorTests.register(tests);
         BenchTests.register(tests);
         CreativeTabTests.register(tests);
         LanceTests.register(tests);

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#c:storage_blocks/redstone",
+    "I": "#c:ingots/iron",
+    "N": "#c:ingots/netherite",
+    "S": "#c:nether_stars"
+  },
+  "pattern": [
+    "IBI",
+    "NSN",
+    "III"
+  ],
+  "result": {
+    "id": "gearworks:nuclear_upgrade"
+  }
+}

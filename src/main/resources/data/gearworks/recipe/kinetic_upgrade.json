@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "#c:ingots/copper",
+    "P": "minecraft:piston",
+    "R": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "CPC",
+    "CRC"
+  ],
+  "result": {
+    "id": "gearworks:kinetic_upgrade"
+  }
+}
