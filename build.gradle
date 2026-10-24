@@ -6,7 +6,7 @@ plugins {
 libworks {
     // Nested by jar-in-jar, so players install nothing more; FML loads the newest nested copy in range,
     // which runs to the next minor. The Works tab and the Gear Bench's ghosts come from it.
-    runtime = '0.1.8'
+    runtime = '0.1.12'
     // Optional to players, and on the dev client only, so a Gear Bench can be powered from a creative
     // power pole. Gearworks names no Wireworks type: the pole reaches the bench through the energy
     // capability alone. Wireworks brings Groundworks, which it requires.

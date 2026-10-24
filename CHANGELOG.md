@@ -12,6 +12,8 @@ Each version has two sections: Players, what a player or pack developer sees, an
   - **Combustion Upgrade** (2×2): burns fuel from your inventory, the main inventory before the hotbar, giving 2 FE, +0.5 a Level, for each tick of its furnace burn time, so a coal gives 3,200 FE over 80 seconds. It burns only the item tag `gearworks:suit_fuel`, coal, charcoal, coal blocks and blaze rods by default, and never planks or tools. The Suit keeps one fire, saved on it, which waits while the Suit is off or full; more combustion upgrades burn it faster. Crafted from a blast furnace, iron and redstone.
   - **Metabolic Upgrade** (1×2): 20 FE/t, +5 a Level, from your saturation, never your hunger, so it stops once you have none left and never starves you. A point of saturation is 1,000 FE, set by `metabolicEnergy` in the server config. Crafted from a golden carrot, copper and redstone.
 
+- Gearworks nests libworks-runtime 0.1.12, where it nested 0.1.8.
+
 ### Consumers
 
 - `Stat.NUCLEAR`, `KINETIC`, `COMBUSTION` and `METABOLIC`, `GearContent.NUCLEAR_UPGRADE`, `KINETIC_UPGRADE`, `COMBUSTION_UPGRADE` and `METABOLIC_UPGRADE`, the suit's `gearworks:combustion_fire` and `gearworks:spare_fe` components, the item tag `gearworks:suit_fuel` (`SuitGenerators.SUIT_FUEL`), `Suit.Totals.count` and `GearworksConfig.metabolicEnergy`. A `gearworks:gear_upgrade` entry names any of the four Stats to make its own Generator. (#18)
