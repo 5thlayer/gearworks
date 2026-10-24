@@ -1,4 +1,5 @@
-![Gearworks](https://raw.githubusercontent.com/5thlayer/gearworks/main/publish/gearworks-cover.png?v=0.2.1)
+![Gearworks](https://raw.githubusercontent.com/5thlayer/gearworks/main/publish/gearworks-cover.png)
+
 
 Gearworks adds one **Suit**, which you wear in the chest slot and build up for the whole game, and the **Bore Lance**, a spear that mines a whole **Bore** of rock at once. Inside the Suit is a **Gear Grid**: lay out upgrades for battery, solar, speed, jump, shield, night vision, flight and boost, each covering a rectangle of the grid, then raise their **Levels** with no cap. Everything runs on FE.
 
