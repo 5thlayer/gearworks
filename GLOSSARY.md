@@ -49,6 +49,13 @@ One effect Gearworks gives the Suit, such as battery, solar, speed, jump, shield
 or boost. Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
 _Avoid_: ability, perk, attribute (vanilla's attributes are one way a Stat may act)
 
+**Generator**:
+A Stat that makes FE for the Suit itself, each from its own thing: solar from daylight, nuclear from
+nothing at a steep cost, kinetic from the player's steps on foot, combustion from fuel it burns out of
+the player's inventory, and metabolic from the player's saturation, never their hunger. A suit holds
+several, whose FE adds up, and none makes FE or spends anything once the suit is full.
+_Avoid_: source, charger (a charger is another mod's block that fills the suit), reactor
+
 **Ceiling**:
 The value a Stat approaches but never reaches however many Levels it has. It holds for the suit's
 total: two upgrades of one Stat together stay under it.
