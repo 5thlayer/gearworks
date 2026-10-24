@@ -45,8 +45,8 @@ costs more than the last by a constant factor.
 _Avoid_: tier (a tier is the suit's), rank
 
 **Stat**:
-One effect Gearworks gives the Suit, such as battery, solar, speed, jump, shield, night vision, flight
-or boost. Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
+One effect Gearworks gives the Suit, such as battery, solar, speed, jump, reach, shield, night vision,
+flight or boost. Gearworks owns every Stat; a Gear Upgrade only names which one it gives and how much.
 _Avoid_: ability, perk, attribute (vanilla's attributes are one way a Stat may act)
 
 **Generator**:
@@ -65,6 +65,12 @@ _Avoid_: cap, max
 The value a Stat's upgrade approaches but never goes under as its Level lowers it: an FE draw, as
 night vision's, Flight's and Boost's are, so the Stat never becomes free, or a Cooldown, so a Boost
 never comes back at once.
+
+**Reach**:
+The Stat that lets the player reach blocks and entities further, by the same number of blocks for
+both, while the suit pays for it each tick. Several add up under its Ceiling, and a Bore Lance reaches
+as far as its wearer.
+_Avoid_: range, arm, interaction range (vanilla's attributes, which Reach raises)
 
 **Boost**:
 The Stat that throws the flying player forward along their gaze for a moment, as a firework throws a

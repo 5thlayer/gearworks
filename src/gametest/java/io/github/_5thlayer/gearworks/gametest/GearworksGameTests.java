@@ -70,6 +70,7 @@ public final class GearworksGameTests {
         SuitTests.register(tests);
         TierTests.register(tests);
         StatTests.register(tests);
+        ReachTests.register(tests);
         FlightTests.register(tests);
         BoostTests.register(tests);
         GridTests.register(tests);

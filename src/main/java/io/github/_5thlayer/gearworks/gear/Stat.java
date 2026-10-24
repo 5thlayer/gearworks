@@ -44,6 +44,11 @@ public enum Stat implements StringRepresentable {
     /** Raises jump height while it has FE: the amount is the fraction of base jump strength added, and the draw the FE each jump spends. */
     JUMP("jump"),
     /**
+     * Lets the player reach blocks and entities further while it draws FE: the amount is the blocks added
+     * to both reaches, and the draw FE per tick, spent whether or not the player reaches that far.
+     */
+    REACH("reach"),
+    /**
      * Gives night vision while it draws FE: on or off, so a suit holds one, whose amount is not read. The
      * draw is FE per tick, and each Level lowers it toward the {@code nightVisionFloor}.
      */
