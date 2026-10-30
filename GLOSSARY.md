@@ -21,7 +21,8 @@ _Avoid_: client (collides with the game's client side), dependent, integration
 ### Gear
 
 **Gear**:
-The family of things Gearworks makes for the player to wear or carry: the Suit and the Bore Lance.
+The family of things Gearworks makes for the player to wear or carry: the Suit, the Bore Lance and the
+Railgun.
 _Avoid_: equipment (that is belt equipment in the suite)
 
 **Suit**:
@@ -120,3 +121,16 @@ _Avoid_: AoE, area, mode, pattern
 A Bore Lance breaking its Bore through whatever its tier mines in its path while Lunge carries the
 player forward, until a block beyond its tier stops it. It costs far more than mining the same blocks.
 _Avoid_: dash mining, tunnelling
+
+### Railgun
+
+**Railgun**:
+The Gear that fires an instant shot along the player's gaze, piercing every entity in its line until a
+block stops it, and breaking none. It runs on FE, which a worn Suit tops up, comes in one tier and has
+no Gear Grid.
+_Avoid_: gun, rifle, blaster
+
+**Charge**:
+The time a Railgun takes, held in either hand, to load its next shot after firing, paid for in FE when
+it completes. A Railgun is **Charged** once loaded, and stays so until it fires.
+_Avoid_: reload, recharge, cooldown (a Cooldown is Boost's)
