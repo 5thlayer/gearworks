@@ -22,6 +22,20 @@ Source:  https://github.com/malcolmriley/unused-textures
 Licence: Creative Commons Attribution 4.0 International
          https://creativecommons.org/licenses/by/4.0/
 
+Railgun's icons
+---------------
+
+Files:   data/art/tool_drill_base_electric.png
+         src/main/resources/assets/gearworks/textures/item/railgun.png
+         src/main/resources/assets/gearworks/textures/item/railgun_charged.png
+Author:  Malcolm Riley
+Source:  https://github.com/malcolmriley/unused-textures
+         at commit 8b85ad732023174d9a9da74e6bf2272d6c0bef17. The file under data/art/ is the unmodified
+         copy of items/tool_drill_base_electric.png; the Railgun's icons are built from it by
+         scripts/build-textures.py, which mirrors it, retints it and runs a railed barrel from its head.
+Licence: Creative Commons Attribution 4.0 International
+         https://creativecommons.org/licenses/by/4.0/
+
 Suits' icons
 ------------
 

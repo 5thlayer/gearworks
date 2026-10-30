@@ -32,8 +32,9 @@ path = [
 SPDX-FileCopyrightText = "2026 5thlayer"
 SPDX-License-Identifier = "MIT"
 
-# Malcolm Riley's unused textures: the Gear Bench's plating, copied unmodified, the workbench top it is
-# built from, and the top scripts/build-textures.py builds from it (NOTICE).
+# Malcolm Riley's unused textures: the Gear Bench's plating, copied unmodified, the workbench top and the
+# electric drill they are built from, and the bench's top and the Railgun's icons scripts/build-textures.py
+# builds from them (NOTICE).
 [[annotations]]
 path = [
     "data/art/*.png",
@@ -45,7 +46,11 @@ SPDX-FileCopyrightText = "Malcolm Riley"
 SPDX-License-Identifier = "CC-BY-4.0"
 
 [[annotations]]
-path = ["src/main/resources/assets/gearworks/textures/block/gear_bench/top.png"]
+path = [
+    "src/main/resources/assets/gearworks/textures/block/gear_bench/top.png",
+    "src/main/resources/assets/gearworks/textures/item/railgun.png",
+    "src/main/resources/assets/gearworks/textures/item/railgun_charged.png",
+]
 precedence = "override"
 SPDX-FileCopyrightText = ["Malcolm Riley", "2026 5thlayer"]
 SPDX-License-Identifier = "CC-BY-4.0"

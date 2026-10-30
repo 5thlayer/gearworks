@@ -38,7 +38,7 @@ The cover and icon are a Gear Grid of Gearworks' own upgrade icons (`publish/mak
 
 The suits' icons are [Futureazoo](https://github.com/Futureazoo/TextureRepository)'s flight chestplate, retinted for each tier, under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Gearworks is never monetized while it carries them.
 
-The Gear Bench is built from [Malcolm Riley](https://github.com/malcolmriley/unused-textures)'s unused textures, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (`NOTICE`).
+The Gear Bench and the Railgun's icons are built from [Malcolm Riley](https://github.com/malcolmriley/unused-textures)'s unused textures, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (`NOTICE`).
 
 ## Developing
 
