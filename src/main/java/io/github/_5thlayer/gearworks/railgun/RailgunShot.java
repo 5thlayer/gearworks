@@ -57,7 +57,9 @@ final class RailgunShot {
             }
         }
         beam(level, from, to, look);
-        level.playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(), SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, 0.5f, 1.8f);
+        // A firework's crack for the shot and a wind charge's burst for the air it splits, both pitched up to stay short.
+        level.playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.PLAYERS, 0.6f, 1.4f);
+        level.playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(), SoundEvents.BREEZE_WIND_CHARGE_BURST, SoundSource.PLAYERS, 0.3f, 1.6f);
     }
 
     /** Where the shot stops: on the first block in its way, else at its range. */

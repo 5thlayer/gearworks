@@ -53,6 +53,18 @@ public final class Railgun {
         return railgun.has(GearContent.CHARGED.get());
     }
 
+    /**
+     * The part of its Charge the Railgun has yet to load, from 1 just after it fired to 0 at full, which its
+     * slot shades as a cooldown is; nothing once Charged, or waiting at full for its cost.
+     */
+    public static float chargeLeft(Level level, ItemStack railgun) {
+        if (charged(railgun)) {
+            return 0;
+        }
+        int ticks = RailgunCharge.ticks(GearworksConfig.railgunChargeTicks(), enchantmentLevel(level, railgun, Enchantments.QUICK_CHARGE));
+        return 1 - (float) Math.min(progress(railgun), ticks) / ticks;
+    }
+
     /** The ticks of its Charge the Railgun has loaded. */
     static int progress(ItemStack railgun) {
         return railgun.getOrDefault(GearContent.RAILGUN_CHARGE.get(), 0);

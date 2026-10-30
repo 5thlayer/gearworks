@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:item/crossbow",
+  "parent": "gearworks:item/railgun",
   "textures": {
     "layer0": "gearworks:item/railgun_charged"
   }

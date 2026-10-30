@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Every suit, Bore Lance and upgrade is drawn in Gearworks' own art: an icon of its own, for a suit a
  * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Module ships
- * rather than one borrowed from vanilla. The Railgun is held as a crossbow is, in an icon of its own and
- * another of its own once Charged.
+ * rather than one borrowed from vanilla. The Railgun is held upright in a pose of its own, in an icon of its own
+ * and another of its own once Charged, which shares that pose.
  */
 class ArtTest {
 
@@ -107,10 +107,13 @@ class ArtTest {
     }
 
     @Test
-    void theRailgunIsHeldAsACrossbowInIconsOfItsOwnChargedOrNot() throws IOException {
+    void theRailgunIsHeldInAPoseOfItsOwnInIconsOfItsOwnChargedOrNot() throws IOException {
+        assertTrue(json(ASSETS.resolve("models/item/railgun.json")).startsWith(
+                "{\"parent\":\"minecraft:item/generated\",\"textures\":{\"layer0\":\"gearworks:item/railgun\"},\"display\":{"),
+                "the Railgun is not held in a pose of its own");
+        assertEquals("{\"parent\":\"gearworks:item/railgun\",\"textures\":{\"layer0\":\"gearworks:item/railgun_charged\"}}",
+                json(ASSETS.resolve("models/item/railgun_charged.json")));
         for (var model : List.of("railgun", "railgun_charged")) {
-            assertEquals("{\"parent\":\"minecraft:item/crossbow\",\"textures\":{\"layer0\":\"gearworks:item/" + model + "\"}}",
-                    json(ASSETS.resolve("models/item/" + model + ".json")));
             var icon = image(ASSETS.resolve("textures/item/" + model + ".png"));
             assertEquals(16, icon.getWidth());
             assertEquals(16, icon.getHeight());
