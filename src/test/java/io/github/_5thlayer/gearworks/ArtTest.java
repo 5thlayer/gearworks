@@ -27,7 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Every suit, Bore Lance and upgrade is drawn in Gearworks' own art: an icon of its own, for a suit a
  * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Module ships
- * rather than one borrowed from vanilla.
+ * rather than one borrowed from vanilla. The Railgun is held as a crossbow is, in an icon of its own and
+ * another of its own once Charged.
  */
 class ArtTest {
 
@@ -103,6 +104,25 @@ class ArtTest {
         var held = image(ASSETS.resolve("textures/item/" + lance + "_in_hand.png"));
         assertEquals(32, held.getWidth());
         assertEquals(32, held.getHeight());
+    }
+
+    @Test
+    void theRailgunIsHeldAsACrossbowInIconsOfItsOwnChargedOrNot() throws IOException {
+        for (var model : List.of("railgun", "railgun_charged")) {
+            assertEquals("{\"parent\":\"minecraft:item/crossbow\",\"textures\":{\"layer0\":\"gearworks:item/" + model + "\"}}",
+                    json(ASSETS.resolve("models/item/" + model + ".json")));
+            var icon = image(ASSETS.resolve("textures/item/" + model + ".png"));
+            assertEquals(16, icon.getWidth());
+            assertEquals(16, icon.getHeight());
+        }
+        assertEquals("{\"model\":{\"type\":\"minecraft:condition\",\"property\":\"minecraft:has_component\",\"component\":\"gearworks:charged\","
+                        + "\"on_true\":{\"type\":\"minecraft:model\",\"model\":\"gearworks:item/railgun_charged\"},"
+                        + "\"on_false\":{\"type\":\"minecraft:model\",\"model\":\"gearworks:item/railgun\"}}}",
+                json(ASSETS.resolve("items/railgun.json")));
+        var all = new ArrayList<>(items());
+        all.add("railgun");
+        all.add("railgun_charged");
+        assertAllDistinct(all, item -> ASSETS.resolve("textures/item/" + item + ".png"));
     }
 
     @Test

@@ -4,6 +4,14 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ## Unreleased
 
+### Players
+
+- The **Railgun**, a held piece of Gear that fights at range on FE. Charged, a right-click fires an instant shot along your gaze, 64 blocks unless a block stops it first, as an arrow's would (glass and leaves included); it hurts every living thing in its line for 16, as projectile damage caused by you, so armor, shields, PvP rules and endermen's dodge all apply, knocks each a little along the beam, and breaks no block. Uncharged, a right-click does nothing, and a left-click is always a punch. After each shot it takes its **Charge**, 1.25 seconds as a crossbow's loading, to load the next, by itself while held in either hand; put away, it keeps its progress, and Charged, it stays so until it fires. The Charge pays 1,000 FE as it completes, or waits at full until the Railgun holds it. It holds 100,000 FE, shown on its bar and in its tooltip, which any mod's charger fills through its FE capability and a worn Suit tops up in either hand under the netherite Bore Lance's rule. It has its own model once Charged, a beam of sparks and a crack when it fires. It takes Quick Charge, 5 ticks shorter a level down to 10 at III, and Power, raising its damage as on a bow, and no other enchantment, by the enchantment tag `gearworks:railgun`. It has one tier, no durability and no Gear Grid, shrugs off fire and lava, and is crafted from a netherite ingot, two copper blocks, a redstone block and a lightning rod. Its numbers are in the server config: `railgunCapacity`, `railgunChargeEnergy`, `railgunChargeTicks`, `railgunRange`, `railgunDamage` and `railgunKnockback`; `netheriteLanceChargeRate` and `netheriteLanceChargeReserve` now cover the Railgun too. (#21)
+
+### Consumers
+
+- `GearContent.RAILGUN`, the Railgun's `gearworks:railgun_charge` and `gearworks:charged` components (it keeps its FE in `gearworks:energy`), `Railgun.ENCHANTABLE` (the enchantment tag `gearworks:railgun`), the damage type `gearworks:railgun` (`Railgun.SHOT`) and `GearworksConfig`'s `railgun*` getters. `BoreLance.charge` and `BoreLance.fill` are gone: the Suit tops up held Gear on FE through each one's FE capability. (#21)
+
 ## 0.2.1
 
 ### Players

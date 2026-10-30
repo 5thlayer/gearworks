@@ -4,9 +4,9 @@
 package io.github._5thlayer.gearworks.level;
 
 /**
- * What a worn Suit gives a netherite Bore Lance in the player's hand in one tick, free of Minecraft so it
- * runs on a plain JVM: up to its rate, only from what the Suit holds over its reserve, a fraction of what
- * its batteries hold, and no more than the lance has room for.
+ * What a worn Suit gives the Gear on FE in the player's hand, a netherite Bore Lance or a Railgun, in one
+ * tick, free of Minecraft so it runs on a plain JVM: up to its rate, only from what the Suit holds over its
+ * reserve, a fraction of what its batteries hold, and no more than the lance or Railgun has room for.
  */
 public final class LanceCharge {
 

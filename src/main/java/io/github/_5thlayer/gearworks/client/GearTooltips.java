@@ -13,6 +13,7 @@ import io.github._5thlayer.gearworks.gear.Stat;
 import io.github._5thlayer.gearworks.lance.BoreLance;
 import io.github._5thlayer.gearworks.lance.BoreLanceItem;
 import io.github._5thlayer.gearworks.level.Curves;
+import io.github._5thlayer.gearworks.railgun.Railgun;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,7 +24,8 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
  * A suit's FE and the totals of its Stats, not each upgrade's value, since a Stat's Ceiling holds for
  * their sum (ADR 0003); every Gear Upgrade's size, Level and Stat at that Level, from its data map
  * entry, so an upgrade a datapack adds says so as Gearworks' own do; and a Bore Lance's Bore and its
- * built-in Lunge, which vanilla's enchantment lines don't show, and the netherite lance's FE.
+ * built-in Lunge, which vanilla's enchantment lines don't show, and the netherite lance's FE; and a
+ * Railgun's FE, and whether it is Charged or too dry to load its next shot.
  */
 final class GearTooltips {
 
@@ -44,6 +46,9 @@ final class GearTooltips {
         }
         if (BoreLance.is(stack)) {
             lance(stack, (BoreLanceItem) stack.getItem(), lines);
+        }
+        if (Railgun.is(stack)) {
+            railgun(stack, lines);
         }
         var upgrade = GearUpgrade.of(stack.typeHolder());
         if (upgrade != null) {
@@ -99,6 +104,15 @@ final class GearTooltips {
             lines.add(Component.translatable("tooltip.gearworks.bore_lance.dry").withStyle(ChatFormatting.RED));
         } else if (BoreLance.runsOnEnergy(stack) && !BoreLance.affordsLunge(stack)) {
             lines.add(Component.translatable("tooltip.gearworks.bore_lance.low").withStyle(ChatFormatting.RED));
+        }
+    }
+
+    private static void railgun(ItemStack railgun, List<Component> lines) {
+        lines.add(gray(FeText.reading(Railgun.energy(railgun), GearworksConfig.railgunCapacity())));
+        if (Railgun.charged(railgun)) {
+            lines.add(Component.translatable("tooltip.gearworks.railgun.charged").withStyle(ChatFormatting.AQUA));
+        } else if (Railgun.energy(railgun) < GearworksConfig.railgunChargeEnergy()) {
+            lines.add(Component.translatable("tooltip.gearworks.railgun.dry").withStyle(ChatFormatting.RED));
         }
     }
 

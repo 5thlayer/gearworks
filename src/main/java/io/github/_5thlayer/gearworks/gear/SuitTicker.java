@@ -4,7 +4,6 @@
 package io.github._5thlayer.gearworks.gear;
 
 import io.github._5thlayer.gearworks.Gearworks;
-import io.github._5thlayer.gearworks.lance.BoreLance;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
@@ -28,7 +27,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * which each boosted jump spends; reach lengthens the player's block and entity reach while it has
  * the FE to draw each tick; and flight lets the player fly, at a speed its Level raises, while it
  * has the FE to draw each tick in the air, and lets them down slowly when it runs dry there. Last, it
- * charges a netherite Bore Lance in either hand.
+ * charges the Gear on FE in either hand ({@link HeldGear}).
  */
 public final class SuitTicker {
 
@@ -125,7 +124,7 @@ public final class SuitTicker {
         } else {
             reach(player, 0);
         }
-        energy = BoreLance.charge(player, energy, Suit.capacity(suit));
+        energy = HeldGear.charge(player, energy, Suit.capacity(suit));
         if (energy != before) {
             Suit.setEnergy(suit, energy);
         }

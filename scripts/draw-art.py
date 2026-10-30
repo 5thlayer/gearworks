@@ -455,6 +455,43 @@ def lance_in_hand(ramp):
     return lance_sprite(32, (1, 1), (0.7071, 0.7071), 11, 3.6, ramp)
 
 
+# The Railgun: a netherite body pointing to the top right as a crossbow's icon does, two copper rails
+# along its barrel, the suits' orange gem set in its body and a grip hanging below. Charged, its rails
+# and the bore between them glow an electric blue. Outlined in the metal's outline and lit from the top left.
+RAILGUN = TIERS["netherite_gear"]
+COPPER = ("#6d3a28", "#b4684d", "#e0905f")
+SPARK = ("#2a7fd0", "#4fb8ff", "#c8f0ff")
+
+
+def railgun_icon(charged):
+    """Placed by diagonals from the muzzle at the top right: along, the pixels back toward the stock, and
+    across, the pixels off the barrel's line, negative on its lit, upper left side."""
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    filled = {}
+    for y in range(16):
+        for x in range(16):
+            along, across = (y - 1) - (x - 14), (x - 14) + (y - 1)
+            lit = across < 0
+            if 0 <= along <= 13 and across == 0:
+                filled[x, y] = SPARK[2] if charged else RAILGUN[0]
+            elif 1 <= along <= 13 and abs(across) == 1:
+                filled[x, y] = (SPARK[1] if lit else SPARK[0]) if charged else COPPER[2] if lit else COPPER[1]
+            elif 14 <= along <= 18 and abs(across) <= 2:
+                gem = along in (15, 16) and across in (-1, 0)
+                filled[x, y] = CORE[3 if lit else 2] if gem else RAILGUN[3 if lit else 2 if across == 0 else 1]
+            elif along in (16, 17) and 3 <= across <= 6:
+                filled[x, y] = RAILGUN[2 if along == 16 else 1]
+            elif 19 <= along <= 23 and abs(across) <= 1:
+                filled[x, y] = RAILGUN[2 if lit else 1]
+    for (x, y), shade in filled.items():
+        image.putpixel((x, y), color(shade))
+    for y in range(16):
+        for x in range(16):
+            if (x, y) not in filled and any((x + dx, y + dy) in filled for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                image.putpixel((x, y), color(METAL["K"]))
+    return image
+
+
 def worn(palette):
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     paint(image, BODY_SIDE, palette, 16, 20)
@@ -489,6 +526,8 @@ def main():
     for name, ramp in LANCES.items():
         lance_icon(ramp).save(items / f"{name}.png")
         lance_in_hand(ramp).save(items / f"{name}_in_hand.png")
+    railgun_icon(False).save(items / "railgun.png")
+    railgun_icon(True).save(items / "railgun_charged.png")
 
 
 if __name__ == "__main__":

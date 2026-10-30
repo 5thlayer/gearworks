@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
  * The server's numbers that no data map entry holds: those that belong to a Stat rather than to an
- * upgrade, whose own values are in its data map entry, and the Bore Lance's costs and FE.
+ * upgrade, whose own values are in its data map entry, the Bore Lance's costs and FE, and the Railgun's.
  */
 public final class GearworksConfig {
 
@@ -27,6 +27,12 @@ public final class GearworksConfig {
     private static final ModConfigSpec.IntValue NETHERITE_LANCE_LUNGE_BORING_ENERGY;
     private static final ModConfigSpec.IntValue NETHERITE_LANCE_CHARGE_RATE;
     private static final ModConfigSpec.DoubleValue NETHERITE_LANCE_CHARGE_RESERVE;
+    private static final ModConfigSpec.IntValue RAILGUN_CAPACITY;
+    private static final ModConfigSpec.IntValue RAILGUN_CHARGE_ENERGY;
+    private static final ModConfigSpec.IntValue RAILGUN_CHARGE_TICKS;
+    private static final ModConfigSpec.DoubleValue RAILGUN_RANGE;
+    private static final ModConfigSpec.DoubleValue RAILGUN_DAMAGE;
+    private static final ModConfigSpec.DoubleValue RAILGUN_KNOCKBACK;
     private static final ModConfigSpec.DoubleValue BOOST_CEILING;
     private static final ModConfigSpec.IntValue BOOST_FLOOR;
     private static final ModConfigSpec.IntValue BOOST_COOLDOWN_FLOOR;
@@ -78,12 +84,30 @@ public final class GearworksConfig {
                 .comment("The FE the netherite Bore Lance pays for each block its Lunge breaks.")
                 .defineInRange("netheriteLanceLungeBoringEnergy", 500, 0, 1_000_000);
         NETHERITE_LANCE_CHARGE_RATE = builder
-                .comment("The FE per tick a worn Suit gives a netherite Bore Lance in either of the player's hands.")
+                .comment("The FE per tick a worn Suit gives a netherite Bore Lance or a Railgun in either of the player's hands.")
                 .defineInRange("netheriteLanceChargeRate", 1_000, 0, 1_000_000);
         NETHERITE_LANCE_CHARGE_RESERVE = builder
-                .comment("The fraction of what its batteries hold that a Suit keeps for itself: it charges a lance",
-                        "only while it holds more, and never goes under it doing so.")
+                .comment("The fraction of what its batteries hold that a Suit keeps for itself: it charges a lance or a",
+                        "Railgun only while it holds more, and never goes under it doing so.")
                 .defineInRange("netheriteLanceChargeReserve", 0.25, 0.0, 1.0);
+        RAILGUN_CAPACITY = builder
+                .comment("The FE the Railgun holds.")
+                .defineInRange("railgunCapacity", 100_000, 1, Integer.MAX_VALUE);
+        RAILGUN_CHARGE_ENERGY = builder
+                .comment("The FE the Railgun pays for each shot, when its Charge completes.")
+                .defineInRange("railgunChargeEnergy", 1_000, 0, Integer.MAX_VALUE);
+        RAILGUN_CHARGE_TICKS = builder
+                .comment("The ticks the Railgun's Charge takes, held, before Quick Charge shortens it. A crossbow loads in 25.")
+                .defineInRange("railgunChargeTicks", 25, 1, 72_000);
+        RAILGUN_RANGE = builder
+                .comment("The blocks the Railgun's shot reaches, unless a block stops it first.")
+                .defineInRange("railgunRange", 64.0, 1.0, 512.0);
+        RAILGUN_DAMAGE = builder
+                .comment("The damage the Railgun's shot does each entity it hits, before Power raises it and armor lowers it.")
+                .defineInRange("railgunDamage", 16.0, 0.0, 1_000_000.0);
+        RAILGUN_KNOCKBACK = builder
+                .comment("How hard the Railgun's shot knocks each entity it hurts along the beam. A melee hit's is 0.4.")
+                .defineInRange("railgunKnockback", 0.25, 0.0, 10.0);
         BOOST_CEILING = builder
                 .comment("The speed in blocks a tick a Boost's Thrust approaches and never reaches as its upgrade levels.",
                         "A vanilla rocket pulls a glider toward 1.5.")
@@ -165,14 +189,44 @@ public final class GearworksConfig {
         return value(NETHERITE_LANCE_LUNGE_BORING_ENERGY);
     }
 
-    /** The FE per tick a worn Suit gives a netherite Bore Lance in hand. */
+    /** The FE per tick a worn Suit gives a netherite Bore Lance or a Railgun in hand. */
     public static int netheriteLanceChargeRate() {
         return value(NETHERITE_LANCE_CHARGE_RATE);
     }
 
-    /** The fraction of its capacity a Suit keeps when it charges a lance. */
+    /** The fraction of its capacity a Suit keeps when it charges a lance or a Railgun. */
     public static double netheriteLanceChargeReserve() {
         return value(NETHERITE_LANCE_CHARGE_RESERVE);
+    }
+
+    /** The FE the Railgun holds. */
+    public static int railgunCapacity() {
+        return value(RAILGUN_CAPACITY);
+    }
+
+    /** The FE the Railgun's Charge costs. */
+    public static int railgunChargeEnergy() {
+        return value(RAILGUN_CHARGE_ENERGY);
+    }
+
+    /** The ticks the Railgun's Charge takes before Quick Charge. */
+    public static int railgunChargeTicks() {
+        return value(RAILGUN_CHARGE_TICKS);
+    }
+
+    /** The blocks the Railgun's shot reaches. */
+    public static double railgunRange() {
+        return value(RAILGUN_RANGE);
+    }
+
+    /** The damage the Railgun's shot does before Power. */
+    public static double railgunDamage() {
+        return value(RAILGUN_DAMAGE);
+    }
+
+    /** How hard the Railgun's shot knocks what it hurts. */
+    public static double railgunKnockback() {
+        return value(RAILGUN_KNOCKBACK);
     }
 
     /** The server's value, or its default before the server's config has loaded, as on a client's tooltip. */

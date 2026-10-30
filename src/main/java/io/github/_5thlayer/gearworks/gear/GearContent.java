@@ -19,6 +19,8 @@ import io.github._5thlayer.gearworks.lance.BoreLanceSmithingRecipe;
 import io.github._5thlayer.gearworks.lance.CycleBorePayload;
 import io.github._5thlayer.gearworks.lance.LungeBoring;
 import io.github._5thlayer.gearworks.level.Boosting;
+import io.github._5thlayer.gearworks.railgun.Railgun;
+import io.github._5thlayer.gearworks.railgun.RailgunItem;
 import io.github._5thlayer.libworks.WorksTab;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -28,6 +30,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -66,8 +69,8 @@ import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 /**
  * What Gearworks registers: the suit's three tiers, the upgrades, the components the suit and its upgrades
  * save, the Gear Grid's menu, the Gear Bench, and the data maps that make an item an upgrade, size
- * each tier's grid and price each upgrade's Levels; and the Bore Lance's tiers, the Bore each keeps,
- * and the recipe that makes one from a spear.
+ * each tier's grid and price each upgrade's Levels; the Bore Lance's tiers, the Bore each keeps,
+ * and the recipe that makes one from a spear; and the Railgun and its Charge.
  */
 public final class GearContent {
 
@@ -94,7 +97,7 @@ public final class GearContent {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<GridContents>> GRID = COMPONENTS.registerComponentType(
             "gear_grid", builder -> builder.persistent(GridContents.CODEC).networkSynchronized(GridContents.STREAM_CODEC));
 
-    /** The FE a suit holds, in its batteries, or the netherite Bore Lance holds. */
+    /** The FE a suit holds, in its batteries, or the netherite Bore Lance or the Railgun holds. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ENERGY = COMPONENTS.registerComponentType(
             "energy", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
@@ -123,6 +126,14 @@ public final class GearContent {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Bore>> BORE = COMPONENTS.registerComponentType(
             "bore", builder -> builder.persistent(Codec.stringResolver(Bore::serializedName, Bore::bySerializedName))
                     .networkSynchronized(ByteBufCodecs.idMapper(id -> Bore.values()[id], Bore::ordinal)));
+
+    /** The ticks of its Charge a Railgun has loaded; one with none starts its Charge from nothing. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> RAILGUN_CHARGE = COMPONENTS.registerComponentType(
+            "railgun_charge", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    /** Marks a Railgun Charged, its next shot loaded and paid for, which its item model shows. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> CHARGED = COMPONENTS.registerComponentType(
+            "charged", builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC));
 
     /** Tier 1, with an iron chestplate's armor. */
     public static final DeferredItem<SuitItem> IRON_SUIT = ITEMS.registerItem("iron_gear", SuitItem::new,
@@ -157,6 +168,13 @@ public final class GearContent {
             properties -> new BoreLanceItem(properties, Bore.FIVE, 3, BoreLanceItem.Upkeep.ENERGY),
             properties -> withoutDurability(lance(properties, ToolMaterial.NETHERITE, 1.15f, 1.2f, 0.4f, 2.5f, 9.0f, 5.5f, 5.1f, 8.75f, 4.6f))
                     .fireResistant());
+
+    /**
+     * The Railgun: one tier, on FE, with no durability and no Gear Grid; like netherite, fire and lava leave
+     * it be. It takes the enchantments of {@link Railgun#ENCHANTABLE}, at a crossbow's enchantability.
+     */
+    public static final DeferredItem<RailgunItem> RAILGUN = ITEMS.registerItem("railgun", RailgunItem::new,
+            properties -> properties.stacksTo(1).enchantable(1).fireResistant());
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoreLanceRecipe>> BORE_LANCE_RECIPE =
             RECIPE_SERIALIZERS.register("crafting_bore_lance", () -> BoreLanceRecipe.SERIALIZER);
@@ -217,6 +235,7 @@ public final class GearContent {
         NeoForge.EVENT_BUS.addListener(SuitBoost::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(SuitShield::onDamage);
         NeoForge.EVENT_BUS.addListener(LungeBoring::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(Railgun::onPlayerTick);
     }
 
     /**
@@ -270,7 +289,7 @@ public final class GearContent {
     }
 
     /**
-     * Any mod's charger fills the suit, over the sum of its batteries, and the netherite Bore Lance; any
+     * Any mod's charger fills the suit, over the sum of its batteries, the netherite Bore Lance and the Railgun; any
      * mod's pipes, hoppers and cables stock a Gear Bench, on every face.
      */
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -280,6 +299,9 @@ public final class GearContent {
         event.registerItem(Capabilities.Energy.ITEM,
                 (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), GearworksConfig.netheriteLanceCapacity()),
                 NETHERITE_BORE_LANCE);
+        event.registerItem(Capabilities.Energy.ITEM,
+                (stack, access) -> new ItemAccessEnergyHandler(access, ENERGY.get(), GearworksConfig.railgunCapacity()),
+                RAILGUN);
         event.registerBlockEntity(Capabilities.Item.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.stockFace());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, GEAR_BENCH_ENTITY.get(), (bench, side) -> bench.energyFace());
     }
@@ -302,6 +324,7 @@ public final class GearContent {
             event.accept(IRON_BORE_LANCE);
             event.accept(DIAMOND_BORE_LANCE);
             event.accept(NETHERITE_BORE_LANCE);
+            event.accept(RAILGUN);
             event.accept(BATTERY_UPGRADE);
             event.accept(SOLAR_UPGRADE);
             event.accept(NUCLEAR_UPGRADE);
