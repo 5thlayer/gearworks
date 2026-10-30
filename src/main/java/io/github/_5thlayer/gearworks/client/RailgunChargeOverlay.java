@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 
 /**
  * A Railgun's slot shaded over the part of its Charge left to load, falling as it loads, as vanilla
- * shades an item on cooldown; a Charged Railgun's is clear.
+ * shades an item on its item cooldown; a Charged Railgun's is clear.
  */
 final class RailgunChargeOverlay implements IItemDecorator {
 

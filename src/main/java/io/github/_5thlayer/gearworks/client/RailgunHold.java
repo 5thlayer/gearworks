@@ -49,6 +49,7 @@ final class RailgunHold implements IClientItemExtensions {
             return false;
         }
         int invert = arm == HumanoidArm.RIGHT ? 1 : -1;
+        // A loaded crossbow's place in the hand and its way to the middle, as ItemInHandRenderer has them.
         poseStack.translate(invert * 0.56F, -0.52F + equipProcess * -0.6F, -0.72F);
         poseStack.translate(invert * CENTRING * -0.641864F, 0.0F, 0.0F);
         poseStack.mulPose(Axis.YP.rotationDegrees(invert * YAW));

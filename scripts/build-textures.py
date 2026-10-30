@@ -78,14 +78,14 @@ def ramp(shades, light):
 
 
 def is_copper(rgb):
-    """The coil's shades, far redder than green; not the grip's wood, nor the cord's red plug, with hardly any green."""
-    r, g, b = rgb[:3]
+    """The coil's shades, far redder than green; not the grip's wood, less red, nor the cord's plug, almost no green."""
+    r, g = rgb[:2]
     return r - g > 45 and g > 30
 
 
 def is_tinted(rgb):
     """The grip's wood and the cord's plug, which are no grey."""
-    r, g, b = rgb[:3]
+    r, b = rgb[0], rgb[2]
     return r - b > 20
 
 

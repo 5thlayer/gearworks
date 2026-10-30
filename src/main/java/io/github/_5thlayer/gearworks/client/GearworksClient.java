@@ -23,7 +23,8 @@ import net.neoforged.neoforge.common.NeoForge;
  * The client's side of Gear: the Gear Bench's screen and the suit floating above it, the Gear Grid's
  * screen and the key that opens it, the worn suit's glowing gem, its FE and its Boost's Cooldown on the
  * HUD and the key that fires its Boost, the Bore Lance's mining and the key that steps its Bore, the
- * tooltips of suits, lances, the Railgun and upgrades, the Railgun's two-handed hold and the Charge its slot shades, and the configs and the mod list's screen for them.
+ * tooltips of suits, lances, the Railgun and upgrades, the Railgun's two-handed hold and the Charge its
+ * slot shades, and the configs and the mod list's screen for them.
  */
 @Mod(value = Gearworks.MOD_ID, dist = Dist.CLIENT)
 public final class GearworksClient {

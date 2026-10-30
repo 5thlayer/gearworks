@@ -27,8 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Every suit, Bore Lance and upgrade is drawn in Gearworks' own art: an icon of its own, for a suit a
  * worn look of its own and for a lance a sprite of its own in the hand, each a texture the Module ships
- * rather than one borrowed from vanilla. The Railgun is held upright in a pose of its own, in an icon of its own
- * and another of its own once Charged, which shares that pose.
+ * rather than one borrowed from vanilla. The Railgun is held upright in a pose of its own, in an icon of its own,
+ * built from Malcolm Riley's electric drill (NOTICE), and another of its own once Charged, which shares that pose.
  */
 class ArtTest {
 

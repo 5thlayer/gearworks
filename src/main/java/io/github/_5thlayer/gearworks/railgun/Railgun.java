@@ -55,7 +55,7 @@ public final class Railgun {
 
     /**
      * The part of its Charge the Railgun has yet to load, from 1 just after it fired to 0 at full, which its
-     * slot shades as a cooldown is; nothing once Charged, or waiting at full for its cost.
+     * slot shades as vanilla shades an item on its item cooldown; nothing once Charged, or waiting at full for its cost.
      */
     public static float chargeLeft(Level level, ItemStack railgun) {
         if (charged(railgun)) {
@@ -108,9 +108,10 @@ public final class Railgun {
         }
     }
 
-    /** The Railgun's level of that enchantment. */
+    /** The Railgun's level of that enchantment, or 0 where the enchantment isn't registered. */
     static int enchantmentLevel(Level level, ItemStack railgun, ResourceKey<Enchantment> enchantment) {
-        return railgun.getEnchantmentLevel(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantment));
+        // None where a datapack has taken the enchantment away.
+        return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(enchantment).map(railgun::getEnchantmentLevel).orElse(0);
     }
 
     private static Identifier id(String path) {
