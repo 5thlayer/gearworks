@@ -17,7 +17,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
  * The held Gear that runs on FE, the netherite Bore Lance and the Railgun, which a worn Suit tops up in
  * either hand under one rule, {@link LanceCharge}'s, each up to what it holds.
  */
-final class HeldGear {
+public final class HeldGear {
 
     private HeldGear() {
     }
@@ -34,19 +34,31 @@ final class HeldGear {
     static int charge(Player player, int suitEnergy, int suitCapacity) {
         for (var hand : InteractionHand.values()) {
             var stack = player.getItemInHand(hand);
-            var handler = runsOnEnergy(stack) ? ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM) : null;
-            if (handler == null) {
-                continue;
-            }
-            int moved = LanceCharge.transfer(suitEnergy, suitCapacity, handler.getAmountAsInt(), handler.getCapacityAsInt(),
-                    GearworksConfig.netheriteLanceChargeRate(), GearworksConfig.netheriteLanceChargeReserve());
-            if (moved > 0) {
-                try (var transaction = Transaction.openRoot()) {
-                    suitEnergy -= handler.insert(moved, transaction);
-                    transaction.commit();
-                }
+            if (runsOnEnergy(stack)) {
+                suitEnergy -= topUp(stack, suitEnergy, suitCapacity);
             }
         }
         return suitEnergy;
+    }
+
+    /**
+     * Tops up one stack on FE from a Suit holding that FE of what its batteries hold, by the rule above,
+     * and gives back how much went in: none into a stack with no FE capability.
+     */
+    public static int topUp(ItemStack stack, int suitEnergy, int suitCapacity) {
+        var handler = ItemAccess.forStack(stack).getCapability(Capabilities.Energy.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        int moved = LanceCharge.transfer(suitEnergy, suitCapacity, handler.getAmountAsInt(), handler.getCapacityAsInt(),
+                GearworksConfig.netheriteLanceChargeRate(), GearworksConfig.netheriteLanceChargeReserve());
+        if (moved <= 0) {
+            return 0;
+        }
+        try (var transaction = Transaction.openRoot()) {
+            int added = handler.insert(moved, transaction);
+            transaction.commit();
+            return added;
+        }
     }
 }

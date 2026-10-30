@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,10 +48,11 @@ final class RailgunShot {
         var look = shooter.getViewVector(1.0f);
         var to = end(level, shooter, from, from.add(look.scale(GearworksConfig.railgunRange())));
         var source = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(Railgun.SHOT), shooter);
-        float damage = (float) RailgunCharge.damage(GearworksConfig.railgunDamage(), Railgun.level(level, railgun, Enchantments.POWER));
+        float damage = (float) RailgunCharge.damage(GearworksConfig.railgunDamage(), Railgun.enchantmentLevel(level, railgun, Enchantments.POWER));
         double knockback = GearworksConfig.railgunKnockback();
         for (var target : struck(level, shooter, from, to)) {
-            if (target.hurtServer(level, source, damage) && knockback > 0) {
+            // An enderman dodges by teleporting, which counts as hurt; as with an arrow, it takes no knockback where it lands.
+            if (target.hurtServer(level, source, damage) && knockback > 0 && !target.is(EntityType.ENDERMAN)) {
                 target.knockback(knockback, -look.x, -look.z);
             }
         }

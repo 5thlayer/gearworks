@@ -10,7 +10,7 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ### Consumers
 
-- `GearContent.RAILGUN`, the Railgun's `gearworks:railgun_charge` and `gearworks:charged` components (it keeps its FE in `gearworks:energy`), `Railgun.ENCHANTABLE` (the enchantment tag `gearworks:railgun`), the damage type `gearworks:railgun` (`Railgun.SHOT`) and `GearworksConfig`'s `railgun*` getters. `BoreLance.charge` and `BoreLance.fill` are gone: the Suit tops up held Gear on FE through each one's FE capability. (#21)
+- `GearContent.RAILGUN`, the Railgun's `gearworks:railgun_charge` and `gearworks:charged` components (it keeps its FE in `gearworks:energy`), `Railgun.ENCHANTABLE` (the enchantment tag `gearworks:railgun`), the damage type `gearworks:railgun` (`Railgun.SHOT`) and `GearworksConfig`'s `railgun*` getters. `HeldGear.topUp` tops up any one stack on FE from a Suit, by the rule the Suit's tick gives the netherite Bore Lance and the Railgun; `BoreLance.charge` still charges only lances. (#21)
 
 ## 0.2.1
 

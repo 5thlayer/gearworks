@@ -8,16 +8,21 @@ import java.util.Optional;
 import io.github._5thlayer.gearworks.Gearworks;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
+import io.github._5thlayer.gearworks.gear.HeldGear;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * The Bore Lance as a stack: the Bore its key last chose, which it keeps, whether it is worn out, and on
@@ -62,6 +67,37 @@ public final class BoreLance {
     /** The FE the lance holds: none on a tier that doesn't run on it. */
     public static int energy(ItemStack lance) {
         return runsOnEnergy(lance) ? lance.getOrDefault(GearContent.ENERGY.get(), 0) : 0;
+    }
+
+    /**
+     * Puts FE into a lance that runs on it, through its FE capability as any charger does, so up to what it
+     * holds, and gives back how much went in.
+     */
+    public static int fill(ItemStack lance, int fe) {
+        var handler = runsOnEnergy(lance) && fe > 0 ? ItemAccess.forStack(lance).getCapability(Capabilities.Energy.ITEM) : null;
+        if (handler == null) {
+            return 0;
+        }
+        try (var transaction = Transaction.openRoot()) {
+            int added = handler.insert(fe, transaction);
+            transaction.commit();
+            return added;
+        }
+    }
+
+    /**
+     * Charges a lance on FE in either of the player's hands from a worn Suit holding that FE of what its
+     * batteries hold, as {@link HeldGear#topUp} does all held Gear on FE; gives back the FE the Suit has left.
+     * The Suit's own tick tops up a Railgun in hand too, which this leaves alone.
+     */
+    public static int charge(Player player, int suitEnergy, int suitCapacity) {
+        for (var hand : InteractionHand.values()) {
+            var lance = player.getItemInHand(hand);
+            if (runsOnEnergy(lance)) {
+                suitEnergy -= HeldGear.topUp(lance, suitEnergy, suitCapacity);
+            }
+        }
+        return suitEnergy;
     }
 
     /** Takes that FE from a lance that runs on it, down to none; one on durability pays nothing here. */

@@ -82,7 +82,7 @@ public final class Railgun {
         boolean charged = charged(railgun);
         int progress = progress(railgun);
         var step = RailgunCharge.tick(progress, true, charged, energy(railgun), GearworksConfig.railgunChargeEnergy(),
-                GearworksConfig.railgunChargeTicks(), level(player.level(), railgun, Enchantments.QUICK_CHARGE));
+                GearworksConfig.railgunChargeTicks(), enchantmentLevel(player.level(), railgun, Enchantments.QUICK_CHARGE));
         if (step.progress() != progress) {
             railgun.set(GearContent.RAILGUN_CHARGE.get(), step.progress());
         }
@@ -97,7 +97,7 @@ public final class Railgun {
     }
 
     /** The Railgun's level of that enchantment. */
-    static int level(Level level, ItemStack railgun, ResourceKey<Enchantment> enchantment) {
+    static int enchantmentLevel(Level level, ItemStack railgun, ResourceKey<Enchantment> enchantment) {
         return railgun.getEnchantmentLevel(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantment));
     }
 
