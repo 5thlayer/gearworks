@@ -3,12 +3,14 @@
 
 package io.github._5thlayer.gearworks.gametest;
 
+import static io.github._5thlayer.gearworks.gametest.SuitFixtures.addAtLevel;
 import static io.github._5thlayer.gearworks.gametest.SuitFixtures.charge;
 import static io.github._5thlayer.gearworks.gametest.SuitFixtures.suitWith;
 
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
@@ -18,6 +20,7 @@ import io.github._5thlayer.gearworks.railgun.Railgun;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
@@ -61,16 +64,23 @@ final class CreativeEchoTests {
     private static void suit(GameTestHelper helper) {
         var player = creativePlayer(helper);
         try {
+            // Burning coal at Level 1, 2.5 FE a tick: its FE, its spare fraction and its fire all tick.
             var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
+            addAtLevel(suit, GearContent.COMBUSTION_UPGRADE.get(), 1);
+            player.getInventory().setItem(9, new ItemStack(Items.COAL));
             player.setItemSlot(EquipmentSlot.CHEST, suit);
+            tick(player, 1);
             var echoed = suit.copy();
-            charge(suit, 100);
+            tick(player, 1);
+            var ticked = suit.copy();
             long heard = HeardSounds.count(helper, equipSound(suit));
 
-            echo(player, CHEST_SLOT, echoed);
+            echo(helper, player, CHEST_SLOT, echoed);
 
             var worn = player.getItemBySlot(EquipmentSlot.CHEST);
-            helper.assertValueEqual(Suit.energy(worn), 100, Component.literal("the worn Suit's FE after its echo"));
+            helper.assertValueEqual(Suit.energy(worn), Suit.energy(ticked), Component.literal("the worn Suit's FE after its echo"));
+            helper.assertTrue(ItemStack.isSameItemSameComponents(worn, ticked),
+                    Component.literal("the worn Suit after its echo is not the Suit as it ticked: " + worn.getComponentsPatch()));
             helper.assertValueEqual(HeardSounds.count(helper, equipSound(suit)) - heard, 0L, Component.literal("equip sounds the echo played"));
         } finally {
             leave(player);
@@ -87,7 +97,7 @@ final class CreativeEchoTests {
             var echoed = lance.copy();
             BoreLance.fill(lance, 100);
 
-            echo(player, MAIN_HAND_SLOT, echoed);
+            echo(helper, player, MAIN_HAND_SLOT, echoed);
 
             helper.assertValueEqual(BoreLance.energy(player.getMainHandItem()), 200, Component.literal("the held lance's FE after its echo"));
         } finally {
@@ -108,7 +118,7 @@ final class CreativeEchoTests {
             tick(player, ticks - ticks / 2);
             helper.assertTrue(Railgun.charged(railgun), Component.literal("the Railgun is not Charged after its Charge time"));
 
-            echo(player, MAIN_HAND_SLOT, echoed);
+            echo(helper, player, MAIN_HAND_SLOT, echoed);
 
             var held = player.getMainHandItem();
             helper.assertTrue(Railgun.charged(held), Component.literal("the held Railgun is not Charged after its echo"));
@@ -130,15 +140,15 @@ final class CreativeEchoTests {
 
             // Another grid is another Suit, whatever its FE.
             var regridded = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.SOLAR_UPGRADE.get());
-            echo(player, CHEST_SLOT, regridded);
+            echo(helper, player, CHEST_SLOT, regridded);
             var worn = player.getItemBySlot(EquipmentSlot.CHEST);
             helper.assertValueEqual(Suit.energy(worn), 0, Component.literal("the FE of a Suit with another grid set over a charged one"));
             helper.assertTrue(ItemStack.isSameItemSameComponents(worn, regridded), Component.literal("the Suit with another grid was not set"));
 
-            echo(player, CHEST_SLOT, new ItemStack(Items.IRON_CHESTPLATE));
+            echo(helper, player, CHEST_SLOT, new ItemStack(Items.IRON_CHESTPLATE));
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE), Component.literal("a chestplate was not set over the Suit"));
 
-            echo(player, CHEST_SLOT, ItemStack.EMPTY);
+            echo(helper, player, CHEST_SLOT, ItemStack.EMPTY);
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).isEmpty(), Component.literal("the chest slot was not emptied"));
         } finally {
             leave(player);
@@ -152,7 +162,7 @@ final class CreativeEchoTests {
             var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
             long heard = HeardSounds.count(helper, equipSound(suit));
 
-            echo(player, CHEST_SLOT, suit);
+            echo(helper, player, CHEST_SLOT, suit);
 
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(suit.getItem()), Component.literal("the Suit was not put on"));
             helper.assertValueEqual(HeardSounds.count(helper, equipSound(suit)) - heard, 1L, Component.literal("equip sounds putting the Suit on played"));
@@ -179,9 +189,14 @@ final class CreativeEchoTests {
         return suit.get(DataComponents.EQUIPPABLE).equipSound().value();
     }
 
-    /** That stack arriving from the creative inventory for that slot of the player's inventory menu. */
-    private static void echo(ServerPlayer player, int slot, ItemStack stack) {
-        player.connection.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(slot, stack));
+    /**
+     * That stack arriving from the creative inventory for that slot of the player's inventory menu, through
+     * the packet's codec as a client's copy comes: only what the network carries of it.
+     */
+    private static void echo(GameTestHelper helper, ServerPlayer player, int slot, ItemStack stack) {
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+        ServerboundSetCreativeModeSlotPacket.STREAM_CODEC.encode(buffer, new ServerboundSetCreativeModeSlotPacket(slot, stack));
+        player.connection.handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket.STREAM_CODEC.decode(buffer));
     }
 
     /**
