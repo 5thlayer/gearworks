@@ -60,6 +60,7 @@ public final class GearworksGameTests {
         ENVIRONMENT_TYPES.register(modBus);
         // Posted only when game tests are enabled, which a production game never is.
         modBus.addListener(GearworksGameTests::registerTests);
+        HeardSounds.listen();
     }
 
     private static void registerTests(RegisterGameTestsEvent event) {
@@ -82,6 +83,7 @@ public final class GearworksGameTests {
         LungeBoringTests.register(tests);
         NetheriteLanceTests.register(tests);
         RailgunTests.register(tests);
+        CreativeEchoTests.register(tests);
     }
 
     private static Identifier id(String path) {

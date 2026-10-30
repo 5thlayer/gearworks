@@ -3,13 +3,16 @@
 
 package io.github._5thlayer.gearworks.lance;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
+import io.github._5thlayer.gearworks.gear.TickingGear;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -32,7 +35,7 @@ import org.jspecify.annotations.Nullable;
  * block, lunging only while it holds a lunge's. Worn out or dry, it mines single blocks, and neither
  * lunges nor bores until repaired or charged.
  */
-public final class BoreLanceItem extends Item {
+public final class BoreLanceItem extends Item implements TickingGear {
 
     private final Bore widest;
     private final int lunge;
@@ -133,19 +136,19 @@ public final class BoreLanceItem extends Item {
      */
     @Override
     public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
-        return !sameButForEnergy(oldStack, newStack);
+        return !TickingGear.sameButForTicking(oldStack, newStack);
     }
 
     /** Nor does it lower and raise the lance again, every tick it charges. */
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return slotChanged || !sameButForEnergy(oldStack, newStack);
+        return slotChanged || !TickingGear.sameButForTicking(oldStack, newStack);
     }
 
-    private static boolean sameButForEnergy(ItemStack a, ItemStack b) {
-        var withAsEnergy = b.copy();
-        withAsEnergy.set(GearContent.ENERGY.get(), a.get(GearContent.ENERGY.get()));
-        return ItemStack.isSameItemSameComponents(a, withAsEnergy);
+    /** A tier on FE charges from a worn Suit every tick it is held. */
+    @Override
+    public List<DataComponentType<?>> tickingComponents() {
+        return List.of(GearContent.ENERGY.get());
     }
 
     /** How a tier pays for what it does, and what that decides: when it is worn out, what it holds, what durability it takes. */

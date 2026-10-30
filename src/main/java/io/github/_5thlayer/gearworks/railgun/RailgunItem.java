@@ -3,9 +3,13 @@
 
 package io.github._5thlayer.gearworks.railgun;
 
+import java.util.List;
+
 import io.github._5thlayer.gearworks.gear.GearContent;
 import io.github._5thlayer.gearworks.gear.GearworksConfig;
+import io.github._5thlayer.gearworks.gear.TickingGear;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -21,7 +25,7 @@ import net.minecraft.world.level.Level;
  * with any item. Its bar shows the FE it holds, and it takes only the enchantments of
  * {@link Railgun#ENCHANTABLE}.
  */
-public final class RailgunItem extends Item {
+public final class RailgunItem extends Item implements TickingGear {
 
     /** The bar's colour, an electric blue. */
     private static final int BAR_COLOR = 0x4FB8FF;
@@ -74,20 +78,18 @@ public final class RailgunItem extends Item {
      */
     @Override
     public boolean shouldCauseBlockBreakReset(ItemStack oldStack, ItemStack newStack) {
-        return !sameButForCharge(oldStack, newStack);
+        return !TickingGear.sameButForTicking(oldStack, newStack);
     }
 
     /** Nor does it lower and raise the Railgun again, every tick it charges, or when it fires. */
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return slotChanged || !sameButForCharge(oldStack, newStack);
+        return slotChanged || !TickingGear.sameButForTicking(oldStack, newStack);
     }
 
-    private static boolean sameButForCharge(ItemStack a, ItemStack b) {
-        var withAsCharge = b.copy();
-        withAsCharge.set(GearContent.ENERGY.get(), a.get(GearContent.ENERGY.get()));
-        withAsCharge.set(GearContent.RAILGUN_CHARGE.get(), a.get(GearContent.RAILGUN_CHARGE.get()));
-        withAsCharge.set(GearContent.CHARGED.get(), a.get(GearContent.CHARGED.get()));
-        return ItemStack.isSameItemSameComponents(a, withAsCharge);
+    /** Its Charge, its FE as a Charge is paid for or a worn Suit tops it up, and whether it is Charged. */
+    @Override
+    public List<DataComponentType<?>> tickingComponents() {
+        return List.of(GearContent.ENERGY.get(), GearContent.RAILGUN_CHARGE.get(), GearContent.CHARGED.get());
     }
 }
