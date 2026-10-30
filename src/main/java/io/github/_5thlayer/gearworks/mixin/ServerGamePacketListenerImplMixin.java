@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 /**
  * A slot the creative inventory sets, kept to the server's ticks: that inventory sends back every slot
- * the server changes, a tick or more late, so a Suit's, Bore Lance's or Railgun's comes back with its
- * FE or Charge of a tick ago. Set as it came, it would undo those ticks and put a Suit on again, with
+ * the server changes, a tick or more late, so a Suit's, Bore Lance's or Railgun's comes back with what
+ * it ticks, its FE, its Charge or a Generator's state, as it was a tick ago. Set as it came, it would undo those ticks and put a Suit on again, with
  * its equip sound, every tick it charges. The client is still taken to hold the stack it sent, so the
  * server sends it the slot's again. No event lets a mod change a creative slot's stack.
  */

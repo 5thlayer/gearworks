@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,9 +40,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * The creative inventory sends back every slot the server changes, a tick or more late, and the server
- * sets what it gets. A Suit, Bore Lance or Railgun changes its FE or Charge every tick, so the copy that
- * comes back differs from the slot's only in that: the server keeps its own, and the Suit is not put on
- * again, so its equip sound doesn't play.
+ * sets what it gets. A Suit, Bore Lance or Railgun changes its FE, its Charge or a Generator's state
+ * every tick, so the copy that comes back differs from the slot's only in that: the server keeps its
+ * own, and the Suit is not put on again, so its equip sound doesn't play.
  */
 final class CreativeEchoTests {
 
@@ -54,7 +55,7 @@ final class CreativeEchoTests {
     }
 
     static void register(GearworksGameTests.Registrar tests) {
-        tests.test("creative_echo_of_a_charging_suit_keeps_its_fe_and_plays_no_equip_sound", 1, CreativeEchoTests::suit);
+        tests.test("creative_echo_of_a_charging_suit_keeps_its_ticks_and_plays_no_equip_sound", 1, CreativeEchoTests::suit);
         tests.test("creative_echo_of_a_charging_bore_lance_keeps_its_fe", 1, CreativeEchoTests::lance);
         tests.test("creative_echo_of_a_charging_railgun_keeps_its_charge_and_fe", 1, CreativeEchoTests::railgun);
         tests.test("creative_echo_a_creative_slot_still_takes_another_stack", 1, CreativeEchoTests::otherStacks);
@@ -64,10 +65,11 @@ final class CreativeEchoTests {
     private static void suit(GameTestHelper helper) {
         var player = creativePlayer(helper);
         try {
-            // Burning coal at Level 1, 2.5 FE a tick: its FE, its spare fraction and its fire all tick.
+            // A Combustion Upgrade at Level 1 burning coal makes a fraction of an FE a tick: its FE,
+            // its spare fraction and its fire all tick.
             var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
             addAtLevel(suit, GearContent.COMBUSTION_UPGRADE.get(), 1);
-            player.getInventory().setItem(9, new ItemStack(Items.COAL));
+            player.getInventory().setItem(Inventory.SELECTION_SIZE, new ItemStack(Items.COAL));
             player.setItemSlot(EquipmentSlot.CHEST, suit);
             tick(player, 1);
             var echoed = suit.copy();
@@ -75,7 +77,7 @@ final class CreativeEchoTests {
             var ticked = suit.copy();
             long heard = HeardSounds.count(helper, equipSound(suit));
 
-            echo(helper, player, CHEST_SLOT, echoed);
+            echo(player, CHEST_SLOT, echoed);
 
             var worn = player.getItemBySlot(EquipmentSlot.CHEST);
             helper.assertValueEqual(Suit.energy(worn), Suit.energy(ticked), Component.literal("the worn Suit's FE after its echo"));
@@ -97,7 +99,7 @@ final class CreativeEchoTests {
             var echoed = lance.copy();
             BoreLance.fill(lance, 100);
 
-            echo(helper, player, MAIN_HAND_SLOT, echoed);
+            echo(player, MAIN_HAND_SLOT, echoed);
 
             helper.assertValueEqual(BoreLance.energy(player.getMainHandItem()), 200, Component.literal("the held lance's FE after its echo"));
         } finally {
@@ -118,7 +120,7 @@ final class CreativeEchoTests {
             tick(player, ticks - ticks / 2);
             helper.assertTrue(Railgun.charged(railgun), Component.literal("the Railgun is not Charged after its Charge time"));
 
-            echo(helper, player, MAIN_HAND_SLOT, echoed);
+            echo(player, MAIN_HAND_SLOT, echoed);
 
             var held = player.getMainHandItem();
             helper.assertTrue(Railgun.charged(held), Component.literal("the held Railgun is not Charged after its echo"));
@@ -140,15 +142,15 @@ final class CreativeEchoTests {
 
             // Another grid is another Suit, whatever its FE.
             var regridded = suitWith(GearContent.BATTERY_UPGRADE.get(), GearContent.SOLAR_UPGRADE.get());
-            echo(helper, player, CHEST_SLOT, regridded);
+            echo(player, CHEST_SLOT, regridded);
             var worn = player.getItemBySlot(EquipmentSlot.CHEST);
             helper.assertValueEqual(Suit.energy(worn), 0, Component.literal("the FE of a Suit with another grid set over a charged one"));
             helper.assertTrue(ItemStack.isSameItemSameComponents(worn, regridded), Component.literal("the Suit with another grid was not set"));
 
-            echo(helper, player, CHEST_SLOT, new ItemStack(Items.IRON_CHESTPLATE));
+            echo(player, CHEST_SLOT, new ItemStack(Items.IRON_CHESTPLATE));
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE), Component.literal("a chestplate was not set over the Suit"));
 
-            echo(helper, player, CHEST_SLOT, ItemStack.EMPTY);
+            echo(player, CHEST_SLOT, ItemStack.EMPTY);
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).isEmpty(), Component.literal("the chest slot was not emptied"));
         } finally {
             leave(player);
@@ -162,7 +164,7 @@ final class CreativeEchoTests {
             var suit = suitWith(GearContent.BATTERY_UPGRADE.get());
             long heard = HeardSounds.count(helper, equipSound(suit));
 
-            echo(helper, player, CHEST_SLOT, suit);
+            echo(player, CHEST_SLOT, suit);
 
             helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(suit.getItem()), Component.literal("the Suit was not put on"));
             helper.assertValueEqual(HeardSounds.count(helper, equipSound(suit)) - heard, 1L, Component.literal("equip sounds putting the Suit on played"));
@@ -193,8 +195,8 @@ final class CreativeEchoTests {
      * That stack arriving from the creative inventory for that slot of the player's inventory menu, through
      * the packet's codec as a client's copy comes: only what the network carries of it.
      */
-    private static void echo(GameTestHelper helper, ServerPlayer player, int slot, ItemStack stack) {
-        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+    private static void echo(ServerPlayer player, int slot, ItemStack stack) {
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), player.level().registryAccess());
         ServerboundSetCreativeModeSlotPacket.STREAM_CODEC.encode(buffer, new ServerboundSetCreativeModeSlotPacket(slot, stack));
         player.connection.handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket.STREAM_CODEC.decode(buffer));
     }
