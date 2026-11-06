@@ -16,9 +16,9 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 /**
  * The worn suit's FE against what its batteries hold, on the HUD without opening the Gear Grid: a bar
- * and its numbers in the corner the client config names, and while a Boost cools down, a thin bar of
- * the Cooldown left past it. A suit with no battery has nothing to show, and the client config or F1
- * hides it.
+ * and its numbers in the corner the client config names, pushed inward as far as it says, and while a
+ * Boost cools down, a thin bar of the Cooldown left past it. A suit with no battery has nothing to
+ * show, and the client config or F1 hides it.
  */
 final class EnergyHud {
 
@@ -51,6 +51,7 @@ final class EnergyHud {
         var font = minecraft.font;
         var text = FeText.reading(suit);
         var layout = EnergyHudLayout.place(GearworksClientConfig.energyCorner(),
+                GearworksClientConfig.energyOffsetX(), GearworksClientConfig.energyOffsetY(),
                 graphics.guiWidth(), graphics.guiHeight(), font.width(text), font.lineHeight);
 
         int x = layout.barX();

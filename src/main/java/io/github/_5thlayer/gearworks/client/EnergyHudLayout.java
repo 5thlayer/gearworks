@@ -5,8 +5,9 @@ package io.github._5thlayer.gearworks.client;
 
 /**
  * Where the HUD's energy reading sits in its corner: aligned to the corner's side, the text against
- * the screen's edge, the bar inside it, and while a Boost cools down, a thinner bar past that. It moves
- * aside for nothing: the corner is the player's to choose.
+ * the screen's edge, the bar inside it, and while a Boost cools down, a thinner bar past that, the whole
+ * pushed inward from the corner by the client config's offset. It moves aside for nothing: the corner
+ * and the offset are the player's to choose, and nothing keeps the reading on the screen.
  *
  * @param textX the text's left edge
  * @param textY the text's top edge
@@ -36,14 +37,21 @@ record EnergyHudLayout(int textX, int textY, int barX, int barY) {
         }
     }
 
-    static EnergyHudLayout place(Corner corner, int screenWidth, int screenHeight, int textWidth, int lineHeight) {
-        int textX = corner.right() ? screenWidth - MARGIN - textWidth : MARGIN;
-        int barX = corner.right() ? screenWidth - MARGIN - BAR_WIDTH : MARGIN;
+    /**
+     * Places the reading in its corner, pushed inward by the offset: away from the corner's side
+     * by {@code offsetX} and away from its top or bottom by {@code offsetY}.
+     */
+    static EnergyHudLayout place(Corner corner, int offsetX, int offsetY,
+                                 int screenWidth, int screenHeight, int textWidth, int lineHeight) {
+        int left = MARGIN + offsetX;
+        int top = MARGIN + offsetY;
+        int textX = corner.right() ? screenWidth - left - textWidth : left;
+        int barX = corner.right() ? screenWidth - left - BAR_WIDTH : left;
         if (corner.bottom()) {
-            int textY = screenHeight - MARGIN - lineHeight;
+            int textY = screenHeight - top - lineHeight;
             return new EnergyHudLayout(textX, textY, barX, textY - GAP - BAR_HEIGHT);
         }
-        return new EnergyHudLayout(textX, MARGIN, barX, MARGIN + lineHeight + GAP);
+        return new EnergyHudLayout(textX, top, barX, top + lineHeight + GAP);
     }
 
     /**

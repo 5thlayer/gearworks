@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * The energy reading hugs its corner: aligned to the corner's side, with the text at the screen's
- * edge, the bar inside it, and a Boost's Cooldown past the bar.
+ * edge, the bar inside it, and a Boost's Cooldown past the bar, the whole pushed inward by the offset.
  */
 class EnergyHudLayoutTest {
 
@@ -27,21 +27,21 @@ class EnergyHudLayoutTest {
 
     @Test
     void topLeftPutsTheTextAboveTheBarAgainstTheLeftEdge() {
-        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         assertEquals(new EnergyHudLayout(MARGIN, MARGIN, MARGIN, MARGIN + LINE + GAP), layout);
     }
 
     @Test
     void topRightAlignsBothToTheRightEdge() {
-        var layout = EnergyHudLayout.place(Corner.TOP_RIGHT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.TOP_RIGHT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         assertEquals(new EnergyHudLayout(WIDTH - MARGIN - TEXT, MARGIN, WIDTH - MARGIN - BAR_WIDTH, MARGIN + LINE + GAP), layout);
     }
 
     @Test
     void bottomLeftPutsTheBarAboveTheText() {
-        var layout = EnergyHudLayout.place(Corner.BOTTOM_LEFT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_LEFT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         int textY = HEIGHT - MARGIN - LINE;
         assertEquals(new EnergyHudLayout(MARGIN, textY, MARGIN, textY - GAP - BAR_HEIGHT), layout);
@@ -49,10 +49,50 @@ class EnergyHudLayoutTest {
 
     @Test
     void bottomRightHugsTheBottomRightCorner() {
-        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         int textY = HEIGHT - MARGIN - LINE;
         assertEquals(new EnergyHudLayout(WIDTH - MARGIN - TEXT, textY, WIDTH - MARGIN - BAR_WIDTH, textY - GAP - BAR_HEIGHT), layout);
+    }
+
+    @Test
+    void theOffsetPushesTheReadingInFromATopLeftCorner() {
+        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, 30, 40, WIDTH, HEIGHT, TEXT, LINE);
+
+        assertEquals(new EnergyHudLayout(MARGIN + 30, MARGIN + 40, MARGIN + 30, MARGIN + 40 + LINE + GAP), layout);
+    }
+
+    @Test
+    void theOffsetPushesTheReadingInFromABottomRightCorner() {
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, 30, 40, WIDTH, HEIGHT, TEXT, LINE);
+
+        int textY = HEIGHT - MARGIN - 40 - LINE;
+        assertEquals(new EnergyHudLayout(WIDTH - MARGIN - 30 - TEXT, textY, WIDTH - MARGIN - 30 - BAR_WIDTH, textY - GAP - BAR_HEIGHT), layout);
+    }
+
+    @Test
+    void theOffsetPushesTheReadingInFromABottomLeftCorner() {
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_LEFT, 30, 40, WIDTH, HEIGHT, TEXT, LINE);
+
+        int textY = HEIGHT - MARGIN - 40 - LINE;
+        assertEquals(new EnergyHudLayout(MARGIN + 30, textY, MARGIN + 30, textY - GAP - BAR_HEIGHT), layout);
+    }
+
+    @Test
+    void theOffsetMovesTheCooldownWithTheBar() {
+        var plain = EnergyHudLayout.place(Corner.TOP_RIGHT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
+        var pushed = EnergyHudLayout.place(Corner.TOP_RIGHT, 30, 40, WIDTH, HEIGHT, TEXT, LINE);
+
+        assertEquals(plain.cooldownY(Corner.TOP_RIGHT) + 40, pushed.cooldownY(Corner.TOP_RIGHT));
+        assertEquals(plain.barX() - 30, pushed.barX());
+    }
+
+    @Test
+    void anOffsetMayPushTheReadingOffTheScreen() {
+        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, WIDTH, HEIGHT, WIDTH, HEIGHT, TEXT, LINE);
+
+        assertEquals(MARGIN + WIDTH, layout.textX());
+        assertEquals(MARGIN + HEIGHT, layout.textY());
     }
 
     @Test
@@ -76,14 +116,14 @@ class EnergyHudLayoutTest {
 
     @Test
     void theCooldownSitsUnderTheBarInATopCorner() {
-        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.TOP_LEFT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         assertEquals(layout.barY() + BAR_HEIGHT + GAP, layout.cooldownY(Corner.TOP_LEFT));
     }
 
     @Test
     void theCooldownSitsOverTheBarInABottomCorner() {
-        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, WIDTH, HEIGHT, TEXT, LINE);
+        var layout = EnergyHudLayout.place(Corner.BOTTOM_RIGHT, 0, 0, WIDTH, HEIGHT, TEXT, LINE);
 
         assertEquals(layout.barY() - GAP - COOLDOWN_HEIGHT, layout.cooldownY(Corner.BOTTOM_RIGHT));
     }

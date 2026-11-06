@@ -66,6 +66,8 @@
   "gearworks.configuration.energyHud.button": "Energy HUD",
   "gearworks.configuration.show": "Show",
   "gearworks.configuration.corner": "Corner",
+  "gearworks.configuration.offsetX": "Offset from the side",
+  "gearworks.configuration.offsetY": "Offset from the top or bottom",
   "gearworks.configuration.speedCeiling": "Speed ceiling",
   "gearworks.configuration.jumpCeiling": "Jump ceiling",
   "gearworks.configuration.shieldCeiling": "Shield ceiling",
