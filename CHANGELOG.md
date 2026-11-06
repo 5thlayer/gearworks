@@ -4,6 +4,8 @@ Each version has two sections: Players, what a player or pack developer sees, an
 
 ## Unreleased
 
+## 0.2.3
+
 ### Players
 
 - The `energyHud` client config's new `offsetX` and `offsetY` push the suit's FE reading in from its corner, in GUI-scaled pixels, to clear another mod's HUD text: away from the corner's side and away from its top or bottom, the bar and the Boost's Cooldown bar moving with it. Both are 0 by default, so the reading stays where it was. The Config button in the mod list edits them too. (#25)
